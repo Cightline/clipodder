@@ -1,0 +1,17 @@
+# this is the configuration file for the hello program
+
+url http://feeds.twit.tv/floss_video_large
+{
+	formats = {"mp4", "mp3"}
+}
+
+url http://revision3.com/hak5/feed/MP4-High-Definition
+{
+	formats = {"video"}
+
+}
+        
+url  http://www.democracynow.org/podcast-video.xml
+{
+	formats = {"audio"}
+}
