@@ -6,73 +6,83 @@
 #include "clipodder.hpp"
 
 
-
-/* void print(std::string msg)
-{
-  std::cout << msg << std::endl;
-}
-
-
-int clipodder::download_podcasts()
-{
-    
-  std::map<std::string, std::vector<std::string> >::iterator iter;
-  
-
-  for (iter = clipodder::url_map.begin(); iter != clipodder::url_map.end(); iter++)
-  {
-
-    std::string address = iter->first;
-
-    std::vector<std::string>::iterator v_iter;
-    std::vector<std::string> format_vector = iter->second;
-    
-    for (v_iter = format_vector.begin(); v_iter != format_vector.end(); v_iter++)
-      {
-	
-	
-	if (clipodder::known_formats(*v_iter))
-	  {
-	    std::cout << "Working on: " << address << std::endl;
-	    
-	    std::string page = clipodder::fetch_page(address);
-	    
-	    if (page.length() > 0)
-	      {
-		//int clipodder::parse_buffer(const char *buffer, size_t size, const char *url)
-		const char *buffer = page.c_str();
-		const char *url = address.c_str();
-		size_t size = sizeof *buffer;
-	     	
-
-		clipodder::parse_buffer(buffer, size, url);		
-		
-	      }
-	    
-	    else
-	      {
-		std::cout << "Could not get page" << std::endl;
-	      }
-	
-	    
-	    //const char *buffer, int size, const char* URL, const char * encoding, int options
-	    //http://xmlsoft.org/html/libxml-parser.html#xmlReadMemory
-	    //doc = xmlReadMemory(buffer, 
-
-	  }
-      }
-  } 
-}
-
-*/
-
-
+#include "network.hpp"
+#include "format.hpp"
+#include "parser.hpp"
+#include "config.hpp"
 
 
 
 int main()
 {
   
+  config c_config;
+  parser c_parser;
+  network c_network;
+
+  if (c_config.parse_config() != 0)
+    {
+      std::cout << "Could not parse configuration" << std::endl;
+      return 1;
+    }
+
+  
+  std::map<std::string, std::vector<std::string> > urls = c_config.current_urls();
+  
+  std::map<std::string, std::vector<std::string> >::iterator iter;
+
+  for (iter = urls.begin(); iter != urls.end(); iter++)
+    {
+      
+      std::string address = iter->first;
+      std::cout << address << std::endl;
+      
+      /* get the page */
+      std::string page = c_network.fetch_page(address);
+      
+      /* Don't use sizeof(page) */
+      size_t page_size = page.length();
+      
+      
+
+      /* parse the page */
+      c_parser.parse_buffer(page.c_str(), page_size, address.c_str());
+      
+      
+
+
+      std::vector<std::string> fmt_map = iter->second;
+      
+      std::vector<std::string>::iterator f_iter;
+
+      
+      
+      for (f_iter = fmt_map.begin(); f_iter != fmt_map.end(); f_iter++)
+	{
+	 
+	  //where the FUCK is this actually declared a pointer? 
+	  std::cout << *f_iter << std::endl;
+
+	  //c_parser.get_link("nothing", *f_iter);
+	  
+	 
+	}
+      
+      
+      
+      
+
+      
+
+    }
+
+
+
+
   return 0;
+
+
+
 }
+ 
   

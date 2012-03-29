@@ -53,11 +53,14 @@ int config::parse_config()
 	{
 	  std::string format = cfg_getnstr(cfg_url, "formats", b);
 
-	  //std::cout << "Format: " << format << std::endl;                                                            
-	  
-	  //clipodder::url_map[addr].push_back(format);
+	  config::url_map[addr].push_back(format);
 	}
     }
   
+  return 0;
 }
 
+std::map<std::string, std::vector<std::string> > config::current_urls()
+{
+  return config::url_map;
+}

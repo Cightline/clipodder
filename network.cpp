@@ -21,7 +21,7 @@ std::string network::fetch_page(std::string url)
 {
  
 
-  std::string buf = NULL;
+  std::string buf;
   CURL *curl;
   CURLcode res;
 
