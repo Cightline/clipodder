@@ -1,4 +1,4 @@
-CC=g++
+CC=g++ -g
 
 LIBS=`pkg-config --cflags --libs libconfuse` \
      `pkg-config --cflags --libs libcurl` \
