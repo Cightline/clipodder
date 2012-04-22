@@ -22,9 +22,12 @@ config: config.cpp config.hpp
 	$(CC) config.cpp -c -o config.o $(LIBS)
 
 
-clipodder: clipodder.cpp clipodder.hpp
-	$(CC) clipodder.cpp -c -o clipodder.o $(LIBS)
+core: core.cpp core.hpp
+	$(CC) core.cpp -c -o core.o $(LIBS)
+
+main: main.cpp main.hpp
+	$(CC) main.cpp -c -o main.o $(LIBS)
 
 
-all: network format parser clipodder config
-	$(CC) network.o format.o parser.o config.o clipodder.o -o clipodder $(LIBS)
+all: network format parser core config main
+	$(CC) main.o network.o format.o parser.o config.o core.o -o clipodder $(LIBS)

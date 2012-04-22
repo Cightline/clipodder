@@ -15,7 +15,7 @@ static int curl_write(void *buffer, size_t size, size_t nmemb, void *data);
 
 
 
-class clipodder
+class core
 {
 
 public:
@@ -30,5 +30,12 @@ public:
   
   std::map<std::string, std::vector<std::string> > url_map;
   std::vector<std::string> k_formats;
+
+  std::map<std::string, std::vector<std::string> > urls; 
+  std::map<std::string, std::vector<std::string> >::iterator u_iter;
+
+  std::vector<std::string> links;
+
+
 };
 
