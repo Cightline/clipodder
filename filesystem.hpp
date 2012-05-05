@@ -13,6 +13,7 @@ public:
   bool file_exists(std::string path);
   
   bool is_dir(std::string path);
-
+  
+  bool make_dir(std::string path);
 
 };

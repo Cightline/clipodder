@@ -14,6 +14,7 @@ config cfg;
 network net; 
 parser ps;
 filesystem fs;
+downloader dl;
 
 int core::parse_config()
 {
@@ -59,7 +60,8 @@ int core::download_podcasts()
   for (core::u_iter = core::urls.begin(); core::u_iter != core::urls.end(); core::u_iter++)
     {
       std::string data = net.fetch_page(core::u_iter->first); 
-      
+      std::string title;
+
       if (!data.size())
 	{
 	  std::cout << "No data from " << core::u_iter->first << std::endl;
@@ -73,11 +75,14 @@ int core::download_podcasts()
 	  std::cout << "No feed to parse" << std::endl;
 	  continue;
 	}
+
 	 
       
-
-      std::cout << "Working on: " << ps.get_title() << std::endl;
+      title = ps.get_title();
+      
+      std::cout << "Working on: " << title << std::endl;
 	  
+
 	  
       if (!ps.root_node_exists())
 	{
@@ -96,10 +101,41 @@ int core::download_podcasts()
 	      std::cout << "Retrived " << links->size() << " links" << std::endl;
 	    }
 
+	  else
+	    {
+	      std::cout << "Error retrieving links, ignoring" << std::endl;
+	      continue;
+	    }
+
+	  // Construct the path to download
+
 	  
-	  std::cout << "Downloading " << core::u_iter->first << std::endl;
-	  //downloader.download(core::u_iter->first, path, cfg.max_downloads_map[core::u_iter->first]);
+	  int max_downloads = cfg.max_downloads_map[core::u_iter->first] - 1;
 	  
+	  if (links->size() == 0)
+	    {
+	      std::cout << "No links found" << std::endl;
+	      continue;
+	    }
+	  
+
+	  for (int c = 0; c <= max_downloads; c++)
+	    {
+	      // We don't want c to be more than the actual amount of links.
+	      
+	      if (c > links->size())
+		{
+		  std::cout << "c is bigger than links" << std::endl;
+		  break;
+		}
+	      
+	      core::download_file(links->at(c), title);
+	    
+	    }
+	  
+	
+
+
 	  delete links; 
 	}
 		  
@@ -109,3 +145,63 @@ int core::download_podcasts()
 }
 
 
+int core::get_filename(std::string url, std::string *return_url)
+{
+  
+
+  int start = url.find_last_of("/");
+  
+  if (!start)
+    {
+      return 1;
+    }
+
+  
+  *return_url = url.substr(start+1, url.size());
+  
+  return 0;
+  
+}
+
+int core::download_file(std::string url, std::string title)
+{
+  
+  std::string final_dir = core::save_dir + "/" + title;
+  
+  if (!fs.is_dir(final_dir))
+    {
+      std::cout << "Creating directory " << final_dir << std::endl;
+      fs.make_dir(final_dir);
+    }
+
+  
+  std::string *filename;
+  filename = new std::string; 
+  
+  
+  if (core::get_filename(url, filename) == 0)
+    {
+      std::cout << "Filename: " << *filename << std::endl;
+    }
+  
+  else
+    {
+      std::cout << "Could not get filename" << std::endl;
+      return 1;
+    }
+  
+  
+  std::string download_path = final_dir + "/" + *filename; 
+  
+  std::cout << "Download path: " << download_path << std::endl;
+  
+  if (!fs.file_exists(download_path))
+    {
+      net.download_file(url, download_path);
+    }
+  
+  
+}
+
+
+  

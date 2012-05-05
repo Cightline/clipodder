@@ -1,7 +1,8 @@
 
 #include "downloader.hpp"
+#include "network.hpp"
 
-int downloader::download_files(std::vector<std::string>, std::string path, int max_downloads)
+int downloader::download_file(std::string url, std::string path)
 {
   
   

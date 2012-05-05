@@ -24,6 +24,9 @@ public:
   int parse_config();
   std::string fetch_page(std::string url);
   int download_podcasts();
+  int download_file(std::string url, std::string title);
+  int get_filename(std::string url, std::string *return_url);
+
   std::string get_podcast_url(std::string format);
   void setup_formats();
   int known_formats(std::string format);

@@ -43,3 +43,21 @@ bool filesystem::is_dir(std::string path)
   
  
 }
+
+bool filesystem::make_dir(std::string path)
+{
+  
+  int result;
+
+  result = mkdir(path.c_str(), 0700);
+  
+  if (result == 0)
+    {
+      return true;
+    }
+
+  else
+    {
+      return false;
+    }
+}
