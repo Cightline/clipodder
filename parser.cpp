@@ -53,36 +53,83 @@ std::vector<xmlNode *> parser::node_vector(xmlNode *node, const char *name)
 }
 
 
+bool parser::root_node_exists()
+{
+  if (parser::g_root_node != NULL)
+    {
+      return true;
+    }
+
+  return false;
+  
+}
+
+
+std::string parser::get_title()
+{
+
+  std::string return_s;
+  
+  xmlNode *channel_node; 
+
+  for (channel_node = parser::g_root_node->children; channel_node != NULL; channel_node = channel_node->next)
+    {
+      if (parser::node_is(channel_node, "channel"))
+	{
+	  break;
+	}
+    }
+
+  
+  if (channel_node == NULL)
+    {
+      return return_s; 
+    }
+  
+  
+
+  for (xmlNode *title_node = channel_node->children; title_node != NULL; title_node = title_node->next)
+    {
+      if (parser::node_is(title_node, "title"))
+	{
+	  return_s = parser::get_content(title_node);
+	  break;
+	}
+    }
+	  
+  return return_s;
+}
+	  
+
+
+int parser::get_all_links(std::vector<std::string> *link_vector)
+{      
+
+  for (xmlNode *node = parser::g_root_node->children; node != NULL; node = node->next)
+    {
+      
+      if (parser::node_is(node, "channel"))
+	{ 	  
+	  parser::get_links_from_node(node, link_vector);
+	}
+    }
+
+  return 0;
+}
 
 
 
-
-
-
-
-std::vector<std::string> parser::get_links(xmlNode *node)
+int parser::get_links_from_node(xmlNode *node, std::vector<std::string> *links)
 {
   /* I tried to make this as pretty as possible, and it still looks pretty bad IMO */
 
   /*rss->channel->item->content -> (url) */
 
-  std::vector<std::string> temp_vector;
+  //1 == error
+  //0 == ok
+
+  
   std::vector<xmlNode *> item_vector;
-
-
-
-  /* Grab the title */
-  if (parser::node_is(node, "title"))
-    {
-      std::string title = parser::get_content(node);
-
-      if (title != "")
-	{
-	  /* First item in the vector will be the title */
-	  parser::link_vector.push_back(title);
-	  std::cout << "Title: " << title << std::endl;
-	}
-    }
   
 
   /* The first thing we are looking for is channel,
@@ -91,41 +138,61 @@ std::vector<std::string> parser::get_links(xmlNode *node)
   if (parser::node_is(node, "channel"))    
     {
       item_vector = parser::node_vector(node, "item");
+      
     }
 
+  else
+    {
+      std::cout << "Given a non channel node" << std::endl;
+      return 1;
+    }
+
+  
 
   /* If anything is in the item vector, then 
      iterate through it and try to grab the links */
-  if (item_vector.size() != 0)
+  if (item_vector.size() == 0)
     {
-      std::vector<xmlNode *>::iterator it; 
+      std::cout << "No items found" << std::endl;
+      return 1;
+    }
 
+
+  
+  std::vector<xmlNode *>::iterator it; 
+
+  
+  for (it = item_vector.begin(); it != item_vector.end(); it++)
+    {
+      /* The content nodes hold the links */
+      std::vector<xmlNode *> content_vector = parser::node_vector(*it, "content");
       
-      for (it = item_vector.begin(); it != item_vector.end(); it++)
+      
+      if (content_vector.size() == 0)
+    
 	{
-	  /* The content nodes hold the links */
-	  std::vector<xmlNode *> content_vector = parser::node_vector(*it, "content");
-
-	  if (content_vector.size() != 0)
+	  std::cout << "content_vector == 0" << std::endl;
+	  continue;
+	}
+	  
+      
+      std::vector<xmlNode *>::iterator c_iter;
+      
+      for (c_iter = content_vector.begin(); c_iter != content_vector.end(); c_iter++)
+	{
+	  
+	  /* We can now grab the link */
+	  std::string link = parser::get_attr(*c_iter, "url");
+	  
+	  
+	  if (link != "")
 	    {
-	      std::vector<xmlNode *>::iterator c_iter;
-
-	      for (c_iter = content_vector.begin(); c_iter != content_vector.end(); c_iter++)
-		{
-
-		  /* We can now grab the link */
-		  std::string link = parser::get_attr(*c_iter, "url");
-		  
-		  if (link != "")
-		    {
-		      parser::link_vector.push_back(link);
-		    }
-		}
+	      links->push_back(link);
 	    }
 	}
     }
 
-  return temp_vector;
+  return 0;
 }
 
 
@@ -166,10 +233,10 @@ int parser::parse_feed(std::string page, std::string url)
       return 1;
     }
 
-  for (xmlNode *node = root_node->children; node != NULL; node = node->next)
+  else
     {
-      parser::get_links(node);
-    }  
+      parser::g_root_node = root_node;
+    }
 
   return 0; 
 }
@@ -179,9 +246,20 @@ int parser::parse_feed(std::string page, std::string url)
 
 
 
+
+int parser::reset()
+{
+  parser::g_root_node = NULL;
+  parser::link_vector.clear();
+}
+
+
+
+
 xmlNode *parser::parse_buffer(const char *buffer, size_t size, const char *url)
 {
 
+  
   xmlNode *return_node; 
 
 

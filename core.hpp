@@ -19,6 +19,8 @@ class core
 {
 
 public:
+  int init();
+  
   int parse_config();
   std::string fetch_page(std::string url);
   int download_podcasts();
@@ -35,7 +37,8 @@ public:
   std::map<std::string, std::vector<std::string> >::iterator u_iter;
 
   std::vector<std::string> links;
-
+  
+  std::string save_dir; 
 
 };
 

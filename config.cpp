@@ -8,12 +8,13 @@ int config::parse_config()
   /* Parses the configuration and puts the                                                                             
      data into url_map */
 
-  std::cout << "Parsing configuration" << std::endl;
+  
 
 
   cfg_opt_t urls[] =
     {
       CFG_STR_LIST("formats", "none", CFGF_NONE),
+      CFG_INT("max_downloads", 1, CFGF_NONE),
       CFG_END()
     };
       
@@ -47,14 +48,17 @@ int config::parse_config()
       
       std::string addr = cfg_title(cfg_url);
 
-      //std::cout << "Address: " << addr << std::endl;                                                                 
+      
 
       for (int b = 0; b < cfg_size(cfg_url, "formats"); b++)
 	{
 	  std::string format = cfg_getnstr(cfg_url, "formats", b);
-
+	  
 	  config::url_map[addr].push_back(format);
 	}
+
+      config::max_downloads_map[addr] = cfg_getint(cfg_url, "max_downloads");
+      
     }
   
   return 0;
@@ -64,3 +68,23 @@ std::map<std::string, std::vector<std::string> > config::current_urls()
 {
   return config::url_map;
 }
+
+
+std::string config::get_home()
+{
+  //http://stackoverflow.com/questions/2910377/get-home-directory-in-linux-c
+
+  std::string return_s;
+  const char *home_dir;
+
+  struct passwd *pw = getpwuid(getuid());
+
+  home_dir = pw->pw_dir;
+  
+  return_s = home_dir;
+
+  std::cout << "Home dir: " << return_s << std::endl;
+
+  return return_s;
+}
+  
