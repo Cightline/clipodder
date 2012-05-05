@@ -10,7 +10,7 @@ int main()
 
   if (clipodder.parse_config())
     {
-      clipodder.download_podcasts();
+      clipodder.download_podcasts(clipodder.urls);
     }
   
 
