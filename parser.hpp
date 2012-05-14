@@ -11,9 +11,12 @@
 #include <cstring>
 
 
+#include "podcast_container.hpp"
+
 
 class parser
 {
+
 public:
   xmlDoc *doc;
   xmlNode *g_root_node;
@@ -33,8 +36,11 @@ public:
   std::string get_title();
 
   
-  int get_all_links(std::vector<std::string> *link_vector);
-  int get_links_from_node(xmlNode *node, std::vector<std::string> *link_vector);
+  int get_all_links(podcast_container *p_container);
+  int get_links_from_node(xmlNode *node, podcast_container *p_container);
+
+
+
   int parse_links(xmlNode *node);
 
 

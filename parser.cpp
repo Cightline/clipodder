@@ -102,7 +102,7 @@ std::string parser::get_title()
 	  
 
 
-int parser::get_all_links(std::vector<std::string> *link_vector)
+int parser::get_all_links(podcast_container *p_container)
 {      
 
   for (xmlNode *node = parser::g_root_node->children; node != NULL; node = node->next)
@@ -110,7 +110,7 @@ int parser::get_all_links(std::vector<std::string> *link_vector)
       
       if (parser::node_is(node, "channel"))
 	{ 	  
-	  parser::get_links_from_node(node, link_vector);
+	  parser::get_links_from_node(node, p_container);
 	}
     }
 
@@ -119,7 +119,8 @@ int parser::get_all_links(std::vector<std::string> *link_vector)
 
 
 
-int parser::get_links_from_node(xmlNode *node, std::vector<std::string> *links)
+int parser::get_links_from_node(xmlNode *node, podcast_container *p_container)
+
 {
   /* I tried to make this as pretty as possible, and it still looks pretty bad IMO */
 
@@ -156,9 +157,8 @@ int parser::get_links_from_node(xmlNode *node, std::vector<std::string> *links)
       std::cout << "No items found" << std::endl;
       return 1;
     }
-
-
   
+
   std::vector<xmlNode *>::iterator it; 
 
   
@@ -182,13 +182,24 @@ int parser::get_links_from_node(xmlNode *node, std::vector<std::string> *links)
 	{
 	  
 	  /* We can now grab the link */
-	  std::string link = parser::get_attr(*c_iter, "url");
 	  
-	  
-	  if (link != "")
+	  std::string link   = parser::get_attr(*c_iter, "url");
+	  std::string format = parser::get_attr(*c_iter, "type");
+
+	  // This needs to be fixed. 
+	  if (link.size() && format.size())
 	    {
-	      links->push_back(link);
+	      p_container->formats[link] = format;
+	  
 	    }
+
+
+	  else if (link.size())
+	    {
+	      p_container->formats[link];
+
+	    }
+    
 	}
     }
 

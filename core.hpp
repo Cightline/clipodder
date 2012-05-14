@@ -18,6 +18,10 @@
 #include "filesystem.hpp"
 #include "downloader.hpp"
 
+
+#include "podcast_container.hpp"
+
+
 static int curl_write(void *buffer, size_t size, size_t nmemb, void *data);
 
 
@@ -34,15 +38,11 @@ public:
   downloader dl;
   parser ps;
 
-  struct feed 
-  {
-    std::string title;
-    std::string data;
-    std::string url;
-    std::vector<std::string> *links;
-    int max_downloads;
-  };
-  
+  bool should_download(std::string url, std::string media_url);
+  std::string determine_format(std::string media_url);
+  std::string get_extension(std::string media_url);
+
+  int fill_container(podcast_container *container);
   int parse_config();
   int validate_urls(std::map<std::string, std::vector<std::string> > urls);
   
@@ -57,9 +57,6 @@ public:
   int parse_buffer(const char *buffer, size_t size, const char *url);
 
   
-  std::map<std::string, std::vector<std::string> > url_map;
-  std::vector<std::string> k_formats;
-
   std::map<std::string, std::vector<std::string> > urls; 
   std::map<std::string, std::vector<std::string> >::iterator u_iter;
 

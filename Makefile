@@ -27,12 +27,11 @@ filesystem: filesystem.cpp filesystem.hpp
 downloader: downloader.cpp downloader.hpp
 	$(CC) downloader.cpp -c -o downloader.o $($LIBS)
 
-core: core.cpp core.hpp
+core: core.cpp core.hpp 
 	$(CC) core.cpp -c -o core.o $(LIBS)
 
 main: main.cpp main.hpp
 	$(CC) main.cpp -c -o main.o $(LIBS)
 
-
-all: network format parser core config filesystem downloader main
+all:  network format parser core filesystem downloader config main
 	$(CC) main.o network.o format.o parser.o config.o filesystem.o downloader.o core.o -o clipodder $(LIBS)
