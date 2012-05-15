@@ -38,7 +38,7 @@ public:
   downloader dl;
   parser ps;
 
-  bool should_download(std::string url, std::string media_url);
+  bool should_download(std::string url, std::string media_url, std::string supplied_format);
   std::string determine_format(std::string media_url);
   std::string get_extension(std::string media_url);
 

@@ -4,21 +4,16 @@
 bool filesystem::file_exists(std::string path)
 {
 
-  struct stat results; 
+  struct stat results;
 
-  if (stat(path.c_str(), &results) == 0)
+  stat(path.c_str(), &results);
+  
+  if (S_ISREG(results.st_mode) == 0)
     {
-      
-      return true;
-
-    }
-
-  else
-    {
-      
       return false;
     }
 
+  return true;
 }
 
 
@@ -29,10 +24,8 @@ bool filesystem::is_dir(std::string path)
   stat(path.c_str(), &results);
 
   
-
   if (S_ISDIR(results.st_mode) == 0)
     {
-    
       return false;
     }
 
@@ -53,11 +46,11 @@ bool filesystem::make_dir(std::string path)
   
   if (result == 0)
     {
-      return true;
+      return false;
     }
 
   else
     {
-      return false;
+      return true;
     }
 }

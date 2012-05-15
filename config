@@ -14,5 +14,5 @@ url http://revision3.com/hak5/feed/MP4-High-Definition
         
 url  http://www.democracynow.org/podcast-video.xml
 {
-	formats = {"audio"}
+	formats = {"audio", "video"}
 }

@@ -118,34 +118,66 @@ int core::download_podcasts(std::map<std::string, std::vector<std::string> > url
 	  continue;
 	}   
  
+      
 
       std::cout << "Working on: " << p_container->title << std::endl;	  
       
-      std::map<std::string, std::string>::iterator d_iter;
+      std::map<std::string, std::string>::iterator media_iter;
 
-      int counter = 0;
+      int counter = 1;
+      int file_exists = 0;
       
+
       std::cout << "Max downloads is " << p_container->max_downloads << std::endl;
       
-      for (d_iter = p_container->formats.begin(); d_iter != p_container->formats.end(); d_iter++)
+      for (media_iter = p_container->formats.begin(); media_iter != p_container->formats.end(); media_iter++)
 	{ 
-	  if (!counter < p_container->max_downloads)
+	  
+	  std::string supplied_format;
+	  	  
+	  /* Check to see if we are exceeding max_downloads
+	     I could just add this to the for loop, but then it gets
+	     too messy */
+	  if (counter > p_container->max_downloads)
 	    {
-	      std::cout << "max_downloads (" << p_container->max_downloads << ")" << std::endl;
+	      std::cout << "counter exceeds max_downloads (" << p_container->max_downloads << ")" << std::endl;
 	      break;
 	    }
 	  
-	  else if (core::should_download(p_container->url, d_iter->first))
+	  if (file_exists >= p_container->max_downloads)
 	    {
-	      core::deal_with_link(d_iter->first, p_container->title);
+	      std::cout << "Downloaded files: " << file_exists << std::endl;
+	      break;
+	    }
+
+	  // If we found the format during parse
+	  if (media_iter->second.size())
+	    {
+	      supplied_format = media_iter->second; 
+	    }
+	  
+	  int status;
+
+	  if (core::should_download(p_container->url, media_iter->first, supplied_format))
+	    {
+	      std::cout << "Format supported, downloading" << std::endl;
+	      status = core::deal_with_link(media_iter->first, p_container->title);
+	    }
+
+	  if (status == 2)
+	    {
+	      file_exists++;
 	    }
 
 	  counter++;
-	  delete p_container;
+	  
 	}
       
     }
 }
+
+
+     
 
 
 std::string core::get_extension(std::string media_url)
@@ -190,17 +222,53 @@ std::string core::determine_format(std::string media_url)
       
 }
   
-  
 
 
-bool core::should_download(std::string url, std::string media_url)
+bool core::should_download(std::string url, std::string media_url, std::string supplied_format)
 {
 
-  
-  std::vector<std::string>::iterator f_iter;
+  std::string supposed_extension;
+  std::string supposed_format;
 
+  if (supplied_format.size())
+    {
+      std::cout << "Dealing with supplied format: " << supplied_format << std::endl;
+      
+      int index = supplied_format.find_last_of("/");
+
+      if (index)
+	{
+	  supposed_extension = supplied_format.substr(index+1, supplied_format.size());
+	  supposed_format = supplied_format.substr(0, index);
+
+	  std::cout << "Determined format: " << supposed_format << " extension: " << supposed_extension << std::endl;
+	  
+	}
+      
+    }
+
+
+  std::vector<std::string>::iterator f_iter;
+  std::string format;
   std::vector<std::string> f_map = cfg.url_map[url];
-  std::string format = determine_format(media_url);
+  
+  // If the format was supplied in the feed. 
+  if (supposed_format.size())
+    {
+      format = supposed_format;
+    }
+
+  else
+    {
+      format = determine_format(media_url);
+    }
+
+  if (!format.size())
+    {
+      std::cout << "Could not determine format" << std::endl;
+      return false;
+    }
+
 
   for (f_iter = f_map.begin(); f_iter != f_map.end(); f_iter++)
     {
@@ -241,7 +309,9 @@ int core::deal_with_link(std::string url, std::string title)
   
   std::string final_dir = core::save_dir + "/" + title;
   
-  if (!core::fs.is_dir(final_dir))
+  std::cout << "Saving to directory: " << final_dir << std::endl;
+
+  if (core::fs.is_dir(final_dir) == false)
     {
       std::cout << "Creating directory " << final_dir << std::endl;
       core::fs.make_dir(final_dir);
@@ -269,6 +339,8 @@ int core::deal_with_link(std::string url, std::string title)
   
   delete filename;
 
+  
+
   if (!core::fs.file_exists(download_path))
     {
       std::cout << "Downloading..." << std::endl;
@@ -277,6 +349,7 @@ int core::deal_with_link(std::string url, std::string title)
 
   else
     {
+      std::cout << "File exists, skipping" << std::endl;
       return 2;
     }
   
