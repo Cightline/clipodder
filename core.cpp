@@ -34,19 +34,6 @@ int core::parse_config()
 }
 
 
-int core::validate_urls(std::map<std::string, std::vector<std::string> > urls)
-{
-  if (urls.size() != 0)
-    {
-      std::cout << "Downloading podcasts" << std::endl;
-      return 0;
-    }
-
-  std::cout << "No feeds defined in config" << std::endl;
-  return 1;
-}
-
-
 int core::fill_container(podcast_container *container)
 {
   container->data = core::net.fetch_page(container->url);
@@ -89,95 +76,90 @@ int core::fill_container(podcast_container *container)
       std::cout << "No links found in container" << std::endl;
       return 1;
     }
-
 }
 
-int core::download_podcasts(std::map<std::string, std::vector<std::string> > urls)
+
+
+
+
+int core::download_podcasts(std::string url)
 {
-  
-  
-  if (core::validate_urls(urls) != 0)
-    {
-      // Not really a error, just no feeds are defined. 
-      return 0;
-    }
+           
+  podcast_container *p_container;
+  p_container = new podcast_container;
       
+      
+  p_container->url  = url;
+  
 
-  for (core::u_iter = core::urls.begin(); core::u_iter != core::urls.end(); core::u_iter++)
+  /* Once we assign the struct a url, we can fill it
+     and do the rest of the work. 
+  */
+  if (core::fill_container(p_container) == 1)
     {
+      delete p_container;
+      return 1;
+    }   
+  
+  
+  
+  std::cout << "Working on: " << p_container->title << std::endl;	  
+  
+    
+  int counter = 0;
+  int file_exists = 0;
+  
+  
+  std::cout << "Max downloads is " << p_container->max_downloads << std::endl;
+  
+  for (core::m_iter = p_container->formats.begin(); core::m_iter != p_container->formats.end(); core::m_iter++)
+    { 
       
-      podcast_container *p_container;
-      p_container = new podcast_container;
+      std::string supplied_format;
       
-      
-      p_container->url  = core::u_iter->first;
-      
-      if (core::fill_container(p_container) == 1)
+      /* Check to see if we are exceeding max_downloads
+	 I could just add this to the for loop, but then it gets
+	 too messy */
+      if (!counter < p_container->max_downloads)
 	{
-	  delete p_container;
-	  continue;
-	}   
- 
-      
-
-      std::cout << "Working on: " << p_container->title << std::endl;	  
-      
-      std::map<std::string, std::string>::iterator media_iter;
-
-      int counter = 1;
-      int file_exists = 0;
-      
-
-      std::cout << "Max downloads is " << p_container->max_downloads << std::endl;
-      
-      for (media_iter = p_container->formats.begin(); media_iter != p_container->formats.end(); media_iter++)
-	{ 
-	  
-	  std::string supplied_format;
-	  	  
-	  /* Check to see if we are exceeding max_downloads
-	     I could just add this to the for loop, but then it gets
-	     too messy */
-	  if (counter > p_container->max_downloads)
-	    {
-	      std::cout << "counter exceeds max_downloads (" << p_container->max_downloads << ")" << std::endl;
-	      break;
-	    }
-	  
-	  if (file_exists >= p_container->max_downloads)
-	    {
-	      std::cout << "Downloaded files: " << file_exists << std::endl;
-	      break;
-	    }
-
-	  // If we found the format during parse
-	  if (media_iter->second.size())
-	    {
-	      supplied_format = media_iter->second; 
-	    }
-	  
-	  int status;
-
-	  if (core::should_download(p_container->url, media_iter->first, supplied_format))
-	    {
-	      std::cout << "Format supported, downloading" << std::endl;
-	      status = core::deal_with_link(media_iter->first, p_container->title);
-	    }
-
-	  if (status == 2)
-	    {
-	      file_exists++;
-	    }
-
-	  counter++;
-	  
+	  std::cout << "not exceeding max_downloads (" << p_container->max_downloads << "), next..." << std::endl;
+	  break;
 	}
       
+      if (file_exists >= p_container->max_downloads)
+	{
+	  std::cout << "Downloaded files: " << file_exists << std::endl;
+	  break;
+	}
+      
+      // If we found the format during parse
+      if (m_iter->second.size())
+	{
+	  supplied_format = m_iter->second; 
+	}
+      
+      int status;
+      
+      if (core::should_download(p_container->url, m_iter->first, supplied_format))
+	{
+	  std::cout << "Format supported, downloading" << std::endl;
+	  status = core::deal_with_link(m_iter->first, p_container->title);
+	}
+      
+      if (status == 2)
+	{
+	  file_exists++;
+	}
+      
+      counter++;
+      
     }
+  
 }
 
 
-     
+
+   
 
 
 std::string core::get_extension(std::string media_url)
@@ -196,6 +178,8 @@ std::string core::get_extension(std::string media_url)
 }
       
 
+
+
 std::string core::determine_format(std::string media_url)
 {
   std::string extension;
@@ -213,6 +197,25 @@ std::string core::determine_format(std::string media_url)
 	  return video;
 	}
 
+      if (extension == "m4v")
+	{
+	  return video;
+	}
+
+      if (extension == "wmv")
+	{
+	  return video;
+	}
+
+      if (extension == "mp3")
+	{
+	  return audio;
+	}
+
+      if (extension == "aac")
+	{
+	  return audio;
+	}
     }
       
   else
@@ -230,6 +233,8 @@ bool core::should_download(std::string url, std::string media_url, std::string s
   std::string supposed_extension;
   std::string supposed_format;
 
+
+  /* If a supplied format is given (video/mp4) split it. */
   if (supplied_format.size())
     {
       std::cout << "Dealing with supplied format: " << supplied_format << std::endl;
@@ -245,32 +250,39 @@ bool core::should_download(std::string url, std::string media_url, std::string s
 	  
 	}
       
+      
+      
+      
     }
 
 
   std::vector<std::string>::iterator f_iter;
   std::string format;
-  std::vector<std::string> f_map = cfg.url_map[url];
+  std::vector<std::string> f_vector = cfg.url_map[url];
   
-  // If the format was supplied in the feed. 
+  /* If we found the supposed format above */
   if (supposed_format.size())
     {
       format = supposed_format;
     }
 
+  /* If we could not determine the format above 
+     try to find the formatit with its extension */
   else
     {
       format = determine_format(media_url);
     }
 
+
+  /* If something went wrong */
   if (!format.size())
     {
       std::cout << "Could not determine format" << std::endl;
       return false;
     }
 
-
-  for (f_iter = f_map.begin(); f_iter != f_map.end(); f_iter++)
+  /* Iterate through the vector to see if it exists */
+  for (f_iter = f_vector.begin(); f_iter != f_vector.end(); f_iter++)
     {
       if (*f_iter == format)
 	{
@@ -286,7 +298,6 @@ bool core::should_download(std::string url, std::string media_url, std::string s
 int core::get_filename(std::string url, std::string *return_url)
 {
   
-
   int start = url.find_last_of("/");
   
   if (!start)
@@ -301,6 +312,15 @@ int core::get_filename(std::string url, std::string *return_url)
   
 }
 
+int core::prepare_download(std::string final_directory)
+{
+  
+  if (core::fs.is_dir(final_directory) == false)
+    {
+      std::cout << "Creating directory " << final_directory << std::endl;
+      core::fs.make_dir(final_directory);
+    }
+}
 
 
 
@@ -311,25 +331,16 @@ int core::deal_with_link(std::string url, std::string title)
   
   std::cout << "Saving to directory: " << final_dir << std::endl;
 
-  if (core::fs.is_dir(final_dir) == false)
-    {
-      std::cout << "Creating directory " << final_dir << std::endl;
-      core::fs.make_dir(final_dir);
-    }
-
+  core::prepare_download(final_dir);
   
   std::string *filename;
   filename = new std::string; 
   
   
-  if (core::get_filename(url, filename) == 0)
-    {
-      //std::cout << "Filename: " << *filename << std::endl;
-    }
-  
-  else
+  if (core::get_filename(url, filename) != 0)
     {
       std::cout << "Could not get filename" << std::endl;
+      delete filename;
       return 1;
     }
   
@@ -339,7 +350,6 @@ int core::deal_with_link(std::string url, std::string title)
   
   delete filename;
 
-  
 
   if (!core::fs.file_exists(download_path))
     {
@@ -356,4 +366,14 @@ int core::deal_with_link(std::string url, std::string title)
 }
 
 
+/*int core::delete_check(std::string path, int max_downloads)
+{
+  if (!fs.is_dir(path))
+    {
+      std::cout << "[Core] No such directory: " << path << std::endl;
+      return 1;
+    }
+
+}
+*/
   

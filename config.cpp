@@ -56,6 +56,7 @@ int config::parse_config()
 	{
 	  std::string format = cfg_getnstr(cfg_url, "formats", b);
 	  
+	  // map with vector
 	  config::url_map[addr].push_back(format);
 	}
 

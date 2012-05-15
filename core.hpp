@@ -44,12 +44,14 @@ public:
 
   int fill_container(podcast_container *container);
   int parse_config();
-  int validate_urls(std::map<std::string, std::vector<std::string> > urls);
+  
   
   std::string fetch_page(std::string url);
-  int download_podcasts(std::map<std::string, std::vector<std::string> > urls);
+  int download_podcasts(std::string url);
   int deal_with_link(std::string url, std::string title);
   int get_filename(std::string url, std::string *return_url);
+
+  int prepare_download(std::string final_directory);
 
   std::string get_podcast_url(std::string format);
   void setup_formats();
@@ -59,6 +61,10 @@ public:
   
   std::map<std::string, std::vector<std::string> > urls; 
   std::map<std::string, std::vector<std::string> >::iterator u_iter;
+
+  // media_iter[url] = format
+  std::map<std::string, std::string>::iterator m_iter;
+  
 
   std::vector<std::string> links;
   
