@@ -142,7 +142,7 @@ int core::download_podcasts(std::string url)
       
       if (core::should_download(p_container->url, m_iter->first, supplied_format))
 	{
-	  std::cout << "Format supported, downloading" << std::endl;
+	  
 	  status = core::deal_with_link(m_iter->first, p_container->title);
 	}
       
@@ -190,108 +190,149 @@ std::string core::determine_format(std::string media_url)
   std::string audio = "audio";
   std::string no_fmt;
 
-  if (extension.size())
+  if (extension == "mp4")
     {
-      if (extension == "mp4")
-	{
-	  return video;
-	}
-
-      if (extension == "m4v")
-	{
-	  return video;
-	}
-
-      if (extension == "wmv")
-	{
-	  return video;
-	}
-
-      if (extension == "mp3")
-	{
-	  return audio;
-	}
-
-      if (extension == "aac")
-	{
-	  return audio;
-	}
+      return "video";
     }
-      
-  else
+
+  else if (extension == "mp3")
+    {
+      return "audio";
+    }
+  
+  else 
     {
       return no_fmt;
     }
       
 }
   
-
-
-bool core::should_download(std::string url, std::string media_url, std::string supplied_format)
+int core::parse_given_format(std::string to_parse, std::string *format, std::string *extension)
 {
-
-  std::string supposed_extension;
-  std::string supposed_format;
-
-
-  /* If a supplied format is given (video/mp4) split it. */
-  if (supplied_format.size())
+  if (!to_parse.size())
     {
-      std::cout << "Dealing with supplied format: " << supplied_format << std::endl;
-      
-      int index = supplied_format.find_last_of("/");
-
-      if (index)
-	{
-	  supposed_extension = supplied_format.substr(index+1, supplied_format.size());
-	  supposed_format = supplied_format.substr(0, index);
-
-	  std::cout << "Determined format: " << supposed_format << " extension: " << supposed_extension << std::endl;
-	  
-	}
-      
-      
-      
-      
+      return 1;
     }
 
-
-  std::vector<std::string>::iterator f_iter;
-  std::string format;
-  std::vector<std::string> f_vector = cfg.url_map[url];
   
-  /* If we found the supposed format above */
-  if (supposed_format.size())
+  int index = to_parse.find_last_of("/");
+  
+  /* If we could not split it */
+  if (!index)
     {
-      format = supposed_format;
+      return 1;
     }
-
-  /* If we could not determine the format above 
-     try to find the formatit with its extension */
+  
   else
     {
-      format = determine_format(media_url);
+      *extension = to_parse.substr(index+1, format->size());
+      *format    = to_parse.substr(0, index);
     }
-
-
-  /* If something went wrong */
-  if (!format.size())
+  
+  if (!extension->size() || !format->size())
     {
-      std::cout << "Could not determine format" << std::endl;
-      return false;
+      return 1;
     }
 
-  /* Iterate through the vector to see if it exists */
+}
+
+bool core::defined_type(std::vector<std::string> f_vector, std::string extension, std::string format)
+{
+ 
+  std::vector<std::string>::iterator f_iter;
+
+  /* Iterate through the vector to see if the extension or format is defined */
   for (f_iter = f_vector.begin(); f_iter != f_vector.end(); f_iter++)
     {
-      if (*f_iter == format)
-	{
-	  return true;
-	}
+      if (*f_iter == format || *f_iter == extension)
+        {
+	  std::cout << "Supported type: " << *f_iter << std::endl;
+          return true;
+        }
     }
 
   return false;
+}
 
+  
+  
+
+bool core::should_download(std::string url, std::string media_url, std::string given_format)
+{
+  std::string extension;
+  std::string format;
+
+  std::string f_format;
+  std::string f_extension;
+  std::string *s_extension   = new std::string;
+  std::string *s_format      = new std::string;
+  
+  std::vector<std::string> format_vector = cfg.url_map[url];
+
+  /* Uses the media_url to determine if it should return true or false (download the file).
+     It will pick the supplied format/extension over the found extension. */
+    
+
+  /* If a supplied format is given (video/mp4) */
+  
+  core::parse_given_format(given_format, s_format, s_extension);
+    
+
+  /* Find the format first */
+  if (s_format->size())
+    {
+      format = *s_format;
+    }
+
+  else
+    {
+      /* Attempt to get it from the filename */
+      f_format = determine_format(media_url);
+      
+      if (f_format.size())
+	{
+	  format = f_format;
+	}
+      
+      else
+	{
+	  std::cout << "Could not determine format" << std::endl;
+	}
+    }
+      
+
+  /* If we get the supplied extension, use it, otherwise try to use the 
+     extension from the filename */
+  if (s_extension->size())
+    {
+      extension = *s_extension;
+    }
+
+  /* If we cant use the supplied extension, we try to get the 
+     extension from the filename (After we figure out that !s_extension->size()). */
+
+  else
+    {
+      f_extension = get_extension(media_url);
+
+      if (f_extension.size())
+	{
+	  extension = f_extension;
+	}
+      else
+	{
+	  std::cout << "Could not determine extension" << std::endl;
+	}
+    
+    }
+
+  /* See if the parsed extension or format is in the format vector */
+  delete s_extension;
+  delete s_format;
+
+  return core::defined_type(format_vector, extension, format);
+
+  
 }
 
 

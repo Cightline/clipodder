@@ -44,7 +44,9 @@ public:
 
   int fill_container(podcast_container *container);
   int parse_config();
-  
+  int parse_given_format(std::string to_parse, std::string *format, std::string *extension);
+
+  bool defined_type(std::vector<std::string> f_vector, std::string extension, std::string format);
   
   std::string fetch_page(std::string url);
   int download_podcasts(std::string url);
