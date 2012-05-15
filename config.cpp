@@ -8,9 +8,6 @@ int config::parse_config()
   /* Parses the configuration and puts the                                                                             
      data into url_map */
 
-  
-
-
   cfg_opt_t urls[] =
     {
       CFG_STR_LIST("formats", "none", CFGF_NONE),
@@ -29,7 +26,12 @@ int config::parse_config()
 
   cfg = cfg_init(opts, CFGF_NONE);
 
-  if(cfg_parse(cfg, "config") == CFG_PARSE_ERROR)
+  std::string config_path = config::get_home();
+  config_path += "/.clipodder/config";
+    
+  std::cout << "Looking in " << config_path << " for configuration" << std::endl;
+
+  if(cfg_parse(cfg, config_path.c_str()) == CFG_PARSE_ERROR)
     {
       std::cout << "Error parsing configuration" << std::endl;
       return 1;
