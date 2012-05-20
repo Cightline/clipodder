@@ -4,6 +4,7 @@
 #include <map>
 #include <vector>
 
+
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 
@@ -12,19 +13,18 @@
 
 
 #include "podcast_container.hpp"
-
+#include "debug.hpp"
 
 class parser
 {
 
 public:
+  debug dbg;
   xmlDoc *doc;
   xmlNode *g_root_node;
 
   std::vector<std::string> link_vector;
-
-  int reset();
-
+  
   bool root_node_exists();
 
   

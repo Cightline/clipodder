@@ -2,29 +2,24 @@
 #include "core.hpp"
 
 
-int core::parse_config()
+
+bool core::get_config()
 {
+  
+  
   
   std::cout << "Reading config" << std::endl;
 
   if (core::cfg.parse_config() == 0)
     {
       core::urls = core::cfg.current_urls();
-      
       std::string save_path = "/.clipodder/downloads";
-
       core::save_dir = core::cfg.get_home() + save_path;
       
-      std::cout << "Full save path: " << core::save_dir << std::endl;
 
-      if (core::fs.is_dir(core::save_dir))
+      if (!core::fs.is_dir(core::save_dir))
 	{
-	  std::cout << "Directory found" << std::endl;
-	}
-
-      else
-	{
-	  std::cout << "Directory does not exist" << std::endl;
+	  fs.make_dir(save_dir);
 	}
 
       return 1;
@@ -32,6 +27,8 @@ int core::parse_config()
 
   return 0;
 }
+
+
 
 
 int core::fill_container(podcast_container *container)
@@ -60,7 +57,10 @@ int core::fill_container(podcast_container *container)
 
   if (core::ps.get_all_links(container) == 0)
     {
-      std::cout << "Got " << container->formats.size() << " links" << std::endl;
+      if (dbg.current_state())
+	{
+	  std::cout << "found: " << container->formats.size() << " links" << std::endl;
+	}
     }
 
   else
@@ -93,8 +93,7 @@ int core::download_podcasts(std::string url)
   
 
   /* Once we assign the struct a url, we can fill it
-     and do the rest of the work. 
-  */
+     and do the rest of the work. */
   if (core::fill_container(p_container) == 1)
     {
       delete p_container;
@@ -107,10 +106,8 @@ int core::download_podcasts(std::string url)
   
     
   int counter = 0;
-  int file_exists = 0;
+    
   
-  
-  std::cout << "Max downloads is " << p_container->max_downloads << std::endl;
   
   for (core::m_iter = p_container->formats.begin(); core::m_iter != p_container->formats.end(); core::m_iter++)
     { 
@@ -118,17 +115,13 @@ int core::download_podcasts(std::string url)
       std::string supplied_format;
       
       /* Check to see if we are exceeding max_downloads
-	 I could just add this to the for loop, but then it gets
-	 too messy */
-      if (!counter < p_container->max_downloads)
+	 I could just add counter to the for loop, but then it gets too messy */
+      if (counter > p_container->max_downloads)
 	{
-	  std::cout << "not exceeding max_downloads (" << p_container->max_downloads << "), next..." << std::endl;
-	  break;
-	}
-      
-      if (file_exists >= p_container->max_downloads)
-	{
-	  std::cout << "Downloaded files: " << file_exists << std::endl;
+	  if (dbg.current_state())
+	    {
+	      std::cout << "not exceeding max_downloads: " << p_container->max_downloads << std::endl;
+	    }
 	  break;
 	}
       
@@ -139,22 +132,18 @@ int core::download_podcasts(std::string url)
 	}
       
       int status;
-      
+
       if (core::should_download(p_container->url, m_iter->first, supplied_format))
 	{
-	  
 	  status = core::deal_with_link(m_iter->first, p_container->title);
 	}
-      
-      if (status == 2)
-	{
-	  file_exists++;
-	}
-      
+            
       counter++;
       
     }
   
+  delete p_container;
+
 }
 
 
@@ -246,7 +235,7 @@ bool core::defined_type(std::vector<std::string> f_vector, std::string extension
     {
       if (*f_iter == format || *f_iter == extension)
         {
-	  std::cout << "Supported type: " << *f_iter << std::endl;
+	  //std::cout << "Supported type: " << *f_iter << std::endl;
           return true;
         }
     }
@@ -358,7 +347,10 @@ int core::prepare_download(std::string final_directory)
   
   if (core::fs.is_dir(final_directory) == false)
     {
-      std::cout << "Creating directory " << final_directory << std::endl;
+      if (dbg.current_state())
+	{
+	  std::cout << "Creating directory " << final_directory << std::endl;
+	}
       core::fs.make_dir(final_directory);
     }
 }
@@ -369,8 +361,6 @@ int core::deal_with_link(std::string url, std::string title)
 {
   
   std::string final_dir = core::save_dir + "/" + title;
-  
-  std::cout << "Saving to directory: " << final_dir << std::endl;
 
   core::prepare_download(final_dir);
   
@@ -380,27 +370,33 @@ int core::deal_with_link(std::string url, std::string title)
   
   if (core::get_filename(url, filename) != 0)
     {
-      std::cout << "Could not get filename" << std::endl;
+      std::cout << "Could not get filename from url (" << url << ")" << std::endl;
       delete filename;
       return 1;
     }
   
   
   std::string download_path = final_dir + "/" + *filename; 
-  std::cout << "Download path: " << download_path << std::endl;
-  
+    
   delete filename;
 
 
   if (!core::fs.file_exists(download_path))
     {
-      std::cout << "Downloading..." << std::endl;
-      net.download_file(url, download_path);
+      std::cout << "Downloading: " << download_path <<std::endl;
+      int status = net.download_file(url, download_path);
+      {
+	std::cout << "Status: " << status << std::endl;
+      }
+
     }
 
   else
     {
-      std::cout << "File exists, skipping" << std::endl;
+      if (dbg.current_state())
+	{
+	  std::cout << "already exists: " << download_path << std::endl;
+	}
       return 2;
     }
   

@@ -8,7 +8,7 @@ int main()
   
   core clipodder;
 
-  if (clipodder.parse_config())
+  if (clipodder.get_config() == true)
     {
       
       for (clipodder.u_iter = clipodder.urls.begin(); clipodder.u_iter != clipodder.urls.end(); clipodder.u_iter++)

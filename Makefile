@@ -30,8 +30,12 @@ downloader: downloader.cpp downloader.hpp
 core: core.cpp core.hpp 
 	$(CC) core.cpp -c -o core.o $(LIBS)
 
+debug: debug.cpp debug.hpp
+	$(CC) debug.cpp -c -o debug.o
+
 main: main.cpp main.hpp
 	$(CC) main.cpp -c -o main.o $(LIBS)
 
-all:  network format parser core filesystem downloader config main
-	$(CC) main.o network.o format.o parser.o config.o filesystem.o downloader.o core.o -o clipodder $(LIBS)
+all:  network format parser core filesystem downloader debug config main
+	$(CC) main.o network.o format.o parser.o config.o filesystem.o \
+	      downloader.o debug.o core.o -o clipodder $(LIBS)

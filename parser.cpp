@@ -25,14 +25,19 @@ std::string parser::get_attr(xmlNode *node, const char *attr)
 
 bool parser::node_is(xmlNode *node, const char * name)
 {
+  
   if (strcmp((const char *)node->name, name) == 0)
     {
-      std::cout << "Node is " << name << std::endl;
+      if (dbg.current_state())
+	{
+	  std::cout << "node_is: " << name << std::endl;
+	}
       return true;
     }
-
   return false;
 }
+
+
 
 
 
@@ -53,23 +58,28 @@ std::vector<xmlNode *> parser::node_vector(xmlNode *node, const char *name)
 }
 
 
+
+
+
 bool parser::root_node_exists()
 {
   if (parser::g_root_node != NULL)
     {
+      if (dbg.current_state()) { std::cout << "root_node: exists" << std::endl; }
       return true;
     }
-
-  return false;
   
+  if (dbg.current_state()) { std::cout << "root_node: does not exist" << std::endl; }
+  return false;  
 }
+
+
 
 
 std::string parser::get_title()
 {
 
   std::string return_s;
-  
   xmlNode *channel_node; 
 
   for (channel_node = parser::g_root_node->children; channel_node != NULL; channel_node = channel_node->next)
@@ -113,14 +123,12 @@ int parser::get_all_links(podcast_container *p_container)
 	  parser::get_links_from_node(node, p_container);
 	}
     }
-
   return 0;
 }
 
 
 
 int parser::get_links_from_node(xmlNode *node, podcast_container *p_container)
-
 {
   /* I tried to make this as pretty as possible, and it still looks pretty bad IMO */
 
@@ -128,7 +136,6 @@ int parser::get_links_from_node(xmlNode *node, podcast_container *p_container)
 
   //1 == error
   //0 == ok
-
   
   std::vector<xmlNode *> item_vector;
   
@@ -144,7 +151,7 @@ int parser::get_links_from_node(xmlNode *node, podcast_container *p_container)
 
   else
     {
-      std::cout << "Given a non channel node" << std::endl;
+      std::cout << "Given non-channel node" << std::endl;
       return 1;
     }
 
@@ -165,13 +172,13 @@ int parser::get_links_from_node(xmlNode *node, podcast_container *p_container)
   for (it = item_vector.begin(); it != item_vector.end(); it++)
     {
       /* The content nodes hold the links */
+
       std::vector<xmlNode *> content_vector = parser::node_vector(*it, "content");
-      
-      
+            
       if (content_vector.size() == 0)
     
 	{
-	  std::cout << "content_vector == 0" << std::endl;
+	  
 	  continue;
 	}
 	  
@@ -186,23 +193,18 @@ int parser::get_links_from_node(xmlNode *node, podcast_container *p_container)
 	  std::string link   = parser::get_attr(*c_iter, "url");
 	  std::string format = parser::get_attr(*c_iter, "type");
 
-	  // This needs to be fixed. 
 	  if (link.size() && format.size())
 	    {
 	      p_container->formats[link] = format;
-	  
 	    }
-
 
 	  else if (link.size())
 	    {
 	      p_container->formats[link];
 
 	    }
-    
-	}
+    	}
     }
-
   return 0;
 }
 
@@ -240,7 +242,7 @@ int parser::parse_feed(std::string page, std::string url)
 
   if (!root_node)
     {
-      std::cout << "Error: no root node" << std::endl;
+      std::cout << "Error: could not parse feed (no root node)" << std::endl;
       return 1;
     }
 
@@ -251,19 +253,6 @@ int parser::parse_feed(std::string page, std::string url)
 
   return 0; 
 }
-
-
-
-
-
-
-
-int parser::reset()
-{
-  parser::g_root_node = NULL;
-  parser::link_vector.clear();
-}
-
 
 
 
@@ -283,21 +272,17 @@ xmlNode *parser::parse_buffer(const char *buffer, size_t size, const char *url)
     }
 
 
-
-
-
+  
   xmlNode *root_element = xmlDocGetRootElement(doc);
  
   if (strcmp((const char*)root_element->name, "rss") == 0)
     { 
-      std::cout << "Buffer ok" << std::endl;
       return_node = root_element;
     }
   
   else
     {
-      std::cout << "Unknown feed" << std::endl;
-    
+      std::cout << "Unknown feed type" << std::endl;
     }
 
   return return_node;

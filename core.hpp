@@ -20,10 +20,7 @@
 
 
 #include "podcast_container.hpp"
-
-
-static int curl_write(void *buffer, size_t size, size_t nmemb, void *data);
-
+#include "debug.hpp"
 
 
 class core
@@ -37,13 +34,15 @@ public:
   filesystem fs;
   downloader dl;
   parser ps;
+  debug dbg;
+
 
   bool should_download(std::string url, std::string media_url, std::string supplied_format);
   std::string determine_format(std::string media_url);
   std::string get_extension(std::string media_url);
 
   int fill_container(podcast_container *container);
-  int parse_config();
+  bool get_config();
   int parse_given_format(std::string to_parse, std::string *format, std::string *extension);
 
   bool defined_type(std::vector<std::string> f_vector, std::string extension, std::string format);

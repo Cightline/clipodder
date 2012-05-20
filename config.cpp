@@ -18,6 +18,7 @@ int config::parse_config()
   cfg_opt_t opts[] =
     {
       CFG_SEC("url", urls, CFGF_TITLE | CFGF_MULTI),
+      CFG_INT("debug", 0, CFGF_NONE),
       CFG_END()
     };
 
@@ -37,11 +38,17 @@ int config::parse_config()
       return 1;
     }
 
+  /* Set our debug state */
+  dbg.set_state(cfg_getint(cfg, "debug"));
+
+
   /* Urls will be the title */
   int total_urls = cfg_size(cfg, "url");
-  
+
   std::cout << total_urls << " urls found" << std::endl;
- 
+  
+  
+
   /* Iterate through the urls and add the formats                                        
      and addresses to the url_map */
   for (int i = 0; i < total_urls; i++)
@@ -50,7 +57,6 @@ int config::parse_config()
       
       std::string addr = cfg_title(cfg_url);
 
-      
 
       for (int b = 0; b < cfg_size(cfg_url, "formats"); b++)
 	{
