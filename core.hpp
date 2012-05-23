@@ -51,7 +51,7 @@ public:
   
   std::string fetch_page(std::string url);
   int download_podcasts(std::string url);
-  int deal_with_link(std::string url, std::string title);
+  int deal_with_link(std::string url, std::string title, std::string *final_dir);
   int get_filename(std::string url, std::string *return_url);
 
   int prepare_download(std::string url, std::string title, std::string *final_dir);

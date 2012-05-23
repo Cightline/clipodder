@@ -8,6 +8,8 @@
 #include <vector>
 #include <string>
 
+#ifndef FILESYSTEM
+#define FILESYSTEM
 class filesystem
 {
 
@@ -21,3 +23,4 @@ public:
   std::vector<std::string> list_dir(std::string path);
 
 };
+#endif

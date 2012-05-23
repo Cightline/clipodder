@@ -56,7 +56,14 @@ int config::parse_config()
   /* Set the debug state */  
   dbg.set_state(cfg_getint(cfg, "debug"));
   
-  
+
+  /* If the download_dir option is set, reset the default to this */
+  std::string default_dir = cfg_getstr(cfg, "download_dir");
+
+  if (default_dir != "default")
+    {
+      config_map["download_dir"] = cfg_getstr(cfg, "download_dir");
+    }
   
 
 
@@ -77,10 +84,11 @@ int config::parse_config()
       
       std::string addr = cfg_title(cfg_url);
       int num_formats = cfg_size(cfg_url, "formats");      
-      std::string download_dir = cfg_getnstr(cfg_url, "download_dir", 0);
+      std::string download_dir = cfg_getstr(cfg_url, "download_dir");
       
       if (download_dir != "default")
 	{
+	  
 	  config::download_map[addr] = download_dir;
 	}
 

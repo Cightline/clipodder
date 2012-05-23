@@ -131,21 +131,40 @@ int core::download_podcasts(std::string url)
 	  supplied_format = m->second; 
 	}
 
+
+      std::string download_dir;
+      std::string *final_dir = new std::string;
+
+      if (cfg.download_map[p_container->url].size())
+	{
+	  download_dir = cfg.download_map[p_container->url];
+	}
+
+      else
+	{
+	  download_dir = cfg.config_map["download_dir"];
+	}
+
+      
+
       /* If no format was specified */
       if (cfg.url_map[p_container->url][0] == "none")
-	{
-	  status = core::deal_with_link(m->first, p_container->title);
+	{	  
+	  dl.prepare_download(p_container->title, m->first, download_dir, final_dir);
+	  status = core::deal_with_link(m->first, p_container->title, final_dir);
 	}
 
       /* Otherwise check the format against the config */
       else if (core::should_download(p_container->url, m->first, supplied_format))
-	{
-	  status = core::deal_with_link(m->first, p_container->title);
+	{	  
+	  dl.prepare_download(p_container->title, m->first, download_dir, final_dir);
+	  status = core::deal_with_link(m->first, p_container->title, final_dir);
 	}
             
       counter++;
       
     }
+  
   delete p_container;
 
 }
@@ -357,76 +376,16 @@ int core::get_filename(std::string url, std::string *return_url)
   
 }
 
-int core::prepare_download(std::string url, std::string title, std::string *final_dir)
+
+
+int core::deal_with_link(std::string media_url, std::string title, std::string *final_dir)
 {
-  /* NON ERROR CHECKING */
-
-  
-  std::string *download_dir = new std::string;
-
-  /* Check to see if its the default */
-  if (cfg.download_map[url].size())
-    {
-      *download_dir = cfg.download_map[url];
-    }
-  else
-    {
-      *download_dir = cfg.config_map["download_dir"];
-    }
-  
-
-  
-  /* See if the default directory exists */
-  if (fs.is_dir(*download_dir) == false)
-    {
-      if (dbg.current_state()) 
-	{ 
-	  std::cout << "Creating: " << *download_dir << std::endl; 
-	}
-      fs.make_dir(*download_dir);
-    }
-  
-  
-  /* Check the directory that the file is being written to */
-  *final_dir =  *download_dir + "/" + title;
-
-  if (fs.is_dir(*final_dir) == false)
-    {
-      if (dbg.current_state())
-	{
-	  std::cout << "Creating: " << *final_dir << std::endl;
-	}
-      fs.make_dir(*final_dir);
-    }
-
-  if (dbg.current_state())
-    {
-      std::cout << "download_dir: " << *download_dir << std::endl;
-      std::cout << "final_dir: "    << *final_dir    << std::endl;
-    }
-
-  return 0;
-
-}
-
-
-
-int core::deal_with_link(std::string url, std::string title)
-{
-  std::string *final_dir = new std::string;
-
-  if (prepare_download(url, title, final_dir) != 0)
-    {
-      delete final_dir;
-      return 1;
-    }
-
-  
+   
   std::string *filename = new std::string;
     
-  if (core::get_filename(url, filename) != 0)
+  if (core::get_filename(media_url, filename) != 0)
     {
-      std::cout << "Could not get filename from url (" << url << ")" << std::endl;
+      std::cout << "Could not get filename from url (" << media_url << ")" << std::endl;
       delete filename;
       delete final_dir;
       return 1;
@@ -441,11 +400,13 @@ int core::deal_with_link(std::string url, std::string title)
   if (!core::fs.file_exists(download_path))
     {
       std::cout << "Downloading: " << download_path <<std::endl;
-      int status = net.download_file(url, download_path);
+      int status = net.download_file(media_url, download_path);
       {
-	std::cout << "Status: " << status << std::endl;
+	if (dbg.current_state())
+	  {
+	    std::cout << "Status: " << status << std::endl;
+	  }
       }
-
     }
 
   else
@@ -457,7 +418,6 @@ int core::deal_with_link(std::string url, std::string title)
       delete final_dir;
       return 2;
     }
-  
 }
 
 
