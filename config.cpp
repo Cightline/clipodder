@@ -81,10 +81,10 @@ int config::parse_config()
     {
       cfg_url = cfg_getnsec(cfg, "url", i);
       
-      std::string addr = cfg_title(cfg_url);
-      int num_formats = cfg_size(cfg_url, "formats");      
+      std::string addr         = cfg_title(cfg_url);
       std::string download_dir = cfg_getstr(cfg_url, "download_dir");
-      
+      int num_formats          = cfg_size(cfg_url, "formats");
+    
       if (download_dir != "default")
 	{
 	  

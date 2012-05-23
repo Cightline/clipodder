@@ -170,114 +170,6 @@ int core::download_podcasts(std::string url)
 }
 
 
-
-   
-
-
-std::string core::get_extension(std::string media_url)
-{
-  std::string extension;
-  int index;
-  
-  index = media_url.find_last_of(".");
-
-  if (index)
-    {
-      extension = media_url.substr(index+1, media_url.size());
-    }
-
-  return extension;
-}
-      
-
-
-
-std::string core::determine_format(std::string media_url)
-{
-  std::string extension;
-  
-  extension = core::get_extension(media_url);
-  
-  std::string video = "video";
-  std::string audio = "audio";
-  std::string no_fmt;
-
-  if (extension == "mp4")
-    {
-      return "video";
-    }
-
-  else if (extension == "mp3")
-    {
-      return "audio";
-    }
-  
-  else 
-    {
-      return no_fmt;
-    }
-      
-}
-  
-
-
-int core::parse_given_format(std::string to_parse, std::string *format, std::string *extension)
-{
-  if (!to_parse.size())
-    {
-      return 1;
-    }
-
-  
-  int index = to_parse.find_last_of("/");
-  
-  /* If we could not split it */
-  if (!index)
-    {
-      return 1;
-    }
-  
-  else
-    {
-      *extension = to_parse.substr(index+1, format->size());
-      *format    = to_parse.substr(0, index);
-    }
-  
-  if (!extension->size() || !format->size())
-    {
-      return 1;
-    }
-
-}
-
-
-
-
-bool core::defined_type(std::vector<std::string> f_vector, std::string extension, std::string format)
-{
- 
-  std::vector<std::string>::iterator f_iter;
-  
-  
-
-  /* Iterate through the vector to see if the extension or format is defined */
-  for (f_iter = f_vector.begin(); f_iter != f_vector.end(); f_iter++)
-    {
-      if (*f_iter == format || *f_iter == extension)
-        {
-	  if (dbg.state())
-	    {
-	      std::cout << "Supported type: " << *f_iter << std::endl;
-	    }
-          return true;
-        }
-
-    }
-
-  return false;
-}
-
-  
   
 
 bool core::should_download(std::string url, std::string media_url, std::string given_format)
@@ -301,7 +193,7 @@ bool core::should_download(std::string url, std::string media_url, std::string g
   
   
 
-  core::parse_given_format(given_format, s_format, s_extension);
+  fmt.parse_given_format(given_format, s_format, s_extension);
     
 
   /* Find the format first */
@@ -313,7 +205,7 @@ bool core::should_download(std::string url, std::string media_url, std::string g
   else
     {
       /* Attempt to get it from the filename */
-      f_format = determine_format(media_url);
+      f_format = fmt.determine_format(media_url);
       
       if (f_format.size())
 	{
@@ -322,7 +214,7 @@ bool core::should_download(std::string url, std::string media_url, std::string g
       
       else
 	{
-	  std::cout << "Could not determine format" << std::endl;
+	  std::cout << "Warning: could not determine format" << std::endl;
 	}
     }
       
@@ -339,7 +231,7 @@ bool core::should_download(std::string url, std::string media_url, std::string g
 
   else
     {
-      f_extension = get_extension(media_url);
+      f_extension = fmt.get_extension(media_url);
 
       if (f_extension.size())
 	{
@@ -347,7 +239,7 @@ bool core::should_download(std::string url, std::string media_url, std::string g
 	}
       else
 	{
-	  std::cout << "Could not determine extension" << std::endl;
+	  std::cout << "Warning: Could not determine extension" << std::endl;
 	}
     
     }
@@ -356,29 +248,10 @@ bool core::should_download(std::string url, std::string media_url, std::string g
   delete s_extension;
   delete s_format;
 
-  return core::defined_type(format_vector, extension, format);
+  return fmt.defined_type(format_vector, extension, format);
 
   
 }
-
-
-int core::get_filename(std::string url, std::string *return_url)
-{
-  
-  int start = url.find_last_of("/");
-  
-  if (!start)
-    {
-      return 1;
-    }
-
-  
-  *return_url = url.substr(start+1, url.size());
-  
-  return 0;
-  
-}
-
 
 
 int core::deal_with_link(std::string media_url, std::string title, std::string *final_dir)
@@ -386,7 +259,7 @@ int core::deal_with_link(std::string media_url, std::string title, std::string *
    
   std::string *filename = new std::string;
     
-  if (core::get_filename(media_url, filename) != 0)
+  if (fmt.get_filename(media_url, filename) != 0)
     {
       std::cout << "Could not get filename from url (" << media_url << ")" << std::endl;
       delete filename;
@@ -407,7 +280,7 @@ int core::deal_with_link(std::string media_url, std::string title, std::string *
       {
 	if (dbg.state())
 	  {
-	    std::cout << "Status: " << status << std::endl;
+	    std::cout << "status: " << status << std::endl;
 	  }
       }
     }

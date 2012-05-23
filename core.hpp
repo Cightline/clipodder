@@ -28,6 +28,7 @@ class core
   
   debug dbg;
   config cfg;
+  format fmt;
 
 public:
 
