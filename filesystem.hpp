@@ -4,7 +4,9 @@
 #include <sys/types.h>
 #include <fcntl.h>
 #include <fstream>
-
+#include <dirent.h>
+#include <vector>
+#include <string>
 
 class filesystem
 {
@@ -15,5 +17,7 @@ public:
   bool is_dir(std::string path);
   
   bool make_dir(std::string path);
+  
+  std::vector<std::string> list_dir(std::string path);
 
 };

@@ -1,6 +1,12 @@
 #include "filesystem.hpp"
 
 
+std::vector<std::string> filesystem::list_dir(std::string path)
+{
+  const char *dir_name = path.c_str();
+  opendir(dir_name);
+}
+
 bool filesystem::file_exists(std::string path)
 {
 

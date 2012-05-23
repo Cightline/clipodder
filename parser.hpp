@@ -27,7 +27,11 @@ public:
   
   bool root_node_exists();
 
-  
+  int get_link(podcast_container *p_container);
+  int get_enclosures(std::vector<xmlNode *> *vect);
+  xmlNode *get_node(xmlNode *node_with_children, std::string name);
+
+
   std::map<std::string, std::vector<std::string> > url_map;
   
   xmlNode *  parse_buffer(const char *buffer, size_t size, const char *url);
@@ -37,7 +41,7 @@ public:
 
   
   int get_all_links(podcast_container *p_container);
-  int get_links_from_node(xmlNode *node, podcast_container *p_container);
+  int get_links_from_node(xmlNode *node, podcast_container *p_container, char enclosure);
 
 
 
@@ -53,6 +57,7 @@ public:
   std::vector<xmlNode *> node_vector(xmlNode *node, const char *name);
   
   std::vector<std::string> return_links();
+
 
 
   

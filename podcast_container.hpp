@@ -9,9 +9,8 @@ struct podcast_container
   std::string url;
   std::string data;
   std::string title;
-  int max_downloads;
   std::vector<std::string> links;
-  std::map<std::string, std::string> formats;
+  std::map<std::string, std::string> media_urls;
 };
 
 

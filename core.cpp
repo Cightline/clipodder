@@ -5,23 +5,13 @@
 
 bool core::get_config()
 {
-  
-  
-  
-  std::cout << "Reading config" << std::endl;
+  if (dbg.current_state())
+    {
+      std::cout << "Reading config" << std::endl;
+    }
 
   if (core::cfg.parse_config() == 0)
     {
-      core::urls = core::cfg.current_urls();
-      std::string save_path = "/.clipodder/downloads";
-      core::save_dir = core::cfg.get_home() + save_path;
-      
-
-      if (!core::fs.is_dir(core::save_dir))
-	{
-	  fs.make_dir(save_dir);
-	}
-
       return 1;
     }
 
@@ -33,49 +23,48 @@ bool core::get_config()
 
 int core::fill_container(podcast_container *container)
 {
-  container->data = core::net.fetch_page(container->url);
+  container->data = net.fetch_page(container->url);
   
+  
+
   if (!container->data.size())
     {
-      std::cout << "No data from " << container->url << std::endl;
+      std::cout << "Error: no data from " << container->url << std::endl;
       return 1;
     }
 
-  if (!core::ps.parse_feed(container->data, container->url) == 0)
+  if (!ps.parse_feed(container->data, container->url) == 0)
     {
-      std::cout << "Could not parse feed" << std::endl;
+      std::cout << "Error: could not parse " << container->url << std::endl;
       return 1;
     }
 
+  /* We parsed the feed, so we can grab the title now */
   container->title = ps.get_title();
-
-  if (!core::ps.root_node_exists())
-    {
-      std::cout << "Could not get root node" << std::endl;
-      return 1;
-    }
-
-  if (core::ps.get_all_links(container) == 0)
-    {
-      if (dbg.current_state())
-	{
-	  std::cout << "found: " << container->formats.size() << " links" << std::endl;
-	}
-    }
-
-  else
-    {
-      std::cout << "Could not get any links, skipping" << std::endl;
-      return 1;
-    }
-
-  container->max_downloads = core::cfg.max_downloads_map[container->url];
   
-  if (!container->formats.size())
+  std::cout << "Checking: " << container->title << std::endl;
+
+  if (!ps.root_node_exists())
     {
-      std::cout << "No links found in container" << std::endl;
+      std::cout << "Error: could not get root node" << std::endl;
       return 1;
     }
+
+  
+  if (ps.get_all_links(container) != 0)
+    {
+      std::cout << "Error: could not parse any links, skipping" << std::endl;
+      return 1;
+    }
+
+    
+  if (!container->media_urls.size())
+    {
+      std::cout << "Error: could not find any links after parsing, skipping" << std::endl;
+      return 1;
+    }
+
+  
 }
 
 
@@ -88,9 +77,10 @@ int core::download_podcasts(std::string url)
   podcast_container *p_container;
   p_container = new podcast_container;
       
-      
-  p_container->url  = url;
+  p_container->url = url;
   
+  
+
 
   /* Once we assign the struct a url, we can fill it
      and do the rest of the work. */
@@ -100,48 +90,56 @@ int core::download_podcasts(std::string url)
       return 1;
     }   
   
+  else if (dbg.current_state())
+    {
+      std::cout << "links found: " << p_container->media_urls.size() << std::endl;
+    }
   
-  
-  std::cout << "Working on: " << p_container->title << std::endl;	  
-  
-    
-  int counter = 0;
-    
-  
-  
-  for (core::m_iter = p_container->formats.begin(); core::m_iter != p_container->formats.end(); core::m_iter++)
-    { 
       
+  int counter = 1;  
+  
+  /* Ok here we are looking through the found urls. If the format was found during parse (video/mp4), it will be
+     m_iter->second. */
+
+  for (core::m = p_container->media_urls.begin(); core::m != p_container->media_urls.end(); core::m++)
+    { 
+      int status;
       std::string supplied_format;
       
-      /* Check to see if we are exceeding max_downloads
-	 I could just add counter to the for loop, but then it gets too messy */
-      if (counter > p_container->max_downloads)
+     
+      /* Check to see if we are exceeding max_downloads. I could just add counter to the for loop, but then 
+	 it gets too messy */
+      if (counter > cfg.max_downloads_map[p_container->url])
 	{
 	  if (dbg.current_state())
 	    {
-	      std::cout << "not exceeding max_downloads: " << p_container->max_downloads << std::endl;
+	      std::cout << "not exceeding max_downloads: " << cfg.max_downloads_map[p_container->url] << std::endl;
 	    }
 	  break;
 	}
       
-      // If we found the format during parse
-      if (m_iter->second.size())
+      if (dbg.current_state())
 	{
-	  supplied_format = m_iter->second; 
+	  std::cout << "Iteration: " << counter << std::endl;
+	  std::cout << "m->first: "  << m->first << std::endl;
+	  std::cout << "m->second: " << m->second << std::endl;
+	}
+
+      // If we found the format during parse
+      if (m->second.size())
+	{
+	  supplied_format = m->second; 
 	}
       
-      int status;
-
-      if (core::should_download(p_container->url, m_iter->first, supplied_format))
+   
+      if (core::should_download(p_container->url, m->first, supplied_format))
 	{
-	  status = core::deal_with_link(m_iter->first, p_container->title);
+	  status = core::deal_with_link(m->first, p_container->title);
 	}
             
       counter++;
       
     }
-  
   delete p_container;
 
 }
@@ -196,6 +194,8 @@ std::string core::determine_format(std::string media_url)
       
 }
   
+
+
 int core::parse_given_format(std::string to_parse, std::string *format, std::string *extension)
 {
   if (!to_parse.size())
@@ -247,7 +247,7 @@ bool core::defined_type(std::vector<std::string> f_vector, std::string extension
   
 
 bool core::should_download(std::string url, std::string media_url, std::string given_format)
-{
+{ 
   std::string extension;
   std::string format;
 
@@ -360,7 +360,7 @@ int core::prepare_download(std::string final_directory)
 int core::deal_with_link(std::string url, std::string title)
 {
   
-  std::string final_dir = core::save_dir + "/" + title;
+  std::string final_dir = cfg.config_map["home"] + "/.clipodder/downloads/" + title;
 
   core::prepare_download(final_dir);
   
@@ -403,14 +403,15 @@ int core::deal_with_link(std::string url, std::string title)
 }
 
 
-/*int core::delete_check(std::string path, int max_downloads)
+int core::delete_uneeded(std::string path, int max_downloads)
 {
   if (!fs.is_dir(path))
     {
-      std::cout << "[Core] No such directory: " << path << std::endl;
+      std::cout << "Trying to prune files, but " << path << " does not exist" << std::endl;
       return 1;
     }
 
+  fs.list_dir(path);
+
 }
-*/
   

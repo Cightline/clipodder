@@ -25,16 +25,18 @@
 
 class core
 {
+  
+  debug dbg;
+  config cfg;
 
 public:
 
   // I like to re-use these. 
-  config cfg;
   network net;
   filesystem fs;
   downloader dl;
   parser ps;
-  debug dbg;
+  
 
 
   bool should_download(std::string url, std::string media_url, std::string supplied_format);
@@ -58,13 +60,13 @@ public:
   void setup_formats();
   int known_formats(std::string format);
   int parse_buffer(const char *buffer, size_t size, const char *url);
-
+  int delete_uneeded(std::string path, int max_downloads);
   
   std::map<std::string, std::vector<std::string> > urls; 
   std::map<std::string, std::vector<std::string> >::iterator u_iter;
 
-  // media_iter[url] = format
-  std::map<std::string, std::string>::iterator m_iter;
+  // media_iter[media_url] = format (if format was found during parse)
+  std::map<std::string, std::string>::iterator m;
   
 
   std::vector<std::string> links;

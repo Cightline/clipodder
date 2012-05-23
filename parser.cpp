@@ -102,109 +102,103 @@ std::string parser::get_title()
     {
       if (parser::node_is(title_node, "title"))
 	{
+	  
 	  return_s = parser::get_content(title_node);
+	  if (dbg.current_state())
+	    {
+	      std::cout << "title: " << return_s << std::endl;
+	    }
 	  break;
 	}
     }
 	  
   return return_s;
 }
-	  
 
+xmlNode *parser::get_node(xmlNode *node_with_children, std::string name)
+{
+  for (xmlNode *node = node_with_children->children; node != NULL; node = node->next)
+    {
+      if (node_is(node, name.c_str()))
+	{
+	  return node;
+	}
+    }
+}
+	 
+
+int parser::get_enclosures(std::vector<xmlNode *> *vect)
+{
+  std::vector<xmlNode *>::iterator temp_iter;
+  std::vector<xmlNode *> *our_vect = new std::vector<xmlNode *>; 
+  
+  
+
+  for (temp_iter = vect->begin(); temp_iter != vect->end(); temp_iter++)
+    {
+      parser::get_node(*temp_iter, "enclosure");
+    }
+
+  
+}
 
 int parser::get_all_links(podcast_container *p_container)
-{      
+{
+  std::vector<xmlNode *> *item_vector = new std::vector<xmlNode*>;
+  std::vector<xmlNode *> enclosure_vector;
 
+  /* Get all the item nodes. Currently it creates a temp_vector with items, then adds 
+     them to the item_vector. When I get more time to look at it, I will see if this is even 
+     necessary. */
   for (xmlNode *node = parser::g_root_node->children; node != NULL; node = node->next)
     {
       
-      if (parser::node_is(node, "channel"))
-	{ 	  
-	  parser::get_links_from_node(node, p_container);
-	}
-    }
-  return 0;
-}
-
-
-
-int parser::get_links_from_node(xmlNode *node, podcast_container *p_container)
-{
-  /* I tried to make this as pretty as possible, and it still looks pretty bad IMO */
-
-  /*rss->channel->item->content -> (url) */
-
-  //1 == error
-  //0 == ok
-  
-  std::vector<xmlNode *> item_vector;
-  
-
-  /* The first thing we are looking for is channel,
-     if it is found, then create a vector of items 
-     from the channel node */
-  if (parser::node_is(node, "channel"))    
-    {
-      item_vector = parser::node_vector(node, "item");
-      
-    }
-
-  else
-    {
-      std::cout << "Given non-channel node" << std::endl;
-      return 1;
-    }
-
-  
-
-  /* If anything is in the item vector, then 
-     iterate through it and try to grab the links */
-  if (item_vector.size() == 0)
-    {
-      std::cout << "No items found" << std::endl;
-      return 1;
-    }
-  
-
-  std::vector<xmlNode *>::iterator it; 
-
-  
-  for (it = item_vector.begin(); it != item_vector.end(); it++)
-    {
-      /* The content nodes hold the links */
-
-      std::vector<xmlNode *> content_vector = parser::node_vector(*it, "content");
-            
-      if (content_vector.size() == 0)
-    
+      if (!node_is(node, "channel"))
 	{
-	  
 	  continue;
 	}
-	  
       
-      std::vector<xmlNode *>::iterator c_iter;
-      
-      for (c_iter = content_vector.begin(); c_iter != content_vector.end(); c_iter++)
+      /* Make this a pointer, because its contents can be deleted (I think) */
+      std::vector<xmlNode *> temp_vector = node_vector(node, "item");
+
+      if (temp_vector.size())
 	{
-	  
-	  /* We can now grab the link */
-	  
-	  std::string link   = parser::get_attr(*c_iter, "url");
-	  std::string format = parser::get_attr(*c_iter, "type");
-
-	  if (link.size() && format.size())
+	  if (dbg.current_state())
 	    {
-	      p_container->formats[link] = format;
+	      std::cout << "temp items: " << temp_vector.size() << std::endl;
 	    }
-
-	  else if (link.size())
-	    {
-	      p_container->formats[link];
-
-	    }
-    	}
+	  item_vector->insert(item_vector->end(), temp_vector.begin(), temp_vector.end());
+	}
     }
+  
+  
+  if (dbg.current_state())
+    {
+      std::cout << "total items: " << item_vector->size() << std::endl;
+    }
+  
+  
+
+  std::vector<xmlNode *>::iterator temp_iter; 
+
+  for (temp_iter = item_vector->begin(); temp_iter != item_vector->end(); temp_iter++)
+    {
+      xmlNode *e_node = get_node(*temp_iter, "enclosure");
+      
+      std::string link   = get_attr(e_node, "url");
+      std::string format = get_attr(e_node, "type");
+     
+      if (link.size() && format.size())
+	{
+	  p_container->media_urls[link] = format;
+	}
+
+      else if (link.size())
+	{
+	  p_container->media_urls[link];
+	}
+    }      
+
   return 0;
 }
 
@@ -264,7 +258,7 @@ xmlNode *parser::parse_buffer(const char *buffer, size_t size, const char *url)
 
 
   doc = xmlReadMemory(buffer, size, url, NULL, XML_PARSE_RECOVER | XML_PARSE_NOERROR | XML_PARSE_NOWARNING);
-
+  
   if (doc == NULL)
     {
       std::cout << "Could not parse buffer" << std::endl;
