@@ -42,10 +42,7 @@ int config::parse_config()
 
   cfg = cfg_init(opts, CFGF_NONE);
   
-  
-  
-  
-  std::cout << "Looking in " << config_map["config_path"] << " for configuration" << std::endl;
+    
 
   if(cfg_parse(cfg, config_map["config_path"].c_str()) == CFG_PARSE_ERROR)
     {
@@ -70,8 +67,10 @@ int config::parse_config()
   /* Urls will be the title */
   int total_urls = cfg_size(cfg, "url");
 
-  std::cout << total_urls << " urls found" << std::endl;
-  
+  if (dbg.state())
+    {
+      std::cout << total_urls << " urls found" << std::endl;
+    }
   
 
   /* Iterate through the urls and add the formats                                        
@@ -119,7 +118,10 @@ std::string config::get_home()
   
   return_s = home_dir;
 
-  std::cout << "Home dir: " << return_s << std::endl;
+  if (dbg.state())
+    {
+      std::cout << "home dir: " << return_s << std::endl;
+    }
 
   return return_s;
 }

@@ -14,7 +14,7 @@ class debug
 
 public:
   static int use_debug;
-  int current_state();
+  int state();
   void set_state(int state);
 
 };

@@ -5,7 +5,7 @@
 
 bool core::get_config()
 {
-  if (dbg.current_state())
+  if (dbg.state())
     {
       std::cout << "Reading config" << std::endl;
     }
@@ -76,7 +76,7 @@ int core::download_podcasts(std::string url)
            
   podcast_container *p_container;
   p_container = new podcast_container;
-      
+  
   p_container->url = url;
   
   
@@ -90,7 +90,7 @@ int core::download_podcasts(std::string url)
       return 1;
     }   
   
-  else if (dbg.current_state())
+  else if (dbg.state())
     {
       std::cout << "links found: " << p_container->media_urls.size() << std::endl;
     }
@@ -111,14 +111,14 @@ int core::download_podcasts(std::string url)
 	 it gets too messy */
       if (counter > cfg.max_downloads_map[p_container->url])
 	{
-	  if (dbg.current_state())
+	  if (dbg.state())
 	    {
 	      std::cout << "not exceeding max_downloads: " << cfg.max_downloads_map[p_container->url] << std::endl;
 	    }
 	  break;
 	}
       
-      if (dbg.current_state())
+      if (dbg.state())
 	{
 	  std::cout << "Iteration: " << counter << std::endl;
 	  std::cout << "m->first: "  << m->first << std::endl;
@@ -250,6 +250,9 @@ int core::parse_given_format(std::string to_parse, std::string *format, std::str
 
 }
 
+
+
+
 bool core::defined_type(std::vector<std::string> f_vector, std::string extension, std::string format)
 {
  
@@ -262,7 +265,7 @@ bool core::defined_type(std::vector<std::string> f_vector, std::string extension
     {
       if (*f_iter == format || *f_iter == extension)
         {
-	  if (dbg.current_state())
+	  if (dbg.state())
 	    {
 	      std::cout << "Supported type: " << *f_iter << std::endl;
 	    }
@@ -402,7 +405,7 @@ int core::deal_with_link(std::string media_url, std::string title, std::string *
       std::cout << "Downloading: " << download_path <<std::endl;
       int status = net.download_file(media_url, download_path);
       {
-	if (dbg.current_state())
+	if (dbg.state())
 	  {
 	    std::cout << "Status: " << status << std::endl;
 	  }
@@ -411,7 +414,7 @@ int core::deal_with_link(std::string media_url, std::string title, std::string *
 
   else
     {
-      if (dbg.current_state())
+      if (dbg.state())
 	{
 	  std::cout << "already exists: " << download_path << std::endl;
 	}

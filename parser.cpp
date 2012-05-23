@@ -28,7 +28,7 @@ bool parser::node_is(xmlNode *node, const char * name)
   
   if (strcmp((const char *)node->name, name) == 0)
     {
-      if (dbg.current_state())
+      if (dbg.state())
 	{
 	  std::cout << "node_is: " << name << std::endl;
 	}
@@ -65,11 +65,17 @@ bool parser::root_node_exists()
 {
   if (parser::g_root_node != NULL)
     {
-      if (dbg.current_state()) { std::cout << "root_node: exists" << std::endl; }
+      if (dbg.state()) 
+	{ 
+	  std::cout << "root_node: exists" << std::endl; 
+	}
       return true;
     }
   
-  if (dbg.current_state()) { std::cout << "root_node: does not exist" << std::endl; }
+  if (dbg.state()) 
+    { 
+      std::cout << "root_node: does not exist" << std::endl; 
+    }
   return false;  
 }
 
@@ -104,7 +110,7 @@ std::string parser::get_title()
 	{
 	  
 	  return_s = parser::get_content(title_node);
-	  if (dbg.current_state())
+	  if (dbg.state())
 	    {
 	      std::cout << "title: " << return_s << std::endl;
 	    }
@@ -163,7 +169,7 @@ int parser::get_all_links(podcast_container *p_container)
 
       if (temp_vector.size())
 	{
-	  if (dbg.current_state())
+	  if (dbg.state())
 	    {
 	      std::cout << "temp items: " << temp_vector.size() << std::endl;
 	    }
@@ -172,7 +178,7 @@ int parser::get_all_links(podcast_container *p_container)
     }
   
   
-  if (dbg.current_state())
+  if (dbg.state())
     {
       std::cout << "total items: " << item_vector->size() << std::endl;
     }

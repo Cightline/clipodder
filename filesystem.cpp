@@ -3,8 +3,16 @@
 
 std::vector<std::string> filesystem::list_dir(std::string path)
 {
+  DIR *dir;
+  struct dirent *dir_struct;
   const char *dir_name = path.c_str();
-  opendir(dir_name);
+  dir = opendir(dir_name);
+
+  while (dir_struct = readdir(dir))
+    {
+      std::cout << dir_struct->d_name << std::endl;
+    }
+    
 }
 
 bool filesystem::file_exists(std::string path)

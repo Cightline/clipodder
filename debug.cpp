@@ -18,7 +18,7 @@ void debug::set_state(int state)
   use_debug = state;
 }
 
-int debug::current_state()
+int debug::state()
 {
   return use_debug;
 }
