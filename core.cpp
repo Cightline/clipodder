@@ -130,9 +130,15 @@ int core::download_podcasts(std::string url)
 	{
 	  supplied_format = m->second; 
 	}
-      
-   
-      if (core::should_download(p_container->url, m->first, supplied_format))
+
+      /* If no format was specified */
+      if (cfg.url_map[p_container->url][0] == "none")
+	{
+	  status = core::deal_with_link(m->first, p_container->title);
+	}
+
+      /* Otherwise check the format against the config */
+      else if (core::should_download(p_container->url, m->first, supplied_format))
 	{
 	  status = core::deal_with_link(m->first, p_container->title);
 	}
@@ -229,15 +235,21 @@ bool core::defined_type(std::vector<std::string> f_vector, std::string extension
 {
  
   std::vector<std::string>::iterator f_iter;
+  
+  
 
   /* Iterate through the vector to see if the extension or format is defined */
   for (f_iter = f_vector.begin(); f_iter != f_vector.end(); f_iter++)
     {
       if (*f_iter == format || *f_iter == extension)
         {
-	  //std::cout << "Supported type: " << *f_iter << std::endl;
+	  if (dbg.current_state())
+	    {
+	      std::cout << "Supported type: " << *f_iter << std::endl;
+	    }
           return true;
         }
+
     }
 
   return false;
@@ -248,6 +260,7 @@ bool core::defined_type(std::vector<std::string> f_vector, std::string extension
 
 bool core::should_download(std::string url, std::string media_url, std::string given_format)
 { 
+
   std::string extension;
   std::string format;
 
@@ -264,6 +277,8 @@ bool core::should_download(std::string url, std::string media_url, std::string g
 
   /* If a supplied format is given (video/mp4) */
   
+  
+
   core::parse_given_format(given_format, s_format, s_extension);
     
 
@@ -342,41 +357,83 @@ int core::get_filename(std::string url, std::string *return_url)
   
 }
 
-int core::prepare_download(std::string final_directory)
+int core::prepare_download(std::string url, std::string title, std::string *final_dir)
 {
+  /* NON ERROR CHECKING */
+
   
-  if (core::fs.is_dir(final_directory) == false)
+  std::string *download_dir = new std::string;
+
+  /* Check to see if its the default */
+  if (cfg.download_map[url].size())
+    {
+      *download_dir = cfg.download_map[url];
+    }
+  else
+    {
+      *download_dir = cfg.config_map["download_dir"];
+    }
+  
+
+  
+  /* See if the default directory exists */
+  if (fs.is_dir(*download_dir) == false)
+    {
+      if (dbg.current_state()) 
+	{ 
+	  std::cout << "Creating: " << *download_dir << std::endl; 
+	}
+      fs.make_dir(*download_dir);
+    }
+  
+  
+  /* Check the directory that the file is being written to */
+  *final_dir =  *download_dir + "/" + title;
+
+  if (fs.is_dir(*final_dir) == false)
     {
       if (dbg.current_state())
 	{
-	  std::cout << "Creating directory " << final_directory << std::endl;
+	  std::cout << "Creating: " << *final_dir << std::endl;
 	}
-      core::fs.make_dir(final_directory);
+      fs.make_dir(*final_dir);
     }
+
+  if (dbg.current_state())
+    {
+      std::cout << "download_dir: " << *download_dir << std::endl;
+      std::cout << "final_dir: "    << *final_dir    << std::endl;
+    }
+
+  return 0;
+
 }
 
 
 
 int core::deal_with_link(std::string url, std::string title)
 {
-  
-  std::string final_dir = cfg.config_map["home"] + "/.clipodder/downloads/" + title;
+  std::string *final_dir = new std::string;
 
-  core::prepare_download(final_dir);
+  if (prepare_download(url, title, final_dir) != 0)
+    {
+      delete final_dir;
+      return 1;
+    }
+
   
-  std::string *filename;
-  filename = new std::string; 
-  
-  
+  std::string *filename = new std::string;
+    
   if (core::get_filename(url, filename) != 0)
     {
       std::cout << "Could not get filename from url (" << url << ")" << std::endl;
       delete filename;
+      delete final_dir;
       return 1;
     }
   
   
-  std::string download_path = final_dir + "/" + *filename; 
+  std::string download_path = *final_dir + "/" + *filename; 
     
   delete filename;
 
@@ -397,6 +454,7 @@ int core::deal_with_link(std::string url, std::string title)
 	{
 	  std::cout << "already exists: " << download_path << std::endl;
 	}
+      delete final_dir;
       return 2;
     }
   

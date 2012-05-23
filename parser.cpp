@@ -199,6 +199,8 @@ int parser::get_all_links(podcast_container *p_container)
 	}
     }      
 
+  delete item_vector;
+
   return 0;
 }
 

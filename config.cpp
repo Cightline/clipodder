@@ -7,7 +7,7 @@ std::map<std::string, std::vector<std::string> > config::url_map;
 std::map<std::string, int> config::max_downloads_map;
 
 std::map<std::string, std::string> config::config_map;
-
+std::map<std::string, std::string> config::download_map;
 
 int config::parse_config()
 {
@@ -15,10 +15,16 @@ int config::parse_config()
      data into url_map */
 
   
+  config_map["home"] = get_home();
+  config_map["config_path"] = config_map["home"] + "/.clipodder/config";
+  config_map["download_dir"] = config_map["home"] + "/.clipodder/downloads";
+  
+  
 
   cfg_opt_t urls[] =
     {
       CFG_STR_LIST("formats", "none", CFGF_NONE),
+      CFG_STR("download_dir", "default", CFGF_NONE),
       CFG_INT("max_downloads", 1, CFGF_NONE),
       CFG_END()
     };
@@ -27,6 +33,7 @@ int config::parse_config()
     {
       CFG_SEC("url", urls, CFGF_TITLE | CFGF_MULTI),
       CFG_INT("debug", 0, CFGF_NONE),
+      CFG_STR("download_dir", "default", CFGF_NONE),
       CFG_END()
     };
 
@@ -37,10 +44,6 @@ int config::parse_config()
   
   
   
-  config_map["home"] = config::get_home();
-  config_map["config_path"] = config_map["home"] + "/.clipodder/config";
-
-  
   
   std::cout << "Looking in " << config_map["config_path"] << " for configuration" << std::endl;
 
@@ -49,10 +52,8 @@ int config::parse_config()
       std::cout << "Error parsing configuration" << std::endl;
       return 1;
     }
-
   
-
-  
+  /* Set the debug state */  
   dbg.set_state(cfg_getint(cfg, "debug"));
   
   
@@ -68,26 +69,31 @@ int config::parse_config()
 
   /* Iterate through the urls and add the formats                                        
      and addresses to the url_map */
+
+  /* This is per url */
   for (int i = 0; i < total_urls; i++)
     {
       cfg_url = cfg_getnsec(cfg, "url", i);
       
       std::string addr = cfg_title(cfg_url);
-      int num_formats = cfg_size(cfg_url, "formats");
+      int num_formats = cfg_size(cfg_url, "formats");      
+      std::string download_dir = cfg_getnstr(cfg_url, "download_dir", 0);
       
+      if (download_dir != "default")
+	{
+	  config::download_map[addr] = download_dir;
+	}
 
       for (int b = 0; b < num_formats; b++)
 	{
 	  std::string format = cfg_getnstr(cfg_url, "formats", b);
-	  
-	  // map with vector
 	  config::url_map[addr].push_back(format);
 	}
 
       config::max_downloads_map[addr] = cfg_getint(cfg_url, "max_downloads");
       
     }
-  
+  cfg_free(cfg);
   return 0;
 }
 

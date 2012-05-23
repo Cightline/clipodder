@@ -54,7 +54,7 @@ public:
   int deal_with_link(std::string url, std::string title);
   int get_filename(std::string url, std::string *return_url);
 
-  int prepare_download(std::string final_directory);
+  int prepare_download(std::string url, std::string title, std::string *final_dir);
 
   std::string get_podcast_url(std::string format);
   void setup_formats();

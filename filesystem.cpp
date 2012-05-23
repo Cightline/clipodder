@@ -12,14 +12,15 @@ bool filesystem::file_exists(std::string path)
 
   struct stat results;
 
-  stat(path.c_str(), &results);
-  
-  if (S_ISREG(results.st_mode) == 0)
+  if (stat(path.c_str(), &results) == 0)
     {
-      return false;
+      if (S_ISREG(results.st_mode))
+	{
+	  return true;
+	}
     }
 
-  return true;
+  return false;
 }
 
 
@@ -27,20 +28,16 @@ bool filesystem::is_dir(std::string path)
 {
   struct stat results;
   
-  stat(path.c_str(), &results);
-
-  
-  if (S_ISDIR(results.st_mode) == 0)
+  if (stat(path.c_str(), &results) == 0)
     {
-      return false;
-    }
-
-  else
-    {
-      return true;
+      if (S_ISDIR(results.st_mode))
+	{
+	  return true;
+	}
     }
   
- 
+  return false;
+  
 }
 
 bool filesystem::make_dir(std::string path)
@@ -50,13 +47,12 @@ bool filesystem::make_dir(std::string path)
 
   result = mkdir(path.c_str(), 0700);
   
-  if (result == 0)
-    {
-      return false;
-    }
-
-  else
+  if (result != 0)
     {
       return true;
     }
+
+  
+  return false;
+  
 }
