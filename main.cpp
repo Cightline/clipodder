@@ -9,22 +9,19 @@ int main()
   core clipodder;
   config cfg;
 
-  if (clipodder.get_config() == true)
+  if (cfg.parse_config() != 0)
     {
-      
-      for (clipodder.u_iter = cfg.url_map.begin(); clipodder.u_iter != cfg.url_map.end(); clipodder.u_iter++)
-	{
-	  if (clipodder.u_iter->first.size())
-	    {
-	      
-	      clipodder.download_podcasts(clipodder.u_iter->first);
-	    }
-	  
-	}
+      std::cout << "Could not parse configuration" << std::endl;
+      return 1;
+    }
 
+  for (clipodder.u_iter = cfg.url_map.begin(); clipodder.u_iter != cfg.url_map.end(); clipodder.u_iter++)
+    {
+      if (clipodder.u_iter->first.size())
+	{
+	  clipodder.download_podcasts(clipodder.u_iter->first);
+	}
       
     }
-  
-  
   return 0;
 }

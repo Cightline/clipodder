@@ -18,7 +18,7 @@ int config::parse_config()
   config_map["home"] = get_home();
   config_map["config_path"] = config_map["home"] + "/.clipodder/config";
   config_map["download_dir"] = config_map["home"] + "/.clipodder/downloads";
-  
+  config_map["show_progress"] = "false";
   
 
   cfg_opt_t urls[] =
@@ -53,19 +53,16 @@ int config::parse_config()
   /* Set the debug state */  
   dbg.set_state(cfg_getint(cfg, "debug"));
   
-
-  /* If the download_dir option is set, reset the default to this */
   std::string default_dir = cfg_getstr(cfg, "download_dir");
-
+  
   if (default_dir != "default")
     {
       config_map["download_dir"] = cfg_getstr(cfg, "download_dir");
     }
   
-
-
   /* Urls will be the title */
   int total_urls = cfg_size(cfg, "url");
+  
 
   if (dbg.state())
     {

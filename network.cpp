@@ -49,7 +49,6 @@ static int curl_write_file(void *ptr, size_t size, size_t nmemb, void *userdata)
   
 }
 
-
 std::string network::fetch_page(std::string url)
 {
  
@@ -73,9 +72,9 @@ std::string network::fetch_page(std::string url)
     }
   return buf;
 }
-
-
-
+ 
+ 
+ 
 int network::download_file(std::string url, std::string download_path)
 {
   
@@ -98,11 +97,9 @@ int network::download_file(std::string url, std::string download_path)
       curl_easy_setopt(curl, CURLOPT_VERBOSE, 0);
       curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, curl_write_file);
       curl_easy_setopt(curl, CURLOPT_WRITEDATA, &d_struct);
-      
+            
       res = curl_easy_perform(curl);
       
-      
-
       curl_easy_cleanup(curl);
       
     }

@@ -20,7 +20,7 @@ public:
   
   bool make_dir(std::string path);
   
-  std::vector<std::string> list_dir(std::string path);
+  int list_dir(std::string path, std::vector<std::string> *return_vector);
 
 };
 #endif

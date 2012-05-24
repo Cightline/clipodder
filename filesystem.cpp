@@ -1,18 +1,32 @@
 #include "filesystem.hpp"
 
 
-std::vector<std::string> filesystem::list_dir(std::string path)
+int filesystem::list_dir(std::string path, std::vector<std::string> *return_vector)
 {
   DIR *dir;
   struct dirent *dir_struct;
-  const char *dir_name = path.c_str();
-  dir = opendir(dir_name);
-
-  while (dir_struct = readdir(dir))
+  
+  dir = opendir(path.c_str());
+  
+  if (dir == NULL)
     {
-      std::cout << dir_struct->d_name << std::endl;
+      return 1;
     }
-    
+  
+  while ((dir_struct = readdir(dir)) && dir_struct != NULL)
+    {
+      std::string *dirname = new std::string;
+      *dirname = dir_struct->d_name;
+      
+      if (*dirname != ".." && *dirname != ".")
+	{
+	  return_vector->push_back(dir_struct->d_name);
+	}
+      delete dirname;
+    }
+
+  closedir(dir);
+  return 0;
 }
 
 bool filesystem::file_exists(std::string path)
