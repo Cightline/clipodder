@@ -3,11 +3,6 @@
 
 #include "config.hpp"
 
-std::map<std::string, std::vector<std::string> > config::url_map;
-std::map<std::string, int> config::max_downloads_map;
-std::map<std::string, std::string> config::config_map;
-std::map<std::string, std::string> config::download_map;
-
 int config::parse_config()
 {
   config_map["home"] = get_home();
@@ -75,6 +70,8 @@ int config::parse_config()
       std::string download_dir = cfg_getstr(cfg_url, "download_dir");
       int num_formats          = cfg_size(cfg_url, "formats");
     
+      config::url_map[addr];
+
       if (download_dir != "default")
 	{
 	  
@@ -88,10 +85,6 @@ int config::parse_config()
 	  if (format.size())
 	    {
 	      config::url_map[addr].push_back(format);
-	    }
-	  else
-	    {
-	      config::url_map[addr];
 	    }
 	}
 

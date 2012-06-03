@@ -10,10 +10,9 @@
 
 #ifndef FILESYSTEM
 #define FILESYSTEM
-class filesystem
-{
 
-public: 
+namespace filesystem 
+{
   bool file_exists(std::string path);
   
   bool is_dir(std::string path);

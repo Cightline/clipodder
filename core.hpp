@@ -14,7 +14,6 @@
 #include "network.hpp"
 #include "format.hpp"
 #include "parser.hpp"
-#include "config.hpp"
 #include "filesystem.hpp"
 #include "downloader.hpp"
 
@@ -30,8 +29,6 @@ public:
 
   // I like to re-use these. 
   network net;
-  filesystem fs;
-  downloader dl;
   parser ps;
   
 

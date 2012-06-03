@@ -15,10 +15,10 @@ class config
 {
 public:
   
-  static std::map<std::string, std::vector<std::string> > url_map;
-  static std::map<std::string, int> max_downloads_map;
-  static std::map<std::string, std::string> config_map;
-  static std::map<std::string, std::string> download_map;
+  std::map<std::string, std::vector<std::string> > url_map;
+  std::map<std::string, int> max_downloads_map;
+  std::map<std::string, std::string> config_map;
+  std::map<std::string, std::string> download_map;
   
   int parse_config();
   std::string get_home(); 

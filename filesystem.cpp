@@ -36,7 +36,7 @@ bool filesystem::file_exists(std::string path)
 
   if (stat(path.c_str(), &results) == 0)
     {
-      if (S_ISREG(results.st_mode))
+      if (S_ISREG(results.st_mode) != 0)
 	{
 	  return true;
 	}
@@ -52,7 +52,7 @@ bool filesystem::is_dir(std::string path)
   
   if (stat(path.c_str(), &results) == 0)
     {
-      if (S_ISDIR(results.st_mode))
+      if (S_ISDIR(results.st_mode) != 0)
 	{
 	  return true;
 	}
@@ -78,3 +78,4 @@ bool filesystem::make_dir(std::string path)
   return false;
   
 }
+

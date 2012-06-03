@@ -1,6 +1,6 @@
 
 
-#include "core.hpp"
+#include "main.hpp"
 
 int debug::state = 0;
 
@@ -18,10 +18,17 @@ int main()
   
   
   std::map<std::string, std::vector<std::string> >::iterator key;
-
+  
+  std::cout << cfg.url_map.size() << std::endl;
+  
   for (key = cfg.url_map.begin(); key != cfg.url_map.end(); key++)
     {
       int status;
+     
+      if (debug::state)
+	{
+	  std::cout << "url: " << key->first << std::endl;
+	}
 
       /* If no directory was specified */
       if (cfg.download_map[key->first] == "default" || !cfg.download_map[key->first].size())
@@ -41,13 +48,12 @@ int main()
 					       key->second);
 	}
       
-      
       if (debug::state)
 	{
 	  std::cout << "status: " << status << std::endl;
 	}
     }
-   
+  
     
   
   return 0;

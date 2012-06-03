@@ -56,7 +56,6 @@ int core::download_podcasts(std::string url,
   
   p_container->url = url;
 
-
   /* Once we assign the struct a url, we can fill it
      and do the rest of the work. */
   if (core::fill_container(p_container) == 1)
@@ -71,14 +70,14 @@ int core::download_podcasts(std::string url,
     }
 
       
-  int counter = 1;  
+  int counter = 1;
   
   /* Ok here we are looking through the found urls. If the format was found during parse (video/mp4), it will be
      m_iter->second. */
 
   for (core::m = p_container->media_urls.begin(); core::m != p_container->media_urls.end(); core::m++)
     { 
-      int status;
+      int download_status;
       std::string supplied_format;
       
       /* Check to see if we are exceeding max_downloads. I could just add counter to the for loop, but then 
@@ -92,6 +91,7 @@ int core::download_podcasts(std::string url,
 	  break;
 	}
       
+
       if (debug::state)
 	{
 	  std::cout << "Iteration: " << counter << std::endl;
@@ -99,28 +99,29 @@ int core::download_podcasts(std::string url,
 	  std::cout << "m->second: " << m->second << std::endl;
 	}
 
+
       // If we found the format during parse
       if (m->second.size())
 	{
 	  supplied_format = m->second; 
 	}
+
       
       std::string *final_dir = new std::string;
       
       /* If no format was specified */
       if (!format_vector.size())
 	{	  
-	  dl.prepare_download(p_container->title, m->first, download_dir, final_dir);
-	  status = core::deal_with_link(m->first, p_container->title, final_dir);
+	  downloader::prepare_download(p_container->title, m->first, download_dir, final_dir);
+	  download_status = core::deal_with_link(m->first, p_container->title, final_dir);
 	}
 
       /* Otherwise check the format against the config */
       else if (core::should_download(p_container->url, m->first, supplied_format, format_vector))
 	{	  
-	  dl.prepare_download(p_container->title, m->first, download_dir, final_dir);
-	  status = core::deal_with_link(m->first, p_container->title, final_dir);
-	}
-           
+	  downloader::prepare_download(p_container->title, m->first, download_dir, final_dir);
+	  download_status = core::deal_with_link(m->first, p_container->title, final_dir);
+	}           
       counter++;
       }
 
@@ -162,8 +163,10 @@ int core::deal_with_link(std::string media_url, std::string title, std::string *
 {
    
   std::string *filename = new std::string;
-    
-  if (format::get_filename(media_url, filename) != 0)
+  
+  *filename = format::get_filename(media_url);
+
+  if (!filename->size())
     {
       std::cout << "Could not get filename from url (" << media_url << ")" << std::endl;
       delete filename;
@@ -172,12 +175,11 @@ int core::deal_with_link(std::string media_url, std::string title, std::string *
     }
   
   
-  std::string download_path = *final_dir + "/" + *filename; 
-    
+  std::string download_path = *final_dir + "/" + *filename;
   delete filename;
 
 
-  if (!core::fs.file_exists(download_path))
+  if (!filesystem::file_exists(download_path))
     {
       std::cout << "Downloading: " << download_path <<std::endl;
       int status = net.download_file(media_url, download_path);
@@ -203,7 +205,7 @@ int core::deal_with_link(std::string media_url, std::string title, std::string *
 
 int core::delete_uneeded(std::string path, int max_downloads)
 {
-  if (!fs.is_dir(path))
+  if (!filesystem::is_dir(path))
     {
       std::cout << "Trying to prune files, but " << path << " does not exist" << std::endl;
       return 1;
@@ -211,7 +213,7 @@ int core::delete_uneeded(std::string path, int max_downloads)
 
   std::vector<std::string> *return_vector = new std::vector<std::string>;
 
-  fs.list_dir(path, return_vector);
+  filesystem::list_dir(path, return_vector);
 
 }
   

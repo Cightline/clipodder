@@ -1,10 +1,8 @@
 
 #include "format.hpp"
 
-namespace format 
-{
 
-std::string get_extension(std::string media_url)
+std::string format::get_extension(std::string media_url)
 {
   std::string extension;
   int index;
@@ -20,7 +18,7 @@ std::string get_extension(std::string media_url)
 }
 
 
-std::string determine_format(std::string media_url)
+std::string format::determine_format(std::string media_url)
 {
   std::string extension;
   extension = get_extension(media_url);
@@ -46,7 +44,7 @@ std::string determine_format(std::string media_url)
 }
 
 
-std::string parse_given_extension(std::string to_parse)
+std::string format::parse_given_extension(std::string to_parse)
 {
   std::string return_string; 
   
@@ -62,7 +60,7 @@ std::string parse_given_extension(std::string to_parse)
   return return_string;
 }
 
-std::string parse_given_format(std::string to_parse)
+std::string format::parse_given_format(std::string to_parse)
 {
   std::string return_string;
 
@@ -79,7 +77,7 @@ std::string parse_given_format(std::string to_parse)
 }  
 
 
-bool defined_type(std::vector<std::string> f_vector, std::string extension, std::string format)
+bool format::defined_type(std::vector<std::string> f_vector, std::string extension, std::string format)
 {
   std::vector<std::string>::iterator f_iter;
   
@@ -99,17 +97,16 @@ bool defined_type(std::vector<std::string> f_vector, std::string extension, std:
   return false;
 }
 
-int get_filename(std::string url, std::string *return_url)
+std::string format::get_filename(std::string url)
 {
+  std::string return_string;
   int start = url.find_last_of("/");
   
   if (!start)
     {
-      return 1;
+      return return_string;
     }
 
-  *return_url = url.substr(start+1, url.size());
-  
-  return 0;
+  return_string = url.substr(start+1, url.size());  
 }
-}
+

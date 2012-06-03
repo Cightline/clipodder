@@ -7,15 +7,13 @@
 #ifndef DOWNLOADER
 #define DOWNLOADER
 
-class downloader
+namespace downloader
 {
-
-  filesystem fs;
-
-public:
-  //int should_download(std::string title, std::string media_url, std::string parent_dir, std::string *final_dir);
-  int prepare_download(std::string title, std::string media_url, std::string parent_dir, std::string *final_dir);
   
+  int prepare_download(std::string title, 
+		       std::string media_url, 
+		       std::string parent_dir, 
+		       std::string *final_dir);
 };
 
 #endif

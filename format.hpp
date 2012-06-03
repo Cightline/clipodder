@@ -6,7 +6,7 @@
 
 namespace format {
   
-  int get_filename(std::string url, std::string *return_url);
+  std::string get_filename(std::string url);
   bool defined_type(std::vector<std::string> f_vector, std::string extension, std::string format);
 
   std::string parse_given_format(std::string to_parse);
