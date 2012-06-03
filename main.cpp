@@ -9,7 +9,6 @@ int main()
   
   core clipodder;
   config cfg;
-
   
   if (cfg.parse_config() != 0)
     {
@@ -46,14 +45,23 @@ int main()
 					       cfg.download_map[key->first],
 					       key->second);
 	}
-      
       if (debug::state)
 	{
 	  std::cout << "status: " << status << std::endl;
 	}
     }
   
-    
+
+
+  std::map<std::string, std::string>::iterator p_key; 
+  
+
+  for (p_key = clipodder.path_map.begin(); p_key != clipodder.path_map.end(); p_key++)
+    {
+      file_manager::delete_excess(p_key->second, cfg.max_downloads_map[p_key->first]);
+    }
+  
+  
   
   return 0;
 }

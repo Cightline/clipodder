@@ -27,8 +27,8 @@ filesystem: filesystem.cpp filesystem.hpp
 	$(CC) filesystem.cpp -c -o filesystem.o 
 
 
-downloader: downloader.cpp downloader.hpp
-	$(CC) downloader.cpp -c -o downloader.o $(CURL)
+file_manager: file_manager.cpp file_manager.hpp
+	$(CC) file_manager.cpp -c -o file_manager.o
 
 
 core: core.cpp core.hpp 
@@ -40,9 +40,11 @@ main: main.cpp main.hpp
 
 
 
-all:  network format parser core filesystem downloader config main
-	$(CC) main.o network.o format.o parser.o config.o filesystem.o \
-	      downloader.o core.o debug.hpp -o clipodder $(CONFIG) $(XML) $(CURL)
+all:  network format parser core filesystem file_manager config main 
+	$(CC) \
+	main.o network.o format.o parser.o config.o filesystem.o \
+	file_manager.o core.o debug.hpp -o clipodder \
+	$(CONFIG) $(XML) $(CURL)
 
 	rm *.o
 

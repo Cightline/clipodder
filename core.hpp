@@ -15,7 +15,7 @@
 #include "format.hpp"
 #include "parser.hpp"
 #include "filesystem.hpp"
-#include "downloader.hpp"
+#include "file_manager.hpp"
 
 
 #include "podcast_container.hpp"
@@ -52,16 +52,16 @@ public:
 			std::vector<std::string> formats);
 
 
-  int deal_with_link(std::string url, std::string title, std::string *final_dir);
+  int deal_with_link(std::string url, std::string title, std::string final_dir);
   int get_filename(std::string url, std::string *return_url);
-
-  int prepare_download(std::string url, std::string title, std::string *final_dir);
 
   std::string get_podcast_url(std::string format);
   void setup_formats();
   int known_formats(std::string format);
   int parse_buffer(const char *buffer, size_t size, const char *url);
   int delete_uneeded(std::string path, int max_downloads);
+  
+  std::map<std::string, std::string> path_map; 
 
   std::vector<std::string> links;
   

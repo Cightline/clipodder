@@ -71,12 +71,12 @@ int core::download_podcasts(std::string url,
 
       
   int counter = 1;
-  std::map<std::string, std::string>::iterator m;
+  std::map<std::string, std::string>::iterator media_url;
 
 
   /* Ok here we are looking through the found urls. If the format was found during parse (video/mp4), it will be
      m_iter->second. */
-  for (m = p_container->media_urls.begin(); m != p_container->media_urls.end(); m++)
+  for (media_url = p_container->media_urls.begin(); media_url != p_container->media_urls.end(); media_url++)
     { 
       int download_status;
       std::string supplied_format;
@@ -96,32 +96,45 @@ int core::download_podcasts(std::string url,
       if (debug::state)
 	{
 	  std::cout << "Iteration: " << counter << std::endl;
-	  std::cout << "m->first: "  << m->first << std::endl;
-	  std::cout << "m->second: " << m->second << std::endl;
+	  std::cout << "media_url->first: "  << media_url->first << std::endl;
+	  std::cout << "media_url->second: " << media_url->second << std::endl;
 	}
 
 
       /* If the format is supplied */
-      if (m->second.size())
+      if (media_url->second.size())
 	{
-	  supplied_format = m->second; 
+	  supplied_format = media_url->second; 
 	}
       
-      /* Allocate string for downloader::prepare_download() */
-      std::string *final_dir = new std::string;
-      
+                  
       /* If no format was specified (download all) */
       if (!format_vector.size())
 	{	  
-	  downloader::prepare_download(p_container->title, m->first, download_dir, final_dir);
-	  download_status = core::deal_with_link(m->first, p_container->title, final_dir);
-	}
+	  std::string address = media_url->first;
 
-      /* Otherwise check the supplied format against the config */
-      else if (core::should_download(p_container->url, m->first, supplied_format, format_vector))
-	{	  
-	  downloader::prepare_download(p_container->title, m->first, download_dir, final_dir);
-	  download_status = core::deal_with_link(m->first, p_container->title, final_dir);
+	  if (!core::path_map[address].size())
+	    {
+	      /* save the path for later use */
+	      core::path_map[address] = file_manager::get_final_dir(p_container->title, download_dir);
+	    }
+	  
+	  file_manager::prepare_download(download_dir, core::path_map[address]);
+	  download_status = core::deal_with_link(address, p_container->title, core::path_map[address]);
+	}
+  
+      /* Otherwise check the supplied format against the config */	 
+      else if (core::should_download(p_container->url, media_url->first, supplied_format, format_vector))
+	{
+	  std::string address = media_url->first;
+	  if (!core::path_map[address].size())
+	    {
+	      /* save it for later use */
+	      core::path_map[address] = file_manager::get_final_dir(p_container->title, download_dir);
+	    }
+
+	  file_manager::prepare_download(download_dir, core::path_map[address]);
+	  download_status = core::deal_with_link(address, p_container->title, core::path_map[address]);
 	}
       
       if (debug::state)
@@ -166,7 +179,7 @@ bool core::should_download(std::string url,
 }
 
 
-int core::deal_with_link(std::string media_url, std::string title, std::string *final_dir)
+int core::deal_with_link(std::string media_url, std::string title, std::string final_dir)
 {
    
   std::string *filename = new std::string;
@@ -177,12 +190,11 @@ int core::deal_with_link(std::string media_url, std::string title, std::string *
     {
       std::cout << "Could not get filename from url (" << media_url << ")" << std::endl;
       delete filename;
-      delete final_dir;
       return 1;
     }
   
   
-  std::string download_path = *final_dir + "/" + *filename;
+  std::string download_path = final_dir + "/" + *filename;
   delete filename;
 
 
@@ -207,23 +219,10 @@ int core::deal_with_link(std::string media_url, std::string title, std::string *
 	{
 	  std::cout << "already exists: " << download_path << std::endl;
 	}
-      delete final_dir;
+
       return 2;
     }
 }
 
 
-int core::delete_uneeded(std::string path, int max_downloads)
-{
-  if (!filesystem::is_dir(path))
-    {
-      std::cout << "Trying to prune files, but " << path << " does not exist" << std::endl;
-      return 1;
-    }
-
-  std::vector<std::string> *return_vector = new std::vector<std::string>;
-
-  filesystem::list_dir(path, return_vector);
-
-}
   
