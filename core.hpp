@@ -27,12 +27,8 @@ class core
 
 public:
 
-  // I like to re-use these. 
-  network net;
   parser ps;
-  
-
-  
+    
   bool should_download(std::string url, 
 		       std::string media_url, 
 		       std::string supplied_info,
@@ -66,10 +62,6 @@ public:
   int known_formats(std::string format);
   int parse_buffer(const char *buffer, size_t size, const char *url);
   int delete_uneeded(std::string path, int max_downloads);
-  
-  // media_iter[media_url] = format (if format was found during parse)
-  std::map<std::string, std::string>::iterator m;
-  
 
   std::vector<std::string> links;
   

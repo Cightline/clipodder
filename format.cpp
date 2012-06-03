@@ -77,11 +77,11 @@ std::string format::parse_given_format(std::string to_parse)
 }  
 
 
-bool format::defined_type(std::vector<std::string> f_vector, std::string extension, std::string format)
+bool format::defined_type(std::vector<std::string> format_vector, std::string extension, std::string format)
 {
   std::vector<std::string>::iterator f_iter;
   
-  for (f_iter = f_vector.begin(); f_iter != f_vector.end(); f_iter++)
+  for (f_iter = format_vector.begin(); f_iter != format_vector.end(); f_iter++)
     {
       if (*f_iter == format || *f_iter == extension)
 	{

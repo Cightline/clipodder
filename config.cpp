@@ -34,7 +34,6 @@ int config::parse_config()
   
   if(cfg_parse(cfg, config_map["config_path"].c_str()) == CFG_PARSE_ERROR)
     {
-      std::cout << "Error parsing configuration" << std::endl;
       return 1;
     }
   

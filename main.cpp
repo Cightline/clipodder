@@ -10,21 +10,20 @@ int main()
   core clipodder;
   config cfg;
 
+  
   if (cfg.parse_config() != 0)
     {
       std::cout << "Error: could not parse config" << std::endl;
       return 1;
     }
   
-  
   std::map<std::string, std::vector<std::string> >::iterator key;
   
-  std::cout << cfg.url_map.size() << std::endl;
-  
+  /* Iterate through the urls in the config */
   for (key = cfg.url_map.begin(); key != cfg.url_map.end(); key++)
     {
       int status;
-     
+      
       if (debug::state)
 	{
 	  std::cout << "url: " << key->first << std::endl;

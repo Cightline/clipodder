@@ -4,7 +4,7 @@
 
 int core::fill_container(podcast_container *container)
 {
-  container->data = net.fetch_page(container->url);
+  container->data = network::fetch_page(container->url);
 
   if (!container->data.size())
     {
@@ -71,11 +71,12 @@ int core::download_podcasts(std::string url,
 
       
   int counter = 1;
-  
+  std::map<std::string, std::string>::iterator m;
+
+
   /* Ok here we are looking through the found urls. If the format was found during parse (video/mp4), it will be
      m_iter->second. */
-
-  for (core::m = p_container->media_urls.begin(); core::m != p_container->media_urls.end(); core::m++)
+  for (m = p_container->media_urls.begin(); m != p_container->media_urls.end(); m++)
     { 
       int download_status;
       std::string supplied_format;
@@ -100,31 +101,38 @@ int core::download_podcasts(std::string url,
 	}
 
 
-      // If we found the format during parse
+      /* If the format is supplied */
       if (m->second.size())
 	{
 	  supplied_format = m->second; 
 	}
-
       
+      /* Allocate string for downloader::prepare_download() */
       std::string *final_dir = new std::string;
       
-      /* If no format was specified */
+      /* If no format was specified (download all) */
       if (!format_vector.size())
 	{	  
 	  downloader::prepare_download(p_container->title, m->first, download_dir, final_dir);
 	  download_status = core::deal_with_link(m->first, p_container->title, final_dir);
 	}
 
-      /* Otherwise check the format against the config */
+      /* Otherwise check the supplied format against the config */
       else if (core::should_download(p_container->url, m->first, supplied_format, format_vector))
 	{	  
 	  downloader::prepare_download(p_container->title, m->first, download_dir, final_dir);
 	  download_status = core::deal_with_link(m->first, p_container->title, final_dir);
-	}           
+	}
+      
+      if (debug::state)
+	{
+	  std::cout << "download_status: " << download_status << std::endl;
+	}
+
       counter++;
       }
 
+  /* Get rid of this */
   delete p_container;
   return 0;
 }
@@ -153,9 +161,8 @@ bool core::should_download(std::string url,
       extension = format::get_extension(media_url);
     }
 
+  /* Check the format and extension agianst the format_vector (formats in the config file) */
   return format::defined_type(format_vector, extension, format);
-
-  
 }
 
 
@@ -179,10 +186,13 @@ int core::deal_with_link(std::string media_url, std::string title, std::string *
   delete filename;
 
 
+  /* See if the file exists, if not download */
   if (!filesystem::file_exists(download_path))
     {
-      std::cout << "Downloading: " << download_path <<std::endl;
-      int status = net.download_file(media_url, download_path);
+      std::cout << "Downloading: " << download_path << std::endl;
+
+      
+      int status = network::download_file(media_url, download_path);
       {
 	if (debug::state)
 	  {
