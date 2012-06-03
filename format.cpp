@@ -1,8 +1,10 @@
 
 #include "format.hpp"
 
+namespace format 
+{
 
-std::string format::get_extension(std::string media_url)
+std::string get_extension(std::string media_url)
 {
   std::string extension;
   int index;
@@ -17,7 +19,8 @@ std::string format::get_extension(std::string media_url)
   return extension;
 }
 
-std::string format::determine_format(std::string media_url)
+
+std::string determine_format(std::string media_url)
 {
   std::string extension;
   extension = get_extension(media_url);
@@ -40,33 +43,43 @@ std::string format::determine_format(std::string media_url)
     {
       return no_fmt;
     }
-
 }
 
 
-int format::parse_given_format(std::string to_parse, std::string *format, std::string *extension)
+std::string parse_given_extension(std::string to_parse)
 {
+  std::string return_string; 
+  
+  int index = to_parse.find_last_of('/');
+  
+  if (!index)
+    {
+      return return_string;
+    }
+
+  return_string = to_parse.substr(index+1, to_parse.size());
+
+  return return_string;
+}
+
+std::string parse_given_format(std::string to_parse)
+{
+  std::string return_string;
+
   int index = to_parse.find_last_of("/");
   
   if (!index)
     {
-      return 1;
+      return return_string;
     }
 
-  else
-    {
-      *extension = to_parse.substr(index+1, format->size());
-      *format    = to_parse.substr(0, index);
-    }
+  return_string = to_parse.substr(0, index);
+  
+  return return_string;
+}  
 
-  if (!extension->size() || !format->size())
-    {
-      return 1;
-    }
 
-}
-
-bool format::defined_type(std::vector<std::string> f_vector, std::string extension, std::string format)
+bool defined_type(std::vector<std::string> f_vector, std::string extension, std::string format)
 {
   std::vector<std::string>::iterator f_iter;
   
@@ -74,7 +87,7 @@ bool format::defined_type(std::vector<std::string> f_vector, std::string extensi
     {
       if (*f_iter == format || *f_iter == extension)
 	{
-	  if (dbg.state())
+	  if (debug::state)
 	    {
 	      std::cout << "supported type: " << *f_iter << std::endl;
 	    }
@@ -86,7 +99,7 @@ bool format::defined_type(std::vector<std::string> f_vector, std::string extensi
   return false;
 }
 
-int format::get_filename(std::string url, std::string *return_url)
+int get_filename(std::string url, std::string *return_url)
 {
   int start = url.find_last_of("/");
   
@@ -98,5 +111,5 @@ int format::get_filename(std::string url, std::string *return_url)
   *return_url = url.substr(start+1, url.size());
   
   return 0;
-
+}
 }

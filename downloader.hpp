@@ -11,7 +11,6 @@ class downloader
 {
 
   filesystem fs;
-  debug dbg;
 
 public:
   //int should_download(std::string title, std::string media_url, std::string parent_dir, std::string *final_dir);

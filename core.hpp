@@ -25,10 +25,6 @@
 
 class core
 {
-  
-  debug dbg;
-  config cfg;
-  format fmt;
 
 public:
 
@@ -39,19 +35,30 @@ public:
   parser ps;
   
 
+  
+  bool should_download(std::string url, 
+		       std::string media_url, 
+		       std::string supplied_info,
+		       std::vector<std::string> format_vector);
 
-  bool should_download(std::string url, std::string media_url, std::string supplied_format);
+
+
   std::string determine_format(std::string media_url);
   std::string get_extension(std::string media_url);
 
   int fill_container(podcast_container *container);
-  bool get_config();
   int parse_given_format(std::string to_parse, std::string *format, std::string *extension);
 
   bool defined_type(std::vector<std::string> f_vector, std::string extension, std::string format);
   
   std::string fetch_page(std::string url);
-  int download_podcasts(std::string url);
+
+  int download_podcasts(std::string url, 
+			int max_downloads, 
+			std::string download_dir, 
+			std::vector<std::string> formats);
+
+
   int deal_with_link(std::string url, std::string title, std::string *final_dir);
   int get_filename(std::string url, std::string *return_url);
 
@@ -63,9 +70,6 @@ public:
   int parse_buffer(const char *buffer, size_t size, const char *url);
   int delete_uneeded(std::string path, int max_downloads);
   
-  std::map<std::string, std::vector<std::string> > urls; 
-  std::map<std::string, std::vector<std::string> >::iterator u_iter;
-
   // media_iter[media_url] = format (if format was found during parse)
   std::map<std::string, std::string>::iterator m;
   

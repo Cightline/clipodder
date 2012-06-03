@@ -19,7 +19,7 @@ class parser
 {
 
 public:
-  debug dbg;
+
   xmlDoc *doc;
   xmlNode *g_root_node;
 

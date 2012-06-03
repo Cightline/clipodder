@@ -5,16 +5,11 @@
 
 std::map<std::string, std::vector<std::string> > config::url_map;
 std::map<std::string, int> config::max_downloads_map;
-
 std::map<std::string, std::string> config::config_map;
 std::map<std::string, std::string> config::download_map;
 
 int config::parse_config()
 {
-  /* Parses the configuration and puts the                                                                             
-     data into url_map */
-
-  
   config_map["home"] = get_home();
   config_map["config_path"] = config_map["home"] + "/.clipodder/config";
   config_map["download_dir"] = config_map["home"] + "/.clipodder/downloads";
@@ -23,7 +18,7 @@ int config::parse_config()
 
   cfg_opt_t urls[] =
     {
-      CFG_STR_LIST("formats", "none", CFGF_NONE),
+      CFG_STR_LIST("formats", "", CFGF_NONE),
       CFG_STR("download_dir", "default", CFGF_NONE),
       CFG_INT("max_downloads", 1, CFGF_NONE),
       CFG_END()
@@ -42,8 +37,6 @@ int config::parse_config()
 
   cfg = cfg_init(opts, CFGF_NONE);
   
-    
-
   if(cfg_parse(cfg, config_map["config_path"].c_str()) == CFG_PARSE_ERROR)
     {
       std::cout << "Error parsing configuration" << std::endl;
@@ -51,7 +44,7 @@ int config::parse_config()
     }
   
   /* Set the debug state */  
-  dbg.set_state(cfg_getint(cfg, "debug"));
+  debug::state = cfg_getint(cfg, "debug");
   
   std::string default_dir = cfg_getstr(cfg, "download_dir");
   
@@ -64,7 +57,7 @@ int config::parse_config()
   int total_urls = cfg_size(cfg, "url");
   
 
-  if (dbg.state())
+  if (debug::state)
     {
       std::cout << total_urls << " urls found" << std::endl;
     }
@@ -91,7 +84,15 @@ int config::parse_config()
       for (int b = 0; b < num_formats; b++)
 	{
 	  std::string format = cfg_getnstr(cfg_url, "formats", b);
-	  config::url_map[addr].push_back(format);
+	  
+	  if (format.size())
+	    {
+	      config::url_map[addr].push_back(format);
+	    }
+	  else
+	    {
+	      config::url_map[addr];
+	    }
 	}
 
       config::max_downloads_map[addr] = cfg_getint(cfg_url, "max_downloads");
@@ -115,7 +116,7 @@ std::string config::get_home()
   
   return_s = home_dir;
 
-  if (dbg.state())
+  if (debug::state)
     {
       std::cout << "home dir: " << return_s << std::endl;
     }
@@ -123,3 +124,4 @@ std::string config::get_home()
   return return_s;
 }
   
+

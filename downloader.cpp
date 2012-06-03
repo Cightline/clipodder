@@ -8,7 +8,7 @@ int downloader::prepare_download(std::string title, std::string media_url, std::
   
   if (!fs.is_dir(parent_dir))
     {
-      if (dbg.state())
+      if (debug::state)
 	{
 	  std::cout << "creating parent directory: " << parent_dir << std::endl;
 	}
@@ -19,7 +19,7 @@ int downloader::prepare_download(std::string title, std::string media_url, std::
 
   if (!fs.is_dir(*final_dir))
     {
-      if (dbg.state())
+      if (debug::state)
 	{
 	  std::cout << "creating final dir: " << *final_dir << std::endl;
 	}

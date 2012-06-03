@@ -9,27 +9,19 @@
 
 #include "debug.hpp"
 
-class config 
-{
-  debug dbg;
 
+class config
+
+{
 public:
-  
   
   static std::map<std::string, std::vector<std::string> > url_map;
   static std::map<std::string, int> max_downloads_map;
-  
   static std::map<std::string, std::string> config_map;
   static std::map<std::string, std::string> download_map;
   
   int parse_config();
-
-
-  std::map<std::string, std::vector<std::string> > current_urls();  
-  std::string get_home();
-  
-  
-
+  std::string get_home(); 
 };
 
 

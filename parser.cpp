@@ -25,10 +25,9 @@ std::string parser::get_attr(xmlNode *node, const char *attr)
 
 bool parser::node_is(xmlNode *node, const char * name)
 {
-  
   if (strcmp((const char *)node->name, name) == 0)
     {
-      if (dbg.state())
+      if (debug::state)
 	{
 	  std::cout << "node_is: " << name << std::endl;
 	}
@@ -36,9 +35,6 @@ bool parser::node_is(xmlNode *node, const char * name)
     }
   return false;
 }
-
-
-
 
 
 std::vector<xmlNode *> parser::node_vector(xmlNode *node, const char *name)
@@ -54,25 +50,21 @@ std::vector<xmlNode *> parser::node_vector(xmlNode *node, const char *name)
     }
   
   return return_vector;
-
 }
-
-
-
 
 
 bool parser::root_node_exists()
 {
   if (parser::g_root_node != NULL)
     {
-      if (dbg.state()) 
+      if (debug::state) 
 	{ 
 	  std::cout << "root_node: exists" << std::endl; 
 	}
       return true;
     }
   
-  if (dbg.state()) 
+  if (debug::state)
     { 
       std::cout << "root_node: does not exist" << std::endl; 
     }
@@ -108,9 +100,9 @@ std::string parser::get_title()
     {
       if (parser::node_is(title_node, "title"))
 	{
-	  
 	  return_s = parser::get_content(title_node);
-	  if (dbg.state())
+	 
+	  if (debug::state)
 	    {
 	      std::cout << "title: " << return_s << std::endl;
 	    }
@@ -131,22 +123,19 @@ xmlNode *parser::get_node(xmlNode *node_with_children, std::string name)
 	}
     }
 }
-	 
+
 
 int parser::get_enclosures(std::vector<xmlNode *> *vect)
 {
   std::vector<xmlNode *>::iterator temp_iter;
   std::vector<xmlNode *> *our_vect = new std::vector<xmlNode *>; 
-  
-  
 
   for (temp_iter = vect->begin(); temp_iter != vect->end(); temp_iter++)
     {
       parser::get_node(*temp_iter, "enclosure");
     }
-
-  
 }
+
 
 int parser::get_all_links(podcast_container *p_container)
 {
@@ -169,7 +158,7 @@ int parser::get_all_links(podcast_container *p_container)
 
       if (temp_vector.size())
 	{
-	  if (dbg.state())
+	  if (debug::state)
 	    {
 	      std::cout << "temp items: " << temp_vector.size() << std::endl;
 	    }
@@ -178,7 +167,7 @@ int parser::get_all_links(podcast_container *p_container)
     }
   
   
-  if (dbg.state())
+  if (debug::state)
     {
       std::cout << "total items: " << item_vector->size() << std::endl;
     }

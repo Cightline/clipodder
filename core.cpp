@@ -2,30 +2,9 @@
 #include "core.hpp"
 
 
-
-bool core::get_config()
-{
-  if (dbg.state())
-    {
-      std::cout << "Reading config" << std::endl;
-    }
-
-  if (core::cfg.parse_config() == 0)
-    {
-      return 1;
-    }
-
-  return 0;
-}
-
-
-
-
 int core::fill_container(podcast_container *container)
 {
   container->data = net.fetch_page(container->url);
-  
-  
 
   if (!container->data.size())
     {
@@ -63,23 +42,19 @@ int core::fill_container(podcast_container *container)
       std::cout << "Error: could not find any links after parsing, skipping" << std::endl;
       return 1;
     }
-
-  
 }
 
 
-
-
-
-int core::download_podcasts(std::string url)
+int core::download_podcasts(std::string url, 
+			    int max_downloads, 
+			    std::string download_dir,
+			    std::vector<std::string> format_vector)
 {
            
   podcast_container *p_container;
   p_container = new podcast_container;
   
   p_container->url = url;
-  
-  
 
 
   /* Once we assign the struct a url, we can fill it
@@ -90,11 +65,11 @@ int core::download_podcasts(std::string url)
       return 1;
     }   
   
-  else if (dbg.state())
+  else if (debug::state)
     {
       std::cout << "links found: " << p_container->media_urls.size() << std::endl;
     }
-  
+
       
   int counter = 1;  
   
@@ -106,19 +81,18 @@ int core::download_podcasts(std::string url)
       int status;
       std::string supplied_format;
       
-     
       /* Check to see if we are exceeding max_downloads. I could just add counter to the for loop, but then 
 	 it gets too messy */
-      if (counter > cfg.max_downloads_map[p_container->url])
+      if (counter > max_downloads)
 	{
-	  if (dbg.state())
+	  if (debug::state)
 	    {
-	      std::cout << "not exceeding max_downloads: " << cfg.max_downloads_map[p_container->url] << std::endl;
+	      std::cout << "not exceeding max_downloads: " << max_downloads << std::endl;
 	    }
 	  break;
 	}
       
-      if (dbg.state())
+      if (debug::state)
 	{
 	  std::cout << "Iteration: " << counter << std::endl;
 	  std::cout << "m->first: "  << m->first << std::endl;
@@ -130,125 +104,55 @@ int core::download_podcasts(std::string url)
 	{
 	  supplied_format = m->second; 
 	}
-
-
-      std::string download_dir;
-      std::string *final_dir = new std::string;
-
-      if (cfg.download_map[p_container->url].size())
-	{
-	  download_dir = cfg.download_map[p_container->url];
-	}
-
-      else
-	{
-	  download_dir = cfg.config_map["download_dir"];
-	}
-
       
-
+      std::string *final_dir = new std::string;
+      
       /* If no format was specified */
-      if (cfg.url_map[p_container->url][0] == "none")
+      if (!format_vector.size())
 	{	  
 	  dl.prepare_download(p_container->title, m->first, download_dir, final_dir);
 	  status = core::deal_with_link(m->first, p_container->title, final_dir);
 	}
 
       /* Otherwise check the format against the config */
-      else if (core::should_download(p_container->url, m->first, supplied_format))
+      else if (core::should_download(p_container->url, m->first, supplied_format, format_vector))
 	{	  
 	  dl.prepare_download(p_container->title, m->first, download_dir, final_dir);
 	  status = core::deal_with_link(m->first, p_container->title, final_dir);
 	}
-            
+           
       counter++;
-      
-    }
-  
-  delete p_container;
+      }
 
+  delete p_container;
+  return 0;
 }
 
 
   
 
-bool core::should_download(std::string url, std::string media_url, std::string given_format)
+bool core::should_download(std::string url, 
+			   std::string media_url, 
+			   std::string supplied_info,
+			   std::vector<std::string> format_vector)
 { 
 
-  std::string extension;
-  std::string format;
-
-  std::string f_format;
-  std::string f_extension;
-  std::string *s_extension   = new std::string;
-  std::string *s_format      = new std::string;
-  
-  std::vector<std::string> format_vector = cfg.url_map[url];
-
-  /* Uses the media_url to determine if it should return true or false (download the file).
-     It will pick the supplied format/extension over the found extension. */
-    
-
-  /* If a supplied format is given (video/mp4) */
+  std::string format    = format::parse_given_format(supplied_info);
+  std::string extension = format::parse_given_extension(supplied_info);
   
   
-
-  fmt.parse_given_format(given_format, s_format, s_extension);
-    
-
-  /* Find the format first */
-  if (s_format->size())
+  
+  if (!format.size())
     {
-      format = *s_format;
+      format = format::determine_format(media_url);
     }
 
-  else
+  if (!extension.size())
     {
-      /* Attempt to get it from the filename */
-      f_format = fmt.determine_format(media_url);
-      
-      if (f_format.size())
-	{
-	  format = f_format;
-	}
-      
-      else
-	{
-	  std::cout << "Warning: could not determine format" << std::endl;
-	}
-    }
-      
-
-  /* If we get the supplied extension, use it, otherwise try to use the 
-     extension from the filename */
-  if (s_extension->size())
-    {
-      extension = *s_extension;
+      extension = format::get_extension(media_url);
     }
 
-  /* If we cant use the supplied extension, we try to get the 
-     extension from the filename (After we figure out that !s_extension->size()). */
-
-  else
-    {
-      f_extension = fmt.get_extension(media_url);
-
-      if (f_extension.size())
-	{
-	  extension = f_extension;
-	}
-      else
-	{
-	  std::cout << "Warning: Could not determine extension" << std::endl;
-	}
-    
-    }
-
-  /* See if the parsed extension or format is in the format vector */
-  delete s_extension;
-  delete s_format;
-
-  return fmt.defined_type(format_vector, extension, format);
+  return format::defined_type(format_vector, extension, format);
 
   
 }
@@ -259,7 +163,7 @@ int core::deal_with_link(std::string media_url, std::string title, std::string *
    
   std::string *filename = new std::string;
     
-  if (fmt.get_filename(media_url, filename) != 0)
+  if (format::get_filename(media_url, filename) != 0)
     {
       std::cout << "Could not get filename from url (" << media_url << ")" << std::endl;
       delete filename;
@@ -278,7 +182,7 @@ int core::deal_with_link(std::string media_url, std::string title, std::string *
       std::cout << "Downloading: " << download_path <<std::endl;
       int status = net.download_file(media_url, download_path);
       {
-	if (dbg.state())
+	if (debug::state)
 	  {
 	    std::cout << "status: " << status << std::endl;
 	  }
@@ -287,7 +191,7 @@ int core::deal_with_link(std::string media_url, std::string title, std::string *
 
   else
     {
-      if (dbg.state())
+      if (debug::state)
 	{
 	  std::cout << "already exists: " << download_path << std::endl;
 	}
@@ -305,7 +209,9 @@ int core::delete_uneeded(std::string path, int max_downloads)
       return 1;
     }
 
-  fs.list_dir(path);
+  std::vector<std::string> *return_vector = new std::vector<std::string>;
+
+  fs.list_dir(path, return_vector);
 
 }
   

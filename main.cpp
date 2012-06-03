@@ -2,6 +2,7 @@
 
 #include "core.hpp"
 
+int debug::state = 0;
 
 int main()
 {
@@ -11,17 +12,43 @@ int main()
 
   if (cfg.parse_config() != 0)
     {
-      std::cout << "Could not parse configuration" << std::endl;
+      std::cout << "Error: could not parse config" << std::endl;
       return 1;
     }
+  
+  
+  std::map<std::string, std::vector<std::string> >::iterator key;
 
-  for (clipodder.u_iter = cfg.url_map.begin(); clipodder.u_iter != cfg.url_map.end(); clipodder.u_iter++)
+  for (key = cfg.url_map.begin(); key != cfg.url_map.end(); key++)
     {
-      if (clipodder.u_iter->first.size())
+      int status;
+
+      /* If no directory was specified */
+      if (cfg.download_map[key->first] == "default" || !cfg.download_map[key->first].size())
 	{
-	  clipodder.download_podcasts(clipodder.u_iter->first);
+	  status = clipodder.download_podcasts(key->first, 
+					       cfg.max_downloads_map[key->first], 
+					       cfg.config_map["download_dir"],
+					       key->second);
+	}
+
+      /* If a directory was specified */
+      else if (cfg.download_map[key->first].size())
+	{
+	  status = clipodder.download_podcasts(key->first, 
+					       cfg.max_downloads_map[key->first],
+					       cfg.download_map[key->first],
+					       key->second);
 	}
       
+      
+      if (debug::state)
+	{
+	  std::cout << "status: " << status << std::endl;
+	}
     }
+   
+    
+  
   return 0;
 }
