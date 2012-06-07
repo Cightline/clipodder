@@ -2,6 +2,7 @@
 
 #include "main.hpp"
 
+/* static */
 int debug::state = 0;
 
 int main()
@@ -21,7 +22,7 @@ int main()
   /* Iterate through the urls in the config */
   for (key = cfg.url_map.begin(); key != cfg.url_map.end(); key++)
     {
-      int status;
+      unsigned int status = 1;
       
       if (debug::state)
 	{
@@ -52,12 +53,16 @@ int main()
     }
   
 
-
   std::map<std::string, std::string>::iterator p_key; 
   
 
   for (p_key = clipodder.path_map.begin(); p_key != clipodder.path_map.end(); p_key++)
     {
+      if (debug::state)
+	{
+	  std::cout << "pkey->second " << p_key->second << std::endl;
+	}
+
       file_manager::delete_excess(p_key->second, cfg.max_downloads_map[p_key->first]);
     }
   

@@ -49,11 +49,9 @@ static int curl_write_file(void *ptr, size_t size, size_t nmemb, void *userdata)
   
 }
 
-std::string network::fetch_page(std::string url)
+std::string *network::fetch_page(std::string url)
 {
- 
-
-  std::string buf;
+  std::string *buf = new std::string;
   CURL *curl;
   CURLcode res;
 
@@ -64,7 +62,7 @@ std::string network::fetch_page(std::string url)
       curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
       curl_easy_setopt(curl, CURLOPT_VERBOSE, 0);
       curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, curl_write);
-      curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buf);
+      curl_easy_setopt(curl, CURLOPT_WRITEDATA, buf);
       
       res = curl_easy_perform(curl);
 

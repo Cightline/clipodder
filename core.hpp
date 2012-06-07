@@ -18,7 +18,7 @@
 #include "file_manager.hpp"
 
 
-#include "podcast_container.hpp"
+#include "container.hpp"
 #include "debug.hpp"
 
 
@@ -31,28 +31,25 @@ public:
     
   bool should_download(std::string url, 
 		       std::string media_url, 
-		       std::string supplied_info,
+		       std::string supplied_info, //rename to supplied_format
 		       std::vector<std::string> format_vector);
 
 
-
+  int save_found_path(std::string address, std::string path);
   std::string determine_format(std::string media_url);
   std::string get_extension(std::string media_url);
 
-  int fill_container(podcast_container *container);
   int parse_given_format(std::string to_parse, std::string *format, std::string *extension);
 
   bool defined_type(std::vector<std::string> f_vector, std::string extension, std::string format);
   
-  std::string fetch_page(std::string url);
-
   int download_podcasts(std::string url, 
 			int max_downloads, 
 			std::string download_dir, 
 			std::vector<std::string> formats);
 
 
-  int deal_with_link(std::string url, std::string title, std::string final_dir);
+  int download_link(std::string url, std::string title, std::string final_dir);
   int get_filename(std::string url, std::string *return_url);
 
   std::string get_podcast_url(std::string format);

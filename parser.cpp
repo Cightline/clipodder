@@ -53,34 +53,13 @@ std::vector<xmlNode *> parser::node_vector(xmlNode *node, const char *name)
 }
 
 
-bool parser::root_node_exists()
-{
-  if (parser::g_root_node != NULL)
-    {
-      if (debug::state) 
-	{ 
-	  std::cout << "root_node: exists" << std::endl; 
-	}
-      return true;
-    }
-  
-  if (debug::state)
-    { 
-      std::cout << "root_node: does not exist" << std::endl; 
-    }
-  return false;  
-}
-
-
-
-
 std::string parser::get_title()
 {
 
   std::string return_s;
   xmlNode *channel_node; 
 
-  for (channel_node = parser::g_root_node->children; channel_node != NULL; channel_node = channel_node->next)
+  for (channel_node = parser::root_node->children; channel_node != NULL; channel_node = channel_node->next)
     {
       if (parser::node_is(channel_node, "channel"))
 	{
@@ -88,14 +67,11 @@ std::string parser::get_title()
 	}
     }
 
-  
   if (channel_node == NULL)
     {
       return return_s; 
     }
   
-  
-
   for (xmlNode *title_node = channel_node->children; title_node != NULL; title_node = title_node->next)
     {
       if (parser::node_is(title_node, "title"))
@@ -113,6 +89,7 @@ std::string parser::get_title()
   return return_s;
 }
 
+
 xmlNode *parser::get_node(xmlNode *node_with_children, std::string name)
 {
   for (xmlNode *node = node_with_children->children; node != NULL; node = node->next)
@@ -123,6 +100,7 @@ xmlNode *parser::get_node(xmlNode *node_with_children, std::string name)
 	}
     }
 }
+
 
 
 int parser::get_enclosures(std::vector<xmlNode *> *vect)
@@ -137,15 +115,18 @@ int parser::get_enclosures(std::vector<xmlNode *> *vect)
 }
 
 
-int parser::get_all_links(podcast_container *p_container)
+std::map<std::string, std::string> parser::get_links()
 {
+  /* FIX THIS (NEAR BOTTOM) */
+  podcast_container *p_container = new podcast_container;
+  
   std::vector<xmlNode *> *item_vector = new std::vector<xmlNode*>;
   std::vector<xmlNode *> enclosure_vector;
 
   /* Get all the item nodes. Currently it creates a temp_vector with items, then adds 
      them to the item_vector. When I get more time to look at it, I will see if this is even 
      necessary. */
-  for (xmlNode *node = parser::g_root_node->children; node != NULL; node = node->next)
+  for (xmlNode *node = parser::root_node->children; node != NULL; node = node->next)
     {
       
       if (!node_is(node, "channel"))
@@ -171,8 +152,6 @@ int parser::get_all_links(podcast_container *p_container)
     {
       std::cout << "total items: " << item_vector->size() << std::endl;
     }
-  
-  
 
   std::vector<xmlNode *>::iterator temp_iter; 
 
@@ -196,10 +175,8 @@ int parser::get_all_links(podcast_container *p_container)
 
   delete item_vector;
 
-  return 0;
+  return p_container->media_urls;
 }
-
-
 
 
 std::string parser::get_content(xmlNode *node)
@@ -222,16 +199,16 @@ std::string parser::get_content(xmlNode *node)
 
 
 
-int parser::parse_feed(std::string page, std::string url)
+int parser::parse_feed()
 {
   
-  const char *c_page = page.c_str();
-  const char *c_url  = url.c_str();
+  const char *c_data = parser::data->c_str();
+  const char *c_url  = parser::url.c_str();
 
 
-  xmlNode *root_node = parser::parse_buffer(c_page, page.size(), c_url);
+  xmlNode *r = parser::parse_buffer(c_data, data->size(), c_url);
 
-  if (!root_node)
+  if (!r)
     {
       std::cout << "Error: could not parse feed (no root node)" << std::endl;
       return 1;
@@ -239,20 +216,44 @@ int parser::parse_feed(std::string page, std::string url)
 
   else
     {
-      parser::g_root_node = root_node;
+      parser::root_node = r;
     }
 
   return 0; 
 }
 
 
+int parser::set_url(std::string url)
+{
+  parser::url = url;
+}
+
+
+int parser::set_data(std::string *data)
+{
+  if (debug::state)
+    {
+      std::cout << "data->size(): " << data->size() << std::endl;
+    }
+  
+  this->data = data;
+}
+
+int parser::delete_data()
+{
+  if (debug::state)
+    {
+      std::cout << "freeing data" << std::endl;
+    }
+
+  delete this->data;
+}
 
 xmlNode *parser::parse_buffer(const char *buffer, size_t size, const char *url)
 {
 
   
   xmlNode *return_node; 
-
 
   doc = xmlReadMemory(buffer, size, url, NULL, XML_PARSE_RECOVER | XML_PARSE_NOERROR | XML_PARSE_NOWARNING);
   

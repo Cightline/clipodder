@@ -2,48 +2,16 @@
 #include "core.hpp"
 
 
-int core::fill_container(podcast_container *container)
+
+int core::save_found_path(std::string address, std::string path)
 {
-  container->data = network::fetch_page(container->url);
-
-  if (!container->data.size())
+  if (!core::path_map[address].size())
     {
-      std::cout << "Error: no data from " << container->url << std::endl;
-      return 1;
-    }
-
-  if (!ps.parse_feed(container->data, container->url) == 0)
-    {
-      std::cout << "Error: could not parse " << container->url << std::endl;
-      return 1;
-    }
-
-  /* We parsed the feed, so we can grab the title now */
-  container->title = ps.get_title();
-  
-  std::cout << "Checking: " << container->title << std::endl;
-
-  if (!ps.root_node_exists())
-    {
-      std::cout << "Error: could not get root node" << std::endl;
-      return 1;
-    }
-
-  
-  if (ps.get_all_links(container) != 0)
-    {
-      std::cout << "Error: could not parse any links, skipping" << std::endl;
-      return 1;
-    }
-
-    
-  if (!container->media_urls.size())
-    {
-      std::cout << "Error: could not find any links after parsing, skipping" << std::endl;
-      return 1;
+      std::cout << "address: " << address << std::endl;
+      std::cout << "path:    " << path    << std::endl;
+      core::path_map[address] = path;
     }
 }
-
 
 int core::download_podcasts(std::string url, 
 			    int max_downloads, 
@@ -51,103 +19,88 @@ int core::download_podcasts(std::string url,
 			    std::vector<std::string> format_vector)
 {
            
-  podcast_container *p_container;
-  p_container = new podcast_container;
-  
-  p_container->url = url;
+  container podcast;
+  parser ps;
 
-  /* Once we assign the struct a url, we can fill it
-     and do the rest of the work. */
-  if (core::fill_container(p_container) == 1)
-    {
-      delete p_container;
-      return 1;
-    }   
+  /* Retrieve the page and parse */
+  podcast.set_url(url);
+  ps.set_url(url);
+
+  /* network::fetch_page(url) allocates and returns a pointer */
+  ps.set_data(network::fetch_page(url));
+  ps.parse_feed();
+
+  /* If we can't find the title, we can't save */
+  std::string title = ps.get_title();
   
-  else if (debug::state)
+  if (!title.size())
     {
-      std::cout << "links found: " << p_container->media_urls.size() << std::endl;
+      std::cout << "Warning: could not get title for url: " << url << std::endl;
+      return 0;
     }
 
-      
-  int counter = 1;
-  std::map<std::string, std::string>::iterator media_url;
+  /* Iterate through all the found media_urls for this feed and download if needed */
+  int counter = 0;
+  std::map<std::string, std::string>::iterator i;
+  
+  /* Grab all the media_urls */
+  std::map<std::string, std::string> media_urls = ps.get_links();
 
-
-  /* Ok here we are looking through the found urls. If the format was found during parse (video/mp4), it will be
-     m_iter->second. */
-  for (media_url = p_container->media_urls.begin(); media_url != p_container->media_urls.end(); media_url++)
-    { 
-      int download_status;
-      std::string supplied_format;
-      
-      /* Check to see if we are exceeding max_downloads. I could just add counter to the for loop, but then 
-	 it gets too messy */
+  for (i = media_urls.begin(); i != media_urls.end(); i++)
+    {
+      /* Incase we start a iteration, but we are going to exceed max_downloads. 
+	 (max_downloads defaults to 1) */
+      ++counter;
       if (counter > max_downloads)
 	{
-	  if (debug::state)
-	    {
-	      std::cout << "not exceeding max_downloads: " << max_downloads << std::endl;
+	  if (debug::state) 
+	    { 
+	      std::cout << "max_downloads: " << max_downloads << " counter: " << counter << std::endl; 
 	    }
 	  break;
 	}
       
-
+      /* For simplicity */
+      std::string file_url      = i->first;
+      std::string parsed_format = i->second;
+      std::string final_dir     = file_manager::get_final_dir(title, download_dir);
+      unsigned int download_link = 1;
+	
       if (debug::state)
 	{
-	  std::cout << "Iteration: " << counter << std::endl;
-	  std::cout << "media_url->first: "  << media_url->first << std::endl;
-	  std::cout << "media_url->second: " << media_url->second << std::endl;
+	  std::cout << "file_url: " << file_url << std::endl
+		    << "parsed_format: " << parsed_format << std::endl
+		    << "final_dir: " << final_dir << std::endl;
 	}
 
 
-      /* If the format is supplied */
-      if (media_url->second.size())
-	{
-	  supplied_format = media_url->second; 
-	}
-      
-                  
-      /* If no format was specified (download all) */
+      /* If no formats were specified in the config (download all) */
       if (!format_vector.size())
-	{	  
-	  std::string address = media_url->first;
-
-	  if (!core::path_map[address].size())
-	    {
-	      /* save the path for later use */
-	      core::path_map[address] = file_manager::get_final_dir(p_container->title, download_dir);
-	    }
-	  
-	  file_manager::prepare_download(download_dir, core::path_map[address]);
-	  download_status = core::deal_with_link(address, p_container->title, core::path_map[address]);
-	}
-  
-      /* Otherwise check the supplied format against the config */	 
-      else if (core::should_download(p_container->url, media_url->first, supplied_format, format_vector))
 	{
-	  std::string address = media_url->first;
-	  if (!core::path_map[address].size())
+	  /* Ensure the directories are present */
+	  if (file_manager::prepare_download(download_dir, final_dir) == 0)
 	    {
-	      /* save it for later use */
-	      core::path_map[address] = file_manager::get_final_dir(p_container->title, download_dir);
+	      download_link = core::download_link(file_url, title, final_dir);
 	    }
-
-	  file_manager::prepare_download(download_dir, core::path_map[address]);
-	  download_status = core::deal_with_link(address, p_container->title, core::path_map[address]);
 	}
-      
+
+      /* Otherwise test it against the found format */
+      else if (core::should_download(url, i->first, i->second, format_vector))
+	{
+	  if (file_manager::prepare_download(download_dir, final_dir) == 0)
+	    {
+	      download_link = core::download_link(file_url, title, final_dir);
+	    }
+	}
+	
       if (debug::state)
 	{
-	  std::cout << "download_status: " << download_status << std::endl;
+	  std::cout << "download_link: " << download_link << std::endl;
 	}
-
-      counter++;
-      }
-
-  /* Get rid of this */
-  delete p_container;
+    }
+  ps.delete_data();
   return 0;
+
 }
 
 
@@ -179,11 +132,10 @@ bool core::should_download(std::string url,
 }
 
 
-int core::deal_with_link(std::string media_url, std::string title, std::string final_dir)
+int core::download_link(std::string media_url, std::string title, std::string final_dir)
 {
    
   std::string *filename = new std::string;
-  
   *filename = format::get_filename(media_url);
 
   if (!filename->size())
@@ -192,25 +144,21 @@ int core::deal_with_link(std::string media_url, std::string title, std::string f
       delete filename;
       return 1;
     }
-  
-  
+    
   std::string download_path = final_dir + "/" + *filename;
   delete filename;
-
 
   /* See if the file exists, if not download */
   if (!filesystem::file_exists(download_path))
     {
       std::cout << "Downloading: " << download_path << std::endl;
-
       
       int status = network::download_file(media_url, download_path);
-      {
-	if (debug::state)
-	  {
-	    std::cout << "status: " << status << std::endl;
-	  }
-      }
+      
+      if (debug::state)
+	{
+	  std::cout << "download_status: " << status << std::endl;
+	}
     }
 
   else

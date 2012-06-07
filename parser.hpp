@@ -11,36 +11,49 @@
 
 #include <cstring>
 
-
-#include "podcast_container.hpp"
 #include "debug.hpp"
+#include "network.hpp"
 
 class parser
 {
 
 public:
 
-  xmlDoc *doc;
-  xmlNode *g_root_node;
-
-  std::vector<std::string> link_vector;
+  struct podcast_container
+  {
+    std::string url;
+    std::string title;
+    std::vector<std::string> links;
+    std::map<std::string, std::string> media_urls;
+  };
   
+  xmlDoc *doc;
+  xmlNode *root_node;
+  std::vector<std::string> link_vector;
+  std::string url;
+  std::string *data; 
+
   bool root_node_exists();
 
-  int get_link(podcast_container *p_container);
+  int set_url(std::string url);
+  int set_data(std::string *data);
+  int delete_data();
+
+  std::map<std::string, std::string> get_links();
+
   int get_enclosures(std::vector<xmlNode *> *vect);
   xmlNode *get_node(xmlNode *node_with_children, std::string name);
 
 
   std::map<std::string, std::vector<std::string> > url_map;
   
-  xmlNode *  parse_buffer(const char *buffer, size_t size, const char *url);
+  xmlNode* parse_buffer(const char *buffer, size_t size, const char *url);
   
   std::string get_content(xmlNode *node);
   std::string get_title();
 
   
-  int get_all_links(podcast_container *p_container);
+  std::map<std::string, std::string> get_all_links();
   int get_links_from_node(xmlNode *node, podcast_container *p_container, char enclosure);
 
 
@@ -48,7 +61,7 @@ public:
   int parse_links(xmlNode *node);
 
 
-  int parse_feed(std::string page, std::string url);
+  int parse_feed();
   
   std::string get_attr(xmlNode *node, const char *attr);
   
