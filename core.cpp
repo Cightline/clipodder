@@ -7,7 +7,10 @@ int core::save_download_path(std::string address, std::string path)
 {
   if (!core::path_map[address].size())
     {
-      std::cout << "saving download path: " << path << std::endl;
+      if (debug::state)
+	{
+	  std::cout << "saving download path: " << path << std::endl;
+	}
       core::path_map[address] = path;
     }
 }

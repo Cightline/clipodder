@@ -9,7 +9,7 @@ int file_manager::delete_excess(std::string path, int max_files)
       return 1;
     }
     
-  std::cout << "what" << std::endl;
+
   std::vector<std::string> *file_vector = new std::vector<std::string>;
   std::vector<std::string>::iterator f_iter; 
 
