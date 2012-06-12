@@ -55,6 +55,10 @@ int main()
 
   std::map<std::string, std::string>::iterator p_key; 
   
+  if (debug::state)
+    {
+      std::cout << "deleting excess files" << std::endl;
+    }
 
   for (p_key = clipodder.path_map.begin(); p_key != clipodder.path_map.end(); p_key++)
     {

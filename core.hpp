@@ -27,6 +27,7 @@ class core
 
 public:
 
+  
   parser ps;
     
   bool should_download(std::string url, 
@@ -35,7 +36,7 @@ public:
 		       std::vector<std::string> format_vector);
 
 
-  int save_found_path(std::string address, std::string path);
+  int save_download_path(std::string address, std::string path);
   std::string determine_format(std::string media_url);
   std::string get_extension(std::string media_url);
 

@@ -79,3 +79,22 @@ bool filesystem::make_dir(std::string path)
   
 }
 
+int filesystem::get_mtime(std::string file_path)
+{
+  struct stat results; 
+
+  if (stat(file_path.c_str(), &results) == 0)
+    {
+      return results.st_mtime;
+    }
+   
+  return 0;
+
+}
+
+
+int filesystem::remove_file(std::string file_path)
+{
+  return remove(file_path.c_str());
+}
+

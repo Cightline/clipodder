@@ -243,7 +243,7 @@ int parser::delete_data()
 {
   if (debug::state)
     {
-      std::cout << "freeing data" << std::endl;
+      std::cout << "freeing " << this->data->size() << " bytes" << std::endl;
     }
 
   delete this->data;
