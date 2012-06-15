@@ -116,6 +116,7 @@ int parser::get_enclosures(std::vector<xmlNode *> *vect)
 
 
 std::map<std::string, std::string> parser::get_links()
+						     
 {
   /* FIX THIS (NEAR BOTTOM) */
   podcast_container *p_container = new podcast_container;
@@ -143,7 +144,7 @@ std::map<std::string, std::string> parser::get_links()
 	    {
 	      std::cout << "temp items: " << temp_vector.size() << std::endl;
 	    }
-	  item_vector->insert(item_vector->end(), temp_vector.begin(), temp_vector.end());
+	  item_vector->insert(item_vector->begin(), temp_vector.begin(), temp_vector.end());
 	}
     }
   
@@ -162,15 +163,18 @@ std::map<std::string, std::string> parser::get_links()
       std::string link   = get_attr(e_node, "url");
       std::string format = get_attr(e_node, "type");
      
+      std::cout << "link: " << link << std::endl;
+
       if (link.size() && format.size())
 	{
-	  p_container->media_urls[link] = format;
+	  format_map[link] = format;
+	}
+      
+      if (link.size())
+	{
+	  link_vector.push_back(link);
 	}
 
-      else if (link.size())
-	{
-	  p_container->media_urls[link];
-	}
     }      
 
   delete item_vector;
@@ -203,7 +207,7 @@ int parser::parse_feed()
 {
   
   const char *c_data = parser::data->c_str();
-  const char *c_url  = parser::url.c_str();
+  const char *c_url  = parser::url->c_str();
 
 
   xmlNode *r = parser::parse_buffer(c_data, data->size(), c_url);
@@ -223,9 +227,10 @@ int parser::parse_feed()
 }
 
 
-int parser::set_url(std::string url)
+int parser::set_url(std::string *url)
 {
-  parser::url = url;
+  this->url = new std::string;
+  this->url = url;
 }
 
 
@@ -248,6 +253,7 @@ int parser::delete_data()
 
   delete this->data;
 }
+
 
 xmlNode *parser::parse_buffer(const char *buffer, size_t size, const char *url)
 {

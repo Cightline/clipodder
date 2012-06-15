@@ -27,9 +27,7 @@ class core
 
 public:
 
-  
-  parser ps;
-    
+      
   bool should_download(std::string url, 
 		       std::string media_url, 
 		       std::string supplied_info, //rename to supplied_format
@@ -51,19 +49,9 @@ public:
 
 
   int download_link(std::string url, std::string title, std::string final_dir);
-  int get_filename(std::string url, std::string *return_url);
 
-  std::string get_podcast_url(std::string format);
-  void setup_formats();
-  int known_formats(std::string format);
-  int parse_buffer(const char *buffer, size_t size, const char *url);
-  int delete_uneeded(std::string path, int max_downloads);
   
   std::map<std::string, std::string> path_map; 
-
-  std::vector<std::string> links;
-  
-  std::string save_dir; 
 
 };
 

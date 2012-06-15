@@ -29,13 +29,12 @@ public:
   
   xmlDoc *doc;
   xmlNode *root_node;
-  std::vector<std::string> link_vector;
-  std::string url;
+  std::string *url;
   std::string *data; 
 
   bool root_node_exists();
 
-  int set_url(std::string url);
+  int set_url(std::string *url);
   int set_data(std::string *data);
   int delete_data();
 
@@ -51,16 +50,7 @@ public:
   
   std::string get_content(xmlNode *node);
   std::string get_title();
-
   
-  std::map<std::string, std::string> get_all_links();
-  int get_links_from_node(xmlNode *node, podcast_container *p_container, char enclosure);
-
-
-
-  int parse_links(xmlNode *node);
-
-
   int parse_feed();
   
   std::string get_attr(xmlNode *node, const char *attr);
@@ -68,9 +58,9 @@ public:
   bool node_is(xmlNode *node, const char *name);
   
   std::vector<xmlNode *> node_vector(xmlNode *node, const char *name);
-  
-  std::vector<std::string> return_links();
 
+  std::vector<std::string> link_vector;
+  std::map<std::string, std::string> format_map;
 
 
   

@@ -9,7 +9,7 @@ int core::save_download_path(std::string address, std::string path)
     {
       if (debug::state)
 	{
-	  std::cout << "saving download path: " << path << std::endl;
+	  std::cout << "storing download path: " << path << std::endl;
 	}
       core::path_map[address] = path;
     }
@@ -23,22 +23,23 @@ int core::download_podcasts(std::string url,
 {
            
   /* Set up our container to hold the extra info that we want to save for later */
-  
-
   parser ps;
 
-  /* Retrieve the page and parse */
-  
-  ps.set_url(url);
+  container *podcast = new container;
 
-  /* network::fetch_page(url) allocates and returns a pointer */
-  ps.set_data(network::fetch_page(url));
+
+  /* I've created the "container" class for the purpose of "storage" incase I need to use the info later */  
+  podcast->set_data(network::fetch_page(url));
+  podcast->set_url(url);
+  
+  /* Save to parser */
+  ps.set_url(podcast->url);
+  ps.set_data(podcast->data);
   ps.parse_feed();
-
-  /* If we can't find the title, we can't save */
-  std::string title = ps.get_title();
   
-  if (!title.size())
+  podcast->set_title(ps.get_title());  
+  
+  if (!podcast->title->size())
     {
       std::cout << "Warning: could not get title for url: " << url << std::endl;
       return 0;
@@ -46,19 +47,21 @@ int core::download_podcasts(std::string url,
 
     
 
-  std::cout << "Checking: " << title << std::endl;
+  std::cout << "Checking: " << *podcast->title << std::endl;
 
   /* Iterate through all the found media_urls for this feed and download if needed.
      It was downloading oldest first, so I just reversed the map */
-
   int counter = 0;
-  std::map<std::string, std::string>::reverse_iterator i;
+  std::vector<std::string>::iterator i;
   
   /* Grab all the media_urls */
-  std::map<std::string, std::string> media_urls = ps.get_links();
+  ps.get_links();
 
-  for (i = media_urls.rbegin(); i != media_urls.rend(); i++)
+  
+
+  for (i = ps.link_vector.begin(); i != ps.link_vector.end(); i++)
     {
+
       /* Incase we start a iteration, but we are going to exceed max_downloads. 
 	 (max_downloads defaults to 1) */
       ++counter;
@@ -69,12 +72,12 @@ int core::download_podcasts(std::string url,
 	      std::cout << "max_downloads: " << max_downloads << " counter: " << counter << std::endl; 
 	    }
 	  break;
-	}
+	  }
       
       /* For simplicity */
-      std::string file_url      = i->first;
-      std::string parsed_format = i->second;
-      std::string final_dir     = file_manager::get_final_dir(title, download_dir);
+      std::string file_url      = *i;
+      std::string parsed_format = ps.format_map[*i];
+      std::string final_dir     = file_manager::get_final_dir(*podcast->title, download_dir);
       unsigned int download_link = 1;
 	
       
@@ -94,7 +97,7 @@ int core::download_podcasts(std::string url,
 	  /* Ensure the directories are present */
 	  if (file_manager::prepare_download(download_dir, final_dir) == 0)
 	    {
-	      download_link = core::download_link(file_url, title, final_dir);
+	      download_link = core::download_link(file_url, *podcast->title, final_dir);
 	    }
 	}
 
@@ -103,7 +106,7 @@ int core::download_podcasts(std::string url,
 	{
 	  if (file_manager::prepare_download(download_dir, final_dir) == 0)
 	    {
-	      download_link = core::download_link(file_url, title, final_dir);
+	      download_link = core::download_link(file_url, *podcast->title, final_dir);
 	    }
 	}
 	
@@ -112,7 +115,12 @@ int core::download_podcasts(std::string url,
 	  std::cout << "download_link: " << download_link << std::endl;
 	}
     }
-  ps.delete_data();
+
+  
+  delete podcast->data;
+  delete podcast->url;
+  delete podcast->title;
+
   return 0;
 
 }
@@ -153,7 +161,7 @@ int core::download_link(std::string media_url, std::string title, std::string fi
 
   if (!filename->size())
     {
-      std::cout << "Could not get filename from url (" << media_url << ")" << std::endl;
+      std::cout << "Warning: Could not get filename from url (" << media_url << ")" << std::endl;
       delete filename;
       return 1;
     }

@@ -9,7 +9,6 @@ int config::parse_config()
   config_map["config_path"] = config_map["home"] + "/.clipodder/config";
   config_map["download_dir"] = config_map["home"] + "/.clipodder/downloads";
   config_map["show_progress"] = "false";
-  
 
   cfg_opt_t urls[] =
     {
@@ -39,6 +38,7 @@ int config::parse_config()
   
   /* Set the debug state */  
   debug::state = cfg_getint(cfg, "debug");
+
   
   std::string default_dir = cfg_getstr(cfg, "download_dir");
   
