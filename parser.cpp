@@ -194,6 +194,7 @@ std::string parser::get_content(xmlNode *node)
 int parser::parse_feed()
 {
   
+  
   const char *c_data = parser::data->c_str();
   const char *c_url  = parser::url->c_str();
 
@@ -255,7 +256,7 @@ xmlNode *parser::parse_buffer(const char *buffer, size_t size, const char *url)
     }
 
 
-  
+ 
   xmlNode *root_element = xmlDocGetRootElement(doc);
  
   if (strcmp((const char*)root_element->name, "rss") == 0)

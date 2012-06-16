@@ -14,6 +14,8 @@
 #include "debug.hpp"
 #include "network.hpp"
 
+
+
 class parser
 {
 
@@ -32,12 +34,13 @@ public:
   std::string *url;
   std::string *data; 
 
+  int done();
+
   bool root_node_exists();
 
   int set_url(std::string *url);
   int set_data(std::string *data);
-  int done();
-
+  
   int get_links();
 
   int get_enclosures(std::vector<xmlNode *> *vect);

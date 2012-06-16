@@ -2,7 +2,6 @@
 #include "core.hpp"
 
 
-
 int core::save_download_path(std::string address, std::string path)
 {
   if (!core::path_map[address].size())
@@ -106,6 +105,12 @@ int core::download_podcasts(std::string url,
 	    {
 	      download_link = core::download_link(file_url, *podcast.title, final_dir);
 	    }
+	  else
+	    {
+	      std::cout << "Error: could not prepare download" << std::endl;
+	      break;
+	    }
+
 	}
 
       /* Otherwise test it against the found format */
@@ -115,6 +120,11 @@ int core::download_podcasts(std::string url,
 	    {
 	      download_link = core::download_link(file_url, *podcast.title, final_dir);
 	    }
+	  else
+	    {
+	      std::cout << "Error: could not prepare download" << std::endl;
+	      break;
+	    }
 	}
 	
       if (debug::state)
@@ -123,10 +133,12 @@ int core::download_podcasts(std::string url,
 	}
     }
   
+  
   delete podcast.title;
   delete podcast.url;
   delete podcast.data;
-  ps.done();
+  
+  //ps.done();
 
   return 0;
 

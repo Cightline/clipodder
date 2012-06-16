@@ -79,14 +79,17 @@ std::string file_manager::get_final_dir(std::string title, std::string parent_di
 
 int file_manager::prepare_download(std::string parent_dir, std::string final_dir)
 {
-  if (!filesystem::is_dir(parent_dir))
+  if (filesystem::is_dir(parent_dir) == false)
     {
       if (debug::state)
 	{
 	  std::cout << "creating parent directory: " << parent_dir << std::endl;
 	}
-
-      filesystem::make_dir(parent_dir);
+      
+      if (filesystem::make_dir(parent_dir) == false)
+	{
+	  return 1;
+	}
     }
   
   if (!filesystem::is_dir(final_dir))
@@ -95,7 +98,11 @@ int file_manager::prepare_download(std::string parent_dir, std::string final_dir
 	{
 	  std::cout << "creating final directory: " << final_dir << std::endl;
 	}
-      filesystem::make_dir(final_dir);
+      
+      if (filesystem::make_dir(final_dir) == false)
+	{
+	  return 1;
+	}
     }
 
   return 0;

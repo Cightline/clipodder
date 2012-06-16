@@ -34,6 +34,8 @@ public:
     std::string *url;
   };
   
+  int done();
+  
   bool should_download(std::string url, 
 		       std::string media_url, 
 		       std::string supplied_info, //rename to supplied_format
