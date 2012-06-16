@@ -103,23 +103,12 @@ xmlNode *parser::get_node(xmlNode *node_with_children, std::string name)
 
 
 
-int parser::get_enclosures(std::vector<xmlNode *> *vect)
-{
-  std::vector<xmlNode *>::iterator temp_iter;
-  std::vector<xmlNode *> *our_vect = new std::vector<xmlNode *>; 
-
-  for (temp_iter = vect->begin(); temp_iter != vect->end(); temp_iter++)
-    {
-      parser::get_node(*temp_iter, "enclosure");
-    }
-}
 
 
-std::map<std::string, std::string> parser::get_links()
+int parser::get_links()
 						     
 {
   /* FIX THIS (NEAR BOTTOM) */
-  podcast_container *p_container = new podcast_container;
   
   std::vector<xmlNode *> *item_vector = new std::vector<xmlNode*>;
   std::vector<xmlNode *> enclosure_vector;
@@ -162,8 +151,6 @@ std::map<std::string, std::string> parser::get_links()
       
       std::string link   = get_attr(e_node, "url");
       std::string format = get_attr(e_node, "type");
-     
-      std::cout << "link: " << link << std::endl;
 
       if (link.size() && format.size())
 	{
@@ -175,12 +162,13 @@ std::map<std::string, std::string> parser::get_links()
 	  link_vector.push_back(link);
 	}
 
+      delete e_node;  
     }      
-
+  
   delete item_vector;
 
-  return p_container->media_urls;
 }
+
 
 
 std::string parser::get_content(xmlNode *node)
@@ -209,12 +197,13 @@ int parser::parse_feed()
   const char *c_data = parser::data->c_str();
   const char *c_url  = parser::url->c_str();
 
-
   xmlNode *r = parser::parse_buffer(c_data, data->size(), c_url);
 
   if (!r)
     {
       std::cout << "Error: could not parse feed (no root node)" << std::endl;
+      delete r;
+
       return 1;
     }
 
@@ -229,9 +218,9 @@ int parser::parse_feed()
 
 int parser::set_url(std::string *url)
 {
-  this->url = new std::string;
   this->url = url;
 }
+
 
 
 int parser::set_data(std::string *data)
@@ -244,14 +233,10 @@ int parser::set_data(std::string *data)
   this->data = data;
 }
 
-int parser::delete_data()
+int parser::done()
 {
-  if (debug::state)
-    {
-      std::cout << "freeing " << this->data->size() << " bytes" << std::endl;
-    }
-
-  delete this->data;
+  xmlFreeDoc(doc);
+  xmlCleanupParser();
 }
 
 

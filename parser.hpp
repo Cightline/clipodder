@@ -36,9 +36,9 @@ public:
 
   int set_url(std::string *url);
   int set_data(std::string *data);
-  int delete_data();
+  int done();
 
-  std::map<std::string, std::string> get_links();
+  int get_links();
 
   int get_enclosures(std::vector<xmlNode *> *vect);
   xmlNode *get_node(xmlNode *node_with_children, std::string name);

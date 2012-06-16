@@ -39,15 +39,17 @@ int file_manager::delete_excess(std::string path, int max_files)
 
   delete file_vector;
 
-  std::map<std::string, int>::reverse_iterator c;
+  std::map<std::string, int>::iterator c;
   
   int counter = 0;
 
   /* We iterate through and keep a counter of the iteration (files).
      When the counter exceeds max_files, it starts to delete */
-  for (c = mtime_map.rbegin(); c != mtime_map.rend(); c++)
+  for (c = mtime_map.begin(); c != mtime_map.end(); c++)
     {
-      counter++;
+
+      ++counter;
+
       if (counter > max_files)
 	{
 	  std::cout << "Deleting: " << c->first << std::endl;

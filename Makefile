@@ -22,8 +22,6 @@ parser: parser.cpp parser.hpp
 config: config.cpp config.hpp
 	$(CC) config.cpp -c -o config.o $(CONFIG)
 
-container: container.cpp container.hpp
-	$(CC) container.cpp -c -o container.o
 
 filesystem: filesystem.cpp filesystem.hpp
 	$(CC) filesystem.cpp -c -o filesystem.o 
@@ -42,10 +40,9 @@ main: main.cpp main.hpp
 
 
 
-all:  network format parser core filesystem file_manager config container main 
+all:  network format parser core filesystem file_manager config main 
 	$(CC) \
 	main.o network.o format.o parser.o config.o filesystem.o file_manager.o core.o debug.hpp -o clipodder \
-	container.o \
 	$(CONFIG) $(XML) $(CURL)
 
 	rm *.o

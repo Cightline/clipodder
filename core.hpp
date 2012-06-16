@@ -27,7 +27,13 @@ class core
 
 public:
 
-      
+  struct data_
+  {
+    std::string *title;
+    std::string *data;
+    std::string *url;
+  };
+  
   bool should_download(std::string url, 
 		       std::string media_url, 
 		       std::string supplied_info, //rename to supplied_format
