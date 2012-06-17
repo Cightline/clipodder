@@ -136,9 +136,8 @@ int core::download_podcasts(std::string url,
   
   delete podcast.title;
   delete podcast.url;
-  delete podcast.data;
+  delete podcast.data; 
   
-  //ps.done();
 
   return 0;
 

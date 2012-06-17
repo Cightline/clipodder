@@ -1,6 +1,13 @@
 
 #include "parser.hpp"
 
+xmlDoc *parser::doc;
+
+void parser_mem::done()
+{
+  xmlCleanupParser();
+  xmlFreeDoc(parser::doc);
+}
 
 
 std::string parser::get_attr(xmlNode *node, const char *attr)
@@ -41,6 +48,7 @@ std::vector<xmlNode *> parser::node_vector(xmlNode *node, const char *name)
 {
   std::vector<xmlNode *> return_vector;
 
+
   for (xmlNode *t_node = node->children; t_node != NULL; t_node = t_node->next)
     {
       if (parser::node_is(t_node, name))
@@ -48,7 +56,7 @@ std::vector<xmlNode *> parser::node_vector(xmlNode *node, const char *name)
 	  return_vector.push_back(t_node);
 	}
     }
-  
+
   return return_vector;
 }
 
@@ -161,12 +169,9 @@ int parser::get_links()
 	{
 	  link_vector.push_back(link);
 	}
-
-      delete e_node;  
     }      
   
   delete item_vector;
-
 }
 
 
@@ -203,8 +208,7 @@ int parser::parse_feed()
   if (!r)
     {
       std::cout << "Error: could not parse feed (no root node)" << std::endl;
-      delete r;
-
+      
       return 1;
     }
 
@@ -234,12 +238,6 @@ int parser::set_data(std::string *data)
   this->data = data;
 }
 
-int parser::done()
-{
-  xmlFreeDoc(doc);
-  xmlCleanupParser();
-}
-
 
 xmlNode *parser::parse_buffer(const char *buffer, size_t size, const char *url)
 {
@@ -247,9 +245,9 @@ xmlNode *parser::parse_buffer(const char *buffer, size_t size, const char *url)
   
   xmlNode *return_node; 
 
-  doc = xmlReadMemory(buffer, size, url, NULL, XML_PARSE_RECOVER | XML_PARSE_NOERROR | XML_PARSE_NOWARNING);
+  this->doc = xmlReadMemory(buffer, size, url, NULL, XML_PARSE_RECOVER | XML_PARSE_NOERROR | XML_PARSE_NOWARNING);
   
-  if (doc == NULL)
+  if (this->doc == NULL)
     {
       std::cout << "Could not parse buffer" << std::endl;
       return return_node;
@@ -257,7 +255,7 @@ xmlNode *parser::parse_buffer(const char *buffer, size_t size, const char *url)
 
 
  
-  xmlNode *root_element = xmlDocGetRootElement(doc);
+  xmlNode *root_element = xmlDocGetRootElement(this->doc);
  
   if (strcmp((const char*)root_element->name, "rss") == 0)
     { 
@@ -270,5 +268,4 @@ xmlNode *parser::parse_buffer(const char *buffer, size_t size, const char *url)
     }
 
   return return_node;
-  
 }

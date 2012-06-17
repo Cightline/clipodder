@@ -15,11 +15,17 @@
 #include "network.hpp"
 
 
+namespace parser_mem
+{
+  void done();
+}
 
 class parser
 {
 
 public:
+
+  
 
   struct podcast_container
   {
@@ -29,12 +35,12 @@ public:
     std::map<std::string, std::string> media_urls;
   };
   
-  xmlDoc *doc;
+  static xmlDoc *doc;
   xmlNode *root_node;
   std::string *url;
   std::string *data; 
 
-  int done();
+  
 
   bool root_node_exists();
 

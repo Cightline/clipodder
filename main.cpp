@@ -50,8 +50,16 @@ int main()
 	{
 	  std::cout << "status: " << status << std::endl;
 	}
+      parser_mem::done();
     }
   
+  if (debug::state)
+    {
+      std::cout << "running parser_mem::done()" << std::endl;
+    }
+  
+  
+
 
   std::map<std::string, std::string>::iterator p_key; 
   
