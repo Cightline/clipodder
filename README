@@ -1,1 +1,52 @@
 Move along, nothing to see here. 
+
+
+
+Dependencies:
+	-- g++
+	-- make 
+	-- libxml2
+	-- libcurl
+	-- libconfuse
+
+
+This is a re-write of the Python program "clipodder" in C++. 
+
+Programming wise many things are different, user wise only the config format has changed. It currently uses libconfuse to parse the configuration file. 
+Personally I like new configuration because everything is kept between brackets instead of one long line. The C++ version does make use of memory allocation.
+It will read into memory a page, parse it, then delete it. I've tried to keep it as modular as possible to make maintanince easier/faster. 
+
+
+
+
+
+Development:
+
+	-- network.cpp 
+	
+	Used to fetch webpages and download files using libcurl. 
+
+	-- parser.cpp 
+	
+	Parses the XML using libxml2 and holds relevant information.
+
+	-- file_manager.cpp 
+	
+	Prepares downloads and is a "higher" level API to filesystem.cpp
+	
+	-- core.cpp
+	
+	Determines if we should download the podcast, where to, and how many. 
+
+
+
+
+TODO:
+
+	instead of "title_as_dir" use "dir_name"
+
+	see if ctime is better than mtime
+
+	provide a "buffer_size" argument for use with libcurl.  
+
+	create a "clipodder-remote" 

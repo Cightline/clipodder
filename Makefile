@@ -45,10 +45,11 @@ all:  network format parser core filesystem file_manager config main
 	main.o network.o format.o parser.o config.o filesystem.o file_manager.o core.o debug.hpp -o clipodder \
 	$(CONFIG) $(XML) $(CURL)
 
-	rm *.o
+
 
 
 
 install: all
 	cp clipodder /usr/bin/clipodder
 	chmod +x /usr/bin/clipodder
+	rm *.o
