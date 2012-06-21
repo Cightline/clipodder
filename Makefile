@@ -31,18 +31,21 @@ file_manager: file_manager.cpp file_manager.hpp
 	$(CC) file_manager.cpp -c -o file_manager.o
 
 
-core: core.cpp core.hpp 
+core: core.cpp 
 	$(CC) core.cpp -c -o core.o $(CURL) $(XML) $(CONFIG)
 
+container: container.cpp
+	$(CC) container.cpp -c -o container.o 
 
-main: main.cpp main.hpp
+main: main.cpp main.hpp container.hpp
 	$(CC) main.cpp -c -o main.o $(CONFIG) $(XML)
 
 
 
-all:  network format parser core filesystem file_manager config main 
+all:  network format parser core filesystem file_manager config main container
 	$(CC) \
 	main.o network.o format.o parser.o config.o filesystem.o file_manager.o core.o debug.hpp -o clipodder \
+	container.o \
 	$(CONFIG) $(XML) $(CURL)
 
 

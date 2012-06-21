@@ -3,8 +3,10 @@
 
 #include "config.hpp"
 
-int config::parse_config()
+std::vector<container> config::parse_config()
 {
+  std::vector<container> return_vector;
+  
   config_map["home"] = get_home();
   config_map["config_path"] = config_map["home"] + "/.clipodder/config";
   config_map["download_dir"] = config_map["home"] + "/.clipodder/downloads";
@@ -14,6 +16,9 @@ int config::parse_config()
     {
       CFG_STR_LIST("formats", "", CFGF_NONE),
       CFG_STR("download_dir", "default", CFGF_NONE),
+      CFG_STR("dir_name",     "", CFGF_NONE),
+      CFG_INT("num_downloads", 1, CFGF_NONE),
+      CFG_INT("no_child_dir", 0, CFGF_NONE),
       CFG_INT("max_downloads", 1, CFGF_NONE),
       CFG_END()
     };
@@ -33,7 +38,7 @@ int config::parse_config()
   
   if(cfg_parse(cfg, config_map["config_path"].c_str()) == CFG_PARSE_ERROR)
     {
-      return 1;
+      return return_vector;
     }
   
   /* Set the debug state */  
@@ -42,6 +47,7 @@ int config::parse_config()
   
   std::string default_dir = cfg_getstr(cfg, "download_dir");
   
+
   if (default_dir != "default")
     {
       config_map["download_dir"] = cfg_getstr(cfg, "download_dir");
@@ -57,41 +63,50 @@ int config::parse_config()
     }
   
 
+
+
   /* Iterate through the urls and add the formats                                        
      and addresses to the url_map */
 
   /* This is per url */
   for (int i = 0; i < total_urls; i++)
     {
+      container podcast;
+      
       cfg_url = cfg_getnsec(cfg, "url", i);
       
-      std::string addr         = cfg_title(cfg_url);
-      std::string download_dir = cfg_getstr(cfg_url, "download_dir");
-      int num_formats          = cfg_size(cfg_url, "formats");
-    
-      config::url_map[addr];
+      int num_formats = cfg_size(cfg_url, "formats");
 
-      if (download_dir != "default")
+      podcast.set_url(cfg_title(cfg_url));
+      podcast.download_dir  = cfg_getstr(cfg_url, "download_dir");
+      podcast.dir_name      = cfg_getstr(cfg_url, "dir_name");
+      podcast.no_child_dir  = cfg_getint(cfg_url, "no_child_dir");
+      podcast.num_formats   = num_formats;
+      podcast.num_downloads = cfg_getint(cfg_url, "num_downloads");
+
+      std::string download_dir = cfg_getstr(cfg_url, "download_dir");
+
+      if (podcast.download_dir == "default")
 	{
-	  
-	  config::download_map[addr] = download_dir;
+	  podcast.download_dir = config_map["download_dir"];
 	}
+      
 
       for (int b = 0; b < num_formats; b++)
 	{
 	  std::string format = cfg_getnstr(cfg_url, "formats", b);
-	  
-	  if (format.size())
-	    {
-	      config::url_map[addr].push_back(format);
-	    }
+	  podcast.config_formats.push_back(format);
 	}
 
-      config::max_downloads_map[addr] = cfg_getint(cfg_url, "max_downloads");
-      
+      podcast.max_downloads = cfg_getint(cfg_url, "max_downloads");
+
+      return_vector.push_back(podcast);
     }
+  
+  
+
   cfg_free(cfg);
-  return 0;
+  return return_vector;
 }
 
 

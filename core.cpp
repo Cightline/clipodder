@@ -15,39 +15,27 @@ int core::save_download_path(std::string address, std::string path)
 }
 
 
-int core::download_podcasts(std::string url, 
-			    int max_downloads, 
-			    std::string download_dir,
-			    std::vector<std::string> format_vector)
+int core::download_podcasts(container podcast)
 {
            
   /* Set up our container to hold the extra info that we want to save for later */
   parser ps;
   
-  data_ podcast;
 
-  podcast.title = new std::string;
-  podcast.url   = new std::string;
-  podcast.data  = network::fetch_page(url);
-
-  *podcast.url = url;
-
+  podcast.data = network::fetch_page(*podcast.url);
 
   /* Setup the parser */
   ps.set_url(podcast.url);
   ps.set_data(podcast.data);
   ps.parse_feed();
   
-  *podcast.title = ps.get_title();
-    
+  podcast.set_title(ps.get_title());
+  
+  
+
   if (!podcast.title->size())
     {
-      std::cout << "Warning: could not get title for url: " << url << std::endl;
-
-      delete podcast.title;
-      delete podcast.url; 
-      delete podcast.data;
-
+      std::cout << "Warning: could not get title for url: " << *podcast.url << std::endl;
       return 0;
     }
 
@@ -63,7 +51,10 @@ int core::download_podcasts(std::string url,
   
   ps.get_links();
 
-  for (i = ps.link_vector.begin(); i != ps.link_vector.end(); i++)
+  podcast.link_vector = ps.link_vector;
+  
+
+  for (i = podcast.link_vector.begin(); i != podcast.link_vector.end(); i++)
     {
 
       /* Incase we start a iteration, but we are going to exceed max_downloads. 
@@ -71,22 +62,37 @@ int core::download_podcasts(std::string url,
  
       ++counter;
  
-      if (counter > max_downloads)
+      if (counter > podcast.num_downloads)
 	{
 	  if (debug::state) 
 	    { 
-	      std::cout << "max_downloads: " << max_downloads << " counter: " << counter << std::endl; 
+	      std::cout << "num_downloads: " << podcast.num_downloads << " counter: " << counter << std::endl; 
 	    }
 	  break;
-	  }
+	}
       
       /* For simplicity */
-      std::string file_url      = *i;
-      std::string parsed_format = ps.format_map[*i];
-      std::string final_dir     = file_manager::get_final_dir(*podcast.title, download_dir);
-      unsigned int download_link = 1;
-	
+      std::string final_dir;
       
+      if (podcast.no_child_dir)
+	{
+	  final_dir = podcast.download_dir;
+	}
+
+      else if (podcast.dir_name.size())
+	{
+	  final_dir = file_manager::get_final_dir(podcast.dir_name, podcast.download_dir);
+	}
+
+      else 
+	{
+	  final_dir = file_manager::get_final_dir(*podcast.title, podcast.download_dir);
+	}
+
+
+      std::string file_url      = *i;
+      std::string parsed_format = podcast.format_map[*i];
+      unsigned int download_link = 1;
       
       if (debug::state)
 	{
@@ -95,28 +101,28 @@ int core::download_podcasts(std::string url,
 		    << "final_dir: "     << final_dir << std::endl;
 	}
 
-      core::save_download_path(url, final_dir);
+      core::save_download_path(*podcast.url, final_dir);
 
       /* If no formats were specified in the config (download all) */
-      if (!format_vector.size())
+      if (!podcast.config_formats.size())
 	{
 	  /* Ensure the directories are present */
-	  if (file_manager::prepare_download(download_dir, final_dir) == 0)
+	  if (file_manager::prepare_download(podcast.download_dir, final_dir) == 0)
 	    {
 	      download_link = core::download_link(file_url, *podcast.title, final_dir);
 	    }
+
 	  else
 	    {
 	      std::cout << "Error: could not prepare download" << std::endl;
 	      break;
 	    }
-
 	}
 
       /* Otherwise test it against the found format */
-      else if (core::should_download(url, file_url, parsed_format, format_vector))
+      else if (core::should_download(*podcast.url, file_url, parsed_format, podcast.config_formats))
 	{
-	  if (file_manager::prepare_download(download_dir, final_dir) == 0)
+	  if (file_manager::prepare_download(podcast.download_dir, final_dir) == 0)
 	    {
 	      download_link = core::download_link(file_url, *podcast.title, final_dir);
 	    }
@@ -133,10 +139,6 @@ int core::download_podcasts(std::string url,
 	}
     }
   
-  
-  delete podcast.title;
-  delete podcast.url;
-  delete podcast.data; 
   
 
   return 0;

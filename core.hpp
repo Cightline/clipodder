@@ -17,6 +17,7 @@
 #include "filesystem.hpp"
 #include "file_manager.hpp"
 
+#include "container.hpp"
 
 #include "debug.hpp"
 
@@ -49,10 +50,12 @@ public:
 
   bool defined_type(std::vector<std::string> f_vector, std::string extension, std::string format);
   
-  int download_podcasts(std::string url, 
+  /*int download_podcasts(std::string url, 
 			int max_downloads, 
 			std::string download_dir, 
-			std::vector<std::string> formats);
+			std::vector<std::string> formats); */
+
+  int download_podcasts(container podcast);
 
 
   int download_link(std::string url, std::string title, std::string final_dir);
