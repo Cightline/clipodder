@@ -3,11 +3,21 @@ Move along, nothing to see here.
 
 
 Dependencies:
-	-- g++
-	-- make 
-	-- libxml2
-	-- libcurl
-	-- libconfuse
+	
+	all:
+	- gcc
+	- make
+	
+	Arch:
+	- curl
+	- libxml2
+	- confuse
+
+	Debian:
+	- libcurl4-gnutls-dev or libcurl4-openssl-dev
+	- libxml2-dev
+	- libconfuse-dev
+	
 
 
 This is a re-write of the Python program "clipodder" in C++. 
@@ -20,30 +30,8 @@ It will read into memory a page, parse it, then delete it. I've tried to keep it
 
 
 
-Development:
-
-	-- network.cpp 
-	
-	Used to fetch webpages and download files using libcurl. 
-
-	-- parser.cpp 
-	
-	Parses the XML using libxml2 and holds relevant information.
-
-	-- file_manager.cpp 
-	
-	Prepares downloads and is a "higher" level API to filesystem.cpp
-	
-	-- core.cpp
-	
-	Determines if we should download the podcast, where to, and how many. 
-
-
-
 
 TODO:
-
-	instead of "title_as_dir" use "dir_name"
 
 	see if ctime is better than mtime
 
