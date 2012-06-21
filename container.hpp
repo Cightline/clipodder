@@ -14,7 +14,8 @@ public:
   int num_downloads; 
   
   std::string download_dir;
-  
+  std::string final_dir;
+
   std::string *title;
   std::string *url;
   std::string *data;
@@ -26,6 +27,8 @@ public:
 
   int set_title(std::string title);
   int set_url(std::string url);
+  int set_final_dir(std::string final_dir);
+  std::string get_final_dir();
   int done();
 };
 #endif

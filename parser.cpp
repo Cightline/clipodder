@@ -193,39 +193,10 @@ std::string parser::get_content(xmlNode *node)
 }
 
 
-
-
-
-int parser::parse_feed()
-{
-  
-  
-  const char *c_data = parser::data->c_str();
-  const char *c_url  = parser::url->c_str();
-
-  xmlNode *r = parser::parse_buffer(c_data, data->size(), c_url);
-
-  if (!r)
-    {
-      std::cout << "Error: could not parse feed (no root node)" << std::endl;
-      
-      return 1;
-    }
-
-  else
-    {
-      parser::root_node = r;
-    }
-
-  return 0; 
-}
-
-
 int parser::set_url(std::string *url)
 {
   this->url = url;
 }
-
 
 
 int parser::set_data(std::string *data)
@@ -234,23 +205,25 @@ int parser::set_data(std::string *data)
     {
       std::cout << "data->size(): " << data->size() << std::endl;
     }
-  
+
   this->data = data;
 }
 
 
-xmlNode *parser::parse_buffer(const char *buffer, size_t size, const char *url)
+int parser::parse_feed()
 {
-
   
-  xmlNode *return_node; 
+  const char *c_data = parser::data->c_str();
+  const char *c_url  = parser::url->c_str();
+  size_t size = parser::data->size();
 
-  this->doc = xmlReadMemory(buffer, size, url, NULL, XML_PARSE_RECOVER | XML_PARSE_NOERROR | XML_PARSE_NOWARNING);
+
+  this->doc = xmlReadMemory(c_data, size, c_url, NULL, XML_PARSE_RECOVER | XML_PARSE_NOERROR | XML_PARSE_NOWARNING);
   
   if (this->doc == NULL)
     {
-      std::cout << "Could not parse buffer" << std::endl;
-      return return_node;
+      std::cout << "Warning: could not parse buffer" << std::endl;
+      return 1;
     }
 
 
@@ -259,13 +232,14 @@ xmlNode *parser::parse_buffer(const char *buffer, size_t size, const char *url)
  
   if (strcmp((const char*)root_element->name, "rss") == 0)
     { 
-      return_node = root_element;
+      parser::root_node = root_element;
     }
   
   else
     {
-      std::cout << "Unknown feed type" << std::endl;
+      std::cout << "Warning: could not get feed type from: " << *parser::url << std::endl;
+      return 1; 
     }
 
-  return return_node;
+  return 0;
 }

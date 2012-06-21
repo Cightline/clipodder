@@ -16,7 +16,7 @@ int file_manager::delete_excess(std::string path, int max_files)
   /* Get the files in the directory */
   filesystem::list_dir(path, file_vector);
 
-  std::map<std::string, int> mtime_map;
+  std::map<int, std::string> mtime_map;
   
   for (f_iter = file_vector->begin(); f_iter != file_vector->end(); f_iter++)
     {
@@ -28,7 +28,7 @@ int file_manager::delete_excess(std::string path, int max_files)
 
       if (mtime != 0)
 	{
-	  mtime_map[file_path] = mtime;
+	  mtime_map[mtime] = file_path;
 	}
     }
 
@@ -39,27 +39,27 @@ int file_manager::delete_excess(std::string path, int max_files)
 
   delete file_vector;
 
-  std::map<std::string, int>::iterator c;
+  std::map<int, std::string>::reverse_iterator c;
   
   int counter = 0;
 
   /* We iterate through and keep a counter of the iteration (files).
      When the counter exceeds max_files, it starts to delete */
-  for (c = mtime_map.begin(); c != mtime_map.end(); c++)
+  for (c = mtime_map.rbegin(); c != mtime_map.rend(); c++)
     {
 
       ++counter;
 
       if (counter > max_files)
 	{
-	  std::cout << "Deleting: " << c->first << std::endl;
-	  filesystem::remove_file(c->first);
+	  std::cout << "Deleting: " << c->second << std::endl;
+	  filesystem::remove_file(c->second);
 	}
       
       if (debug::state)
 	{
-	  std::cout << "file: "  << c->first << std::endl;
-	  std::cout << "mtime: " << c->second << std::endl;
+	  std::cout << "file: "  << c->second << std::endl;
+	  std::cout << "mtime: " << c->first << std::endl;
 	}
     }
 	

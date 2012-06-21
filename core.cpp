@@ -15,19 +15,22 @@ int core::save_download_path(std::string address, std::string path)
 }
 
 
-int core::download_podcasts(container podcast)
+int core::download_podcasts(container &podcast)
 {
            
   /* Set up our container to hold the extra info that we want to save for later */
   parser ps;
   
-
   podcast.data = network::fetch_page(*podcast.url);
 
   /* Setup the parser */
   ps.set_url(podcast.url);
   ps.set_data(podcast.data);
-  ps.parse_feed();
+
+  if (ps.parse_feed() != 0)
+    {
+      return 1;
+    }
   
   podcast.set_title(ps.get_title());
   
@@ -71,45 +74,40 @@ int core::download_podcasts(container podcast)
 	  break;
 	}
       
-      /* For simplicity */
-      std::string final_dir;
-      
       if (podcast.no_child_dir)
 	{
-	  final_dir = podcast.download_dir;
+	  podcast.final_dir = podcast.download_dir;
 	}
 
       else if (podcast.dir_name.size())
 	{
-	  final_dir = file_manager::get_final_dir(podcast.dir_name, podcast.download_dir);
+	  podcast.final_dir = file_manager::get_final_dir(podcast.dir_name, podcast.download_dir);
 	}
 
       else 
 	{
-	  final_dir = file_manager::get_final_dir(*podcast.title, podcast.download_dir);
+	  podcast.final_dir = file_manager::get_final_dir(*podcast.title, podcast.download_dir); 
 	}
 
 
       std::string file_url      = *i;
-      std::string parsed_format = podcast.format_map[*i];
+      std::string parsed_format = ps.format_map[*i];
       unsigned int download_link = 1;
       
       if (debug::state)
 	{
 	  std::cout << "file_url: "      << file_url << std::endl
 		    << "parsed_format: " << parsed_format << std::endl
-		    << "final_dir: "     << final_dir << std::endl;
+		    << "final_dir: "     << podcast.final_dir << std::endl;
 	}
-
-      core::save_download_path(*podcast.url, final_dir);
 
       /* If no formats were specified in the config (download all) */
       if (!podcast.config_formats.size())
 	{
 	  /* Ensure the directories are present */
-	  if (file_manager::prepare_download(podcast.download_dir, final_dir) == 0)
+	  if (file_manager::prepare_download(podcast.download_dir, podcast.final_dir) == 0)
 	    {
-	      download_link = core::download_link(file_url, *podcast.title, final_dir);
+	      download_link = core::download_link(file_url, *podcast.title, podcast.final_dir);
 	    }
 
 	  else
@@ -122,9 +120,9 @@ int core::download_podcasts(container podcast)
       /* Otherwise test it against the found format */
       else if (core::should_download(*podcast.url, file_url, parsed_format, podcast.config_formats))
 	{
-	  if (file_manager::prepare_download(podcast.download_dir, final_dir) == 0)
+	  if (file_manager::prepare_download(podcast.download_dir, podcast.final_dir) == 0)
 	    {
-	      download_link = core::download_link(file_url, *podcast.title, final_dir);
+	      download_link = core::download_link(file_url, *podcast.title, podcast.final_dir);
 	    }
 	  else
 	    {
@@ -175,19 +173,15 @@ bool core::should_download(std::string url,
 
 int core::download_link(std::string media_url, std::string title, std::string final_dir)
 {
-   
-  std::string *filename = new std::string;
-  *filename = format::get_filename(media_url);
+  std::string filename = format::get_filename(media_url);
 
-  if (!filename->size())
+  if (!filename.size())
     {
       std::cout << "Warning: Could not get filename from url (" << media_url << ")" << std::endl;
-      delete filename;
       return 1;
     }
     
-  std::string download_path = final_dir + "/" + *filename;
-  delete filename;
+  std::string download_path = final_dir + "/" + filename;
 
   /* See if the file exists, if not download */
   if (!filesystem::file_exists(download_path))

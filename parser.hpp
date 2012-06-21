@@ -55,8 +55,6 @@ public:
 
   std::map<std::string, std::vector<std::string> > url_map;
   
-  xmlNode* parse_buffer(const char *buffer, size_t size, const char *url);
-  
   std::string get_content(xmlNode *node);
   std::string get_title();
   
