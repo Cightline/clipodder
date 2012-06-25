@@ -40,11 +40,11 @@ public:
   std::string *url;
   std::string *data; 
 
-  
+  ~parser();
 
   bool root_node_exists();
 
-  int set_url(std::string *url);
+  int set_url(std::string url);
   int set_data(std::string *data);
   
   int get_links();

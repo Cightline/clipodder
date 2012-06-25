@@ -27,7 +27,6 @@ int main()
     {
      
       int status = clipodder.download_podcasts(*i);
-      
 
       if (debug::state)
 	{
@@ -38,9 +37,9 @@ int main()
 	{
 	  file_manager::delete_excess(i->final_dir, i->max_downloads);
 	}
+      delete i->data;
+      parser_mem::done();
     }
-
-  parser_mem::done();
 
   std::cout << "Done" << std::endl;
   return 0;

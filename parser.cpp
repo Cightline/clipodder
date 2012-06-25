@@ -193,9 +193,10 @@ std::string parser::get_content(xmlNode *node)
 }
 
 
-int parser::set_url(std::string *url)
+int parser::set_url(std::string url)
 {
-  this->url = url;
+  this->url = new std::string;
+  *this->url = url;
 }
 
 
@@ -213,16 +214,24 @@ int parser::set_data(std::string *data)
 int parser::parse_feed()
 {
   
+  if (!this->data->size())
+    {
+      std::cout << "Warning: no data from: " << *parser::url << std::endl;
+      return 1;
+    }
+
   const char *c_data = parser::data->c_str();
   const char *c_url  = parser::url->c_str();
   size_t size = parser::data->size();
 
+  
 
   this->doc = xmlReadMemory(c_data, size, c_url, NULL, XML_PARSE_RECOVER | XML_PARSE_NOERROR | XML_PARSE_NOWARNING);
   
+
   if (this->doc == NULL)
     {
-      std::cout << "Warning: could not parse buffer" << std::endl;
+      std::cout << "Warning: could not parse buffer from: " << *parser::url << std::endl;
       return 1;
     }
 
@@ -240,6 +249,13 @@ int parser::parse_feed()
       std::cout << "Warning: could not get feed type from: " << *parser::url << std::endl;
       return 1; 
     }
-
   return 0;
+}
+
+parser::~parser()
+{
+  if (parser::url->size())
+    {
+      delete parser::url;
+    }
 }

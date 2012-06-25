@@ -21,7 +21,7 @@ int core::download_podcasts(container &podcast)
   /* Set up our container to hold the extra info that we want to save for later */
   parser ps;
   
-  podcast.data = network::fetch_page(*podcast.url);
+  podcast.data = network::fetch_page(podcast.url);
 
   /* Setup the parser */
   ps.set_url(podcast.url);
@@ -32,19 +32,18 @@ int core::download_podcasts(container &podcast)
       return 1;
     }
   
-  podcast.set_title(ps.get_title());
-  
+  podcast.title = ps.get_title();
   
 
-  if (!podcast.title->size())
+  if (!podcast.title.size())
     {
-      std::cout << "Warning: could not get title for url: " << *podcast.url << std::endl;
+      std::cout << "Warning: could not get title for url: " << podcast.url << std::endl;
       return 0;
     }
 
   
 
-  std::cout << "Checking: " << *podcast.title << std::endl;
+  std::cout << "Checking: " << podcast.title << std::endl;
 
   /* Iterate through all the found media_urls for this feed and download if needed.
      It was downloading oldest first, so I just reversed the map */
@@ -86,7 +85,7 @@ int core::download_podcasts(container &podcast)
 
       else 
 	{
-	  podcast.final_dir = file_manager::get_final_dir(*podcast.title, podcast.download_dir); 
+	  podcast.final_dir = file_manager::get_final_dir(podcast.title, podcast.download_dir); 
 	}
 
 
@@ -107,7 +106,7 @@ int core::download_podcasts(container &podcast)
 	  /* Ensure the directories are present */
 	  if (file_manager::prepare_download(podcast.download_dir, podcast.final_dir) == 0)
 	    {
-	      download_link = core::download_link(file_url, *podcast.title, podcast.final_dir);
+	      download_link = core::download_link(file_url, podcast.title, podcast.final_dir);
 	    }
 
 	  else
@@ -118,11 +117,11 @@ int core::download_podcasts(container &podcast)
 	}
 
       /* Otherwise test it against the found format */
-      else if (core::should_download(*podcast.url, file_url, parsed_format, podcast.config_formats))
+      else if (core::should_download(podcast.url, file_url, parsed_format, podcast.config_formats))
 	{
 	  if (file_manager::prepare_download(podcast.download_dir, podcast.final_dir) == 0)
 	    {
-	      download_link = core::download_link(file_url, *podcast.title, podcast.final_dir);
+	      download_link = core::download_link(file_url, podcast.title, podcast.final_dir);
 	    }
 	  else
 	    {

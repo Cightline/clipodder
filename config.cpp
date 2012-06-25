@@ -77,7 +77,7 @@ std::vector<container> config::parse_config()
       
       int num_formats = cfg_size(cfg_url, "formats");
 
-      podcast.set_url(cfg_title(cfg_url));
+      podcast.url = cfg_title(cfg_url);
       podcast.download_dir  = cfg_getstr(cfg_url, "download_dir");
       podcast.dir_name      = cfg_getstr(cfg_url, "dir_name");
       podcast.no_child_dir  = cfg_getint(cfg_url, "no_child_dir");
