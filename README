@@ -2,7 +2,7 @@ Move along, nothing to see here.
 
 
 
-Dependencies:
+```Dependencies:
 	
 	all:
 	- gcc
@@ -81,3 +81,4 @@ TODO:
 	1. see if ctime is better than mtime
 	2. provide a "buffer_size" argument for use with libcurl.  
 	3. create a "clipodder-remote" 
+```
