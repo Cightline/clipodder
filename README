@@ -22,26 +22,62 @@ Dependencies:
 
 This is a re-write of the Python program "clipodder" in C++. 
 
-Programming wise many things are different, user wise only the config format has changed. It currently uses libconfuse to parse the configuration file. 
-Personally I like new configuration because everything is kept between brackets instead of one long line. The C++ version does make use of memory allocation.
-It will read into memory a page, parse it, then delete it. I've tried to keep it as modular as possible to make maintanince easier/faster. 
 
+Options:
 
-options:
+	The configuration should be located at ~/.clipodder/config 
 
-	format:
-	
+	format (default all)
+	-----------------------------
 	Usually feeds provide a "type/extension" XML node, which clipodder will make use of. It 
-	will also check against the file extension if it could not match the type from the feed.   
+	will also check the file extension if it could not match the type from the feed.   
 
+	format = {"video","mp4"}
 
+	num_downloads 
+	-----------------------------
+	The number of downloads you want per "run". Don't set this higher than max_downloads 
+	or you will download, then subsequently delete the files. 
+
+	num_downloads = 4
+	
+	
+	max_downloads (default 1)
+	-----------------------------
+	The number of downloads you want in the directory. If you have num_downloads set to 2, it 
+	will download the latest 2 from the feed. If max_downlaods was set to 4, clipodder will
+	download 2, then see if it is exceeding 4 files, if so the extra files are removed. 
+	
+	max_downloads = 5
+	
+	
+	no_child_dir (default 0)
+	-----------------------------
+	Set this to 1 to not use the title of the feed as the name of the target directory. 
+	When set to the default, the path should look something like "some_dl_dir/Title of Feed/video.mp4".
+	Otherwise it should look something like "some_dl_dir/video.mp4". 
+
+	no_child_dir = 1
+	
+	
+	download_dir (global/per url) (default ~/.clipodder/downloads) 
+	-----------------------------	
+	The target parent directory to download to (unless no_child_dir is set). 
+	
+	download_dir = "/var/lib/some_dir"
+	
+
+	debug (default 0)
+	-----------------------------
+	Enable debugging 
+	
+	debug = 1	
+	
 
 
 
 TODO:
 
-	see if ctime is better than mtime
-
-	provide a "buffer_size" argument for use with libcurl.  
-
-	create a "clipodder-remote" 
+	1. see if ctime is better than mtime
+	2. provide a "buffer_size" argument for use with libcurl.  
+	3. create a "clipodder-remote" 
