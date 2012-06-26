@@ -45,9 +45,9 @@ std::vector<container> config::parse_config()
   debug::state = cfg_getint(cfg, "debug");
 
   
+  /* Check and see if the download directory was specified */
   std::string default_dir = cfg_getstr(cfg, "download_dir");
   
-
   if (default_dir != "default")
     {
       config_map["download_dir"] = cfg_getstr(cfg, "download_dir");
@@ -63,12 +63,8 @@ std::vector<container> config::parse_config()
     }
   
 
-
-
   /* Iterate through the urls and add the formats                                        
-     and addresses to the url_map */
-
-  /* This is per url */
+     and addresses to the url_map. This is per url. */
   for (int i = 0; i < total_urls; i++)
     {
       container podcast;
@@ -99,7 +95,6 @@ std::vector<container> config::parse_config()
 	}
 
       podcast.max_downloads = cfg_getint(cfg_url, "max_downloads");
-
       return_vector.push_back(podcast);
     }
   

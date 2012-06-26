@@ -73,16 +73,19 @@ int core::download_podcasts(container &podcast)
 	  break;
 	}
       
+      /* some_dir/ */
       if (podcast.no_child_dir)
 	{
 	  podcast.final_dir = podcast.download_dir;
 	}
 
+      /* some_dir/specified_name/ */
       else if (podcast.dir_name.size())
 	{
 	  podcast.final_dir = file_manager::get_final_dir(podcast.dir_name, podcast.download_dir);
 	}
 
+      /* some_dir/Tile of Feed */
       else 
 	{
 	  podcast.final_dir = file_manager::get_final_dir(podcast.title, podcast.download_dir); 

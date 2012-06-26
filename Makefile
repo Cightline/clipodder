@@ -53,6 +53,6 @@ all:  network format parser core filesystem file_manager config main container
 
 
 install: all
-	cp clipodder /usr/bin/clipodder
+	mv clipodder /usr/bin/clipodder
 	chmod +x /usr/bin/clipodder
 	rm *.o

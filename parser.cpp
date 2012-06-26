@@ -67,6 +67,11 @@ std::string parser::get_title()
   std::string return_s;
   xmlNode *channel_node; 
 
+  if (this->root_node->children == NULL)
+    {
+      return return_s;
+    }
+
   for (channel_node = parser::root_node->children; channel_node != NULL; channel_node = channel_node->next)
     {
       if (parser::node_is(channel_node, "channel"))
@@ -75,11 +80,6 @@ std::string parser::get_title()
 	}
     }
 
-  if (channel_node == NULL)
-    {
-      return return_s; 
-    }
-  
   for (xmlNode *title_node = channel_node->children; title_node != NULL; title_node = title_node->next)
     {
       if (parser::node_is(title_node, "title"))
@@ -110,14 +110,9 @@ xmlNode *parser::get_node(xmlNode *node_with_children, std::string name)
 }
 
 
-
-
-
 int parser::get_links()
 						     
 {
-  /* FIX THIS (NEAR BOTTOM) */
-  
   std::vector<xmlNode *> *item_vector = new std::vector<xmlNode*>;
   std::vector<xmlNode *> enclosure_vector;
 
@@ -224,18 +219,13 @@ int parser::parse_feed()
   const char *c_url  = parser::url->c_str();
   size_t size = parser::data->size();
 
-  
-
   this->doc = xmlReadMemory(c_data, size, c_url, NULL, XML_PARSE_RECOVER | XML_PARSE_NOERROR | XML_PARSE_NOWARNING);
-  
 
   if (this->doc == NULL)
     {
       std::cout << "Warning: could not parse buffer from: " << *parser::url << std::endl;
       return 1;
     }
-
-
  
   xmlNode *root_element = xmlDocGetRootElement(this->doc);
  
@@ -249,6 +239,7 @@ int parser::parse_feed()
       std::cout << "Warning: could not get feed type from: " << *parser::url << std::endl;
       return 1; 
     }
+
   return 0;
 }
 
