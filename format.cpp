@@ -18,7 +18,7 @@ std::string format::get_extension(std::string media_url)
 }
 
 
-std::string format::determine_format(std::string media_url)
+std::string format::get_format(std::string media_url)
 {
   std::string extension;
   extension = get_extension(media_url);
@@ -77,21 +77,54 @@ std::string format::parse_given_format(std::string to_parse)
 }  
 
 
-bool format::defined_type(std::vector<std::string> format_vector, std::string extension, std::string format)
+bool format::defined_type(std::string media_url,
+			  std::string supplied_type,
+			  std::vector<std::string> to_compare)
+			  
 {
+  std::string file_extension = get_extension(media_url);
+  std::string file_format    = get_format(media_url);
+  std::string format         = parse_given_format(supplied_type);
+  std::string extension      = parse_given_extension(supplied_type);
+
+  std::string matched_type;
+
   std::vector<std::string>::iterator f_iter;
   
-  for (f_iter = format_vector.begin(); f_iter != format_vector.end(); f_iter++)
+  for (f_iter = to_compare.begin(); f_iter != to_compare.end(); f_iter++)
     {
-      if (*f_iter == format || *f_iter == extension)
+      if (*f_iter == format)
 	{
-	  if (debug::state)
-	    {
-	      std::cout << "supported type: " << *f_iter << std::endl;
-	    }
-	  return true;
+	  matched_type = format;
+	  break;
 	}
-   
+      if (*f_iter == extension)
+	{
+	  matched_type = extension;
+	  break;
+	}
+      if (*f_iter == file_format)
+	{
+	  matched_type = file_format;
+	  break;
+	}
+      if (*f_iter == file_extension)
+	{
+	  matched_type = file_extension;
+	  break;
+	}
+
+
+    }
+
+  if (matched_type.size())
+    {
+      if (debug::state)
+	{
+	  std::cout << "supported type: " << matched_type << std::endl;
+	}
+     
+      return true;
     }
 
   return false;

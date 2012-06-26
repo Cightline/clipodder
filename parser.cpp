@@ -34,10 +34,10 @@ bool parser::node_is(xmlNode *node, const char * name)
 {
   if (strcmp((const char *)node->name, name) == 0)
     {
-      if (debug::state)
+      /* if (debug::state)
 	{
 	  std::cout << "node_is: " << name << std::endl;
-	}
+	  } */
       return true;
     }
   return false;

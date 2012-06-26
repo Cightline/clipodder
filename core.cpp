@@ -17,10 +17,10 @@ int core::save_download_path(std::string address, std::string path)
 
 int core::download_podcasts(container &podcast)
 {
-           
-  /* Set up our container to hold the extra info that we want to save for later */
+  /* A container reference is passed here (contructed by config). This handles 
+     mainly all the "non-network" functions. */
 
-
+  /* See if we can pull the page, if not return error */
   if (debug::state)
     {
       std::cout << "requesting page: " << podcast.url << std::endl;
@@ -34,9 +34,10 @@ int core::download_podcasts(container &podcast)
       return 1;
     }
   
+
+  /* The parser is not even constructed if the above segment fails (no webpage, no parser) */
   parser ps;
   
-  /* Setup the parser */
   ps.set_url(podcast.url);
   ps.set_data(podcast.data);
 
@@ -45,21 +46,21 @@ int core::download_podcasts(container &podcast)
       return 1;
     }
   
-  podcast.title = ps.get_title();
-  
 
-  if (!podcast.title.size())
+  /* If we can't grab the title, we can't save to some_dir/Title of Feed.
+     It does however save if we successfully parsed the feed, and the config 
+     states that it does not want a "child_dir". Meaning that we don't need the title
+     because we are saving to a directory that already exists. */
+  podcast.title = ps.get_title();
+
+  if (!podcast.title.size() && !podcast.no_child_dir)
     {
       std::cout << "Warning: could not get title for url: " << podcast.url << std::endl;
-      return 0;
+      return 1;
     }
 
-  
 
   std::cout << "Checking: " << podcast.title << std::endl;
-
-  /* Iterate through all the found media_urls for this feed and download if needed.
-     It was downloading oldest first, so I just reversed the map */
 
   int counter = 0;
   std::vector<std::string>::iterator i;
@@ -68,13 +69,14 @@ int core::download_podcasts(container &podcast)
 
   podcast.link_vector = ps.link_vector;
   
-
+  /* Now that most of the sanity checks are done, we can sift through all the found links
+     and deal with them. */
   for (i = podcast.link_vector.begin(); i != podcast.link_vector.end(); i++)
     {
 
       /* Incase we start a iteration, but we are going to exceed max_downloads. 
-	 (max_downloads defaults to 1) */
- 
+	 (max_downloads defaults to 1). I could throw this up in the "for" loop but I'm not 
+	 trying to clutter everything up */
       ++counter;
  
       if (counter > podcast.num_downloads)
@@ -86,19 +88,19 @@ int core::download_podcasts(container &podcast)
 	  break;
 	}
       
-      /* some_dir/ */
+      // some_dir/
       if (podcast.no_child_dir)
 	{
 	  podcast.final_dir = podcast.download_dir;
 	}
 
-      /* some_dir/specified_name/ */
+      // some_dir/specified_name/ 
       else if (podcast.dir_name.size())
 	{
 	  podcast.final_dir = file_manager::get_final_dir(podcast.dir_name, podcast.download_dir);
 	}
 
-      /* some_dir/Tile of Feed */
+      // some_dir/Tile of Feed 
       else 
 	{
 	  podcast.final_dir = file_manager::get_final_dir(podcast.title, podcast.download_dir); 
@@ -133,7 +135,8 @@ int core::download_podcasts(container &podcast)
 	}
 
       /* Otherwise test it against the found format */
-      else if (core::should_download(podcast.url, file_url, parsed_format, podcast.config_formats))
+      //else if (core::should_download(podcast.url, file_url, parsed_format, podcast.config_formats))
+      else if (format::defined_type(file_url, parsed_format, podcast.config_formats))
 	{
 	  if (file_manager::prepare_download(podcast.download_dir, podcast.final_dir) == 0)
 	    {
@@ -156,33 +159,6 @@ int core::download_podcasts(container &podcast)
 
   return 0;
 
-}
-
-  
-
-bool core::should_download(std::string url, 
-			   std::string media_url, 
-			   std::string supplied_info,
-			   std::vector<std::string> format_vector)
-{ 
-
-  std::string format    = format::parse_given_format(supplied_info);
-  std::string extension = format::parse_given_extension(supplied_info);
-  
-  
-  
-  if (!format.size())
-    {
-      format = format::determine_format(media_url);
-    }
-
-  if (!extension.size())
-    {
-      extension = format::get_extension(media_url);
-    }
-
-  /* Check the format and extension agianst the format_vector (formats in the config file) */
-  return format::defined_type(format_vector, extension, format);
 }
 
 
