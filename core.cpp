@@ -19,10 +19,23 @@ int core::download_podcasts(container &podcast)
 {
            
   /* Set up our container to hold the extra info that we want to save for later */
-  parser ps;
-  
+
+
+  if (debug::state)
+    {
+      std::cout << "requesting page: " << podcast.url << std::endl;
+    }
+
   podcast.data = network::fetch_page(podcast.url);
 
+  if (!podcast.data->size())
+    {
+      std::cout << "Warning: no data from: " << podcast.url << std::endl;
+      return 1;
+    }
+  
+  parser ps;
+  
   /* Setup the parser */
   ps.set_url(podcast.url);
   ps.set_data(podcast.data);

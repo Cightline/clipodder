@@ -10,12 +10,13 @@ std::vector<container> config::parse_config()
   config_map["home"] = get_home();
   config_map["config_path"] = config_map["home"] + "/.clipodder/config";
   config_map["download_dir"] = config_map["home"] + "/.clipodder/downloads";
-  config_map["show_progress"] = "false";
+  config_map["connection-timeout"];
+  
 
   cfg_opt_t urls[] =
     {
       CFG_STR_LIST("formats", "", CFGF_NONE),
-      CFG_STR("download_dir", "default", CFGF_NONE),
+      CFG_STR("download_dir", "", CFGF_NONE),
       CFG_STR("dir_name",     "", CFGF_NONE),
       CFG_INT("num_downloads", 1, CFGF_NONE),
       CFG_INT("no_child_dir", 0, CFGF_NONE),
@@ -27,7 +28,8 @@ std::vector<container> config::parse_config()
     {
       CFG_SEC("url", urls, CFGF_TITLE | CFGF_MULTI),
       CFG_INT("debug", 0, CFGF_NONE),
-      CFG_STR("download_dir", "default", CFGF_NONE),
+      CFG_STR("download_dir", "", CFGF_NONE),
+      CFG_STR("connection-timeout", "50", CFGF_NONE),
       CFG_END()
     };
 
@@ -43,23 +45,23 @@ std::vector<container> config::parse_config()
   
   /* Set the debug state */  
   debug::state = cfg_getint(cfg, "debug");
-
+  
   
   /* Check and see if the download directory was specified */
   std::string default_dir = cfg_getstr(cfg, "download_dir");
   
-  if (default_dir != "default")
+  if (default_dir != "")
     {
       config_map["download_dir"] = cfg_getstr(cfg, "download_dir");
     }
+
+  config_map["connection-timeout"] = cfg_getstr(cfg, "connection-timeout");
   
-  /* Urls will be the title */
   int total_urls = cfg_size(cfg, "url");
   
-
   if (debug::state)
     {
-      std::cout << total_urls << " urls found" << std::endl;
+      std::cout << total_urls << " urls identified..." << std::endl;
     }
   
 
@@ -82,12 +84,11 @@ std::vector<container> config::parse_config()
 
       std::string download_dir = cfg_getstr(cfg_url, "download_dir");
 
-      if (podcast.download_dir == "default")
+      if (podcast.download_dir == "")
 	{
 	  podcast.download_dir = config_map["download_dir"];
 	}
       
-
       for (int b = 0; b < num_formats; b++)
 	{
 	  std::string format = cfg_getnstr(cfg_url, "formats", b);

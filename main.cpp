@@ -37,7 +37,8 @@ int main()
 	{
 	  file_manager::delete_excess(i->final_dir, i->max_downloads);
 	}
-      delete i->data;
+
+
       parser_mem::done();
     }
 
