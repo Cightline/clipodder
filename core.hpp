@@ -34,15 +34,7 @@ public:
     std::string *url;
   };
   
-  int done();
   
-  bool should_download(std::string url, 
-		       std::string media_url, 
-		       std::string supplied_info, //rename to supplied_format
-		       std::vector<std::string> format_vector);
-
-
-  int save_download_path(std::string address, std::string path);
   std::string determine_format(std::string media_url);
   std::string get_extension(std::string media_url);
 

@@ -1,7 +1,7 @@
 #include "filesystem.hpp"
 
 
-int filesystem::list_dir(std::string path, std::vector<std::string> *return_vector)
+int filesystem::list_dir(std::string path, std::vector<std::string> &file_vector)
 {
   DIR *dir;
   struct dirent *dir_struct;
@@ -20,7 +20,7 @@ int filesystem::list_dir(std::string path, std::vector<std::string> *return_vect
       
       if (*dirname != ".." && *dirname != ".")
 	{
-	  return_vector->push_back(dir_struct->d_name);
+	  file_vector.push_back(dir_struct->d_name);
 	}
       delete dirname;
     }
@@ -28,6 +28,7 @@ int filesystem::list_dir(std::string path, std::vector<std::string> *return_vect
   closedir(dir);
   return 0;
 }
+
 
 bool filesystem::file_exists(std::string path)
 {

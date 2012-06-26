@@ -10,7 +10,7 @@ int file_manager::delete_excess(std::string path, int max_files)
     }
     
 
-  std::vector<std::string> *file_vector = new std::vector<std::string>;
+  std::vector<std::string> file_vector;
   std::vector<std::string>::iterator f_iter; 
 
   /* Get the files in the directory */
@@ -18,7 +18,7 @@ int file_manager::delete_excess(std::string path, int max_files)
 
   std::map<int, std::string> mtime_map;
   
-  for (f_iter = file_vector->begin(); f_iter != file_vector->end(); f_iter++)
+  for (f_iter = file_vector.begin(); f_iter != file_vector.end(); f_iter++)
     {
       
       std::string file_path = path + "/" + *f_iter; 
@@ -31,13 +31,6 @@ int file_manager::delete_excess(std::string path, int max_files)
 	  mtime_map[mtime] = file_path;
 	}
     }
-
-  if (debug::state)
-    {
-      std::cout << "freeing " << file_vector->size() << " bytes" << std::endl;
-    }
-
-  delete file_vector;
 
   std::map<int, std::string>::reverse_iterator c;
   

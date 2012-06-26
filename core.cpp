@@ -2,19 +2,6 @@
 #include "core.hpp"
 
 
-int core::save_download_path(std::string address, std::string path)
-{
-  if (!core::path_map[address].size())
-    {
-      if (debug::state)
-	{
-	  std::cout << "storing download path: " << path << std::endl;
-	}
-      core::path_map[address] = path;
-    }
-}
-
-
 int core::download_podcasts(container &podcast)
 {
   /* A container reference is passed here (contructed by config). This handles 
