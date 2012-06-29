@@ -1,5 +1,6 @@
 Move along, nothing to see here. 
 
+This is a re-write of the Python program "clipodder" in C++.
 
 
 Dependencies:
@@ -20,7 +21,13 @@ Dependencies:
 	
 
 
-This is a re-write of the Python program "clipodder" in C++. 
+
+Installation:
+	
+	Run make all to compile it in the current directory.
+	If you want to install to system, run make install as root.
+	   
+	
 
 
 Options:

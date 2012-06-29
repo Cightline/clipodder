@@ -53,29 +53,26 @@ int core::download_podcasts(container &podcast)
   ps.get_links();
 
   int counter = 0;
+  int access  = podcast.num_downloads - 1;
   podcast.link_vector = ps.link_vector;
-  std::vector<std::string>::reverse_iterator i;
-  
-  /* Get rid of the elements we are not going to be using. This 
-     way we can change the vector size to the amount of downloads
-     we are going to have. I had to do this because the for loop below 
-     would reverse all the way to the end of the feed list, (which we dont want). 
-     We just want to reverse it from the oldest link we will actually be downloading */
-  while (podcast.link_vector.size() > podcast.num_downloads)
+
+  if (podcast.link_vector.size() < access)
     {
-      podcast.link_vector.pop_back();
+      access = podcast.link_vector.size() - 1;
     }
 
   /* Now that most of the sanity checks are done, we can sift through all the found links
      and deal with them. */
-  for (i = podcast.link_vector.rbegin(); i != podcast.link_vector.rend(); i++)
+  while (access > -1)
     {
+      std::string file_url = podcast.link_vector.at(access);
 
       /* Incase we start a iteration, but we are going to exceed max_downloads. 
 	 (max_downloads defaults to 1). I could throw this up in the "for" loop but I'm not 
 	 trying to clutter everything up */
       ++counter;
- 
+      --access;
+
       if (counter > podcast.num_downloads)
 	{
 	  if (debug::state) 
@@ -84,28 +81,16 @@ int core::download_podcasts(container &podcast)
 	    }
 	  break;
 	}
+
       
-      // some_dir/
-      if (podcast.no_child_dir)
+      
+      if (!core::determine_download_dir(podcast) == 0)
 	{
-	  podcast.final_dir = podcast.download_dir;
+	  std::cout << "Warning: could not determine download directory" << std::endl;
+	  return 1;
 	}
 
-      // some_dir/specified_name/ 
-      else if (podcast.dir_name.size())
-	{
-	  podcast.final_dir = file_manager::get_final_dir(podcast.dir_name, podcast.download_dir);
-	}
-
-      // some_dir/Tile of Feed 
-      else 
-	{
-	  podcast.final_dir = file_manager::get_final_dir(podcast.title, podcast.download_dir); 
-	}
-
-
-      std::string file_url      = *i;
-      std::string parsed_format = ps.format_map[*i];
+      std::string parsed_format = ps.format_map[file_url];
       unsigned int download_link = 1;
       
       if (debug::state)
@@ -175,7 +160,7 @@ int core::download_link(std::string media_url, std::string title, std::string fi
   if (!filesystem::file_exists(download_path))
     {
       std::cout << "Downloading: " << download_path << std::endl;
-      
+
       int status = network::download_file(media_url, download_path);
       
       if (debug::state)
@@ -197,3 +182,27 @@ int core::download_link(std::string media_url, std::string title, std::string fi
 
 
   
+int core::determine_download_dir(container &podcast)
+{
+  if (podcast.no_child_dir)
+    {
+      podcast.final_dir = podcast.download_dir;
+    }
+
+  else if (podcast.dir_name.size())
+    {
+      podcast.final_dir = file_manager::get_final_dir(podcast.dir_name, podcast.download_dir);
+    }
+
+  else 
+    {
+      podcast.final_dir = file_manager::get_final_dir(podcast.title, podcast.download_dir);
+    }
+
+  if (podcast.final_dir.size())
+    {
+      return 0;
+    }
+  
+  return 1;
+}
