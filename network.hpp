@@ -3,7 +3,7 @@
 #include <string>
 #include <fstream>
 #include <iostream>
-
+#include "debug.hpp"
 
 
 static int curl_write(void *buffer, size_t size, size_t nmemb, void *data);

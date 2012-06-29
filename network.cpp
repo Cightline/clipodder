@@ -55,7 +55,7 @@ std::string *network::fetch_page(std::string url)
   if(curl)
     {
       curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-      curl_easy_setopt(curl, CURLOPT_VERBOSE, 1);
+      curl_easy_setopt(curl, CURLOPT_VERBOSE, debug::state);
       curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, curl_write);
       curl_easy_setopt(curl, CURLOPT_WRITEDATA, buf);
       curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
@@ -94,7 +94,7 @@ int network::download_file(std::string url, std::string download_path)
   if (curl)
     {
       curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-      curl_easy_setopt(curl, CURLOPT_VERBOSE, 1);
+      curl_easy_setopt(curl, CURLOPT_VERBOSE, debug::state);
       curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, curl_write_file);
       curl_easy_setopt(curl, CURLOPT_WRITEDATA, &d_struct);
       curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
