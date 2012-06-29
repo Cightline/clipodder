@@ -55,17 +55,20 @@ std::string *network::fetch_page(std::string url)
   if(curl)
     {
       curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-      curl_easy_setopt(curl, CURLOPT_VERBOSE, 0);
+      curl_easy_setopt(curl, CURLOPT_VERBOSE, 1);
       curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, curl_write);
       curl_easy_setopt(curl, CURLOPT_WRITEDATA, buf);
       curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
-      curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 3);
+      curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 5);
       //curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 1);
       curl_easy_setopt(curl, CURLOPT_LOW_SPEED_LIMIT, 5);
       curl_easy_setopt(curl, CURLOPT_LOW_SPEED_TIME, 10);
       res = curl_easy_perform(curl);
 
-      curl_easy_cleanup(curl);
+      if (res == 0)
+	{
+	  curl_easy_cleanup(curl);
+	}
     }
     
   return buf;
@@ -91,21 +94,26 @@ int network::download_file(std::string url, std::string download_path)
   if (curl)
     {
       curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-      curl_easy_setopt(curl, CURLOPT_VERBOSE, 0);
+      curl_easy_setopt(curl, CURLOPT_VERBOSE, 1);
       curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, curl_write_file);
       curl_easy_setopt(curl, CURLOPT_WRITEDATA, &d_struct);
       curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
-      curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 3);
+      curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 5);
       //curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 1);
       curl_easy_setopt(curl, CURLOPT_LOW_SPEED_LIMIT, 5);
       curl_easy_setopt(curl, CURLOPT_LOW_SPEED_TIME, 10);
       res = curl_easy_perform(curl);
       
-      curl_easy_cleanup(curl);
+      if (res == 0)
+	{
+	  curl_easy_cleanup(curl);
+	  /* Fix this */
+	  fclose(d_struct.stream);
+	}
       
     }
   
-  fclose(d_struct.stream);
+
   
   return res;
 }

@@ -160,7 +160,7 @@ int core::download_link(std::string media_url, std::string title, std::string fi
   if (!filesystem::file_exists(download_path))
     {
       std::cout << "Downloading: " << download_path << std::endl;
-
+      
       int status = network::download_file(media_url, download_path);
       
       if (debug::state)
