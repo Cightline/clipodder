@@ -49,16 +49,26 @@ int core::download_podcasts(container &podcast)
 
   std::cout << "Checking: " << podcast.title << std::endl;
 
-  int counter = 0;
-  std::vector<std::string>::iterator i;
   
   ps.get_links();
 
+  int counter = 0;
   podcast.link_vector = ps.link_vector;
+  std::vector<std::string>::reverse_iterator i;
   
+  /* Get rid of the elements we are not going to be using. This 
+     way we can change the vector size to the amount of downloads
+     we are going to have. I had to do this because the for loop below 
+     would reverse all the way to the end of the feed list, (which we dont want). 
+     We just want to reverse it from the oldest link we will actually be downloading */
+  while (podcast.link_vector.size() > podcast.num_downloads)
+    {
+      podcast.link_vector.pop_back();
+    }
+
   /* Now that most of the sanity checks are done, we can sift through all the found links
      and deal with them. */
-  for (i = podcast.link_vector.begin(); i != podcast.link_vector.end(); i++)
+  for (i = podcast.link_vector.rbegin(); i != podcast.link_vector.rend(); i++)
     {
 
       /* Incase we start a iteration, but we are going to exceed max_downloads. 
