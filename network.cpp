@@ -62,6 +62,7 @@ std::string *network::fetch_page(std::string url)
       curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 3);
       //curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 1);
       curl_easy_setopt(curl, CURLOPT_LOW_SPEED_LIMIT, 5);
+      curl_easy_setopt(curl, CURLOPT_LOW_SPEED_TIME, 10);
       res = curl_easy_perform(curl);
 
       curl_easy_cleanup(curl);
@@ -97,6 +98,7 @@ int network::download_file(std::string url, std::string download_path)
       curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 3);
       //curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 1);
       curl_easy_setopt(curl, CURLOPT_LOW_SPEED_LIMIT, 5);
+      curl_easy_setopt(curl, CURLOPT_LOW_SPEED_TIME, 10);
       res = curl_easy_perform(curl);
       
       curl_easy_cleanup(curl);
