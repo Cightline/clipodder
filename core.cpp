@@ -167,6 +167,11 @@ int core::download_link(std::string media_url, std::string title, std::string fi
 	{
 	  std::cout << "download_status: " << status << std::endl;
 	}
+      
+      if (status)
+	{
+	  std::cout << "Warning: could not download: " << media_url << std::endl;
+	}
     }
 
   else
