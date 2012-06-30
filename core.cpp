@@ -61,29 +61,17 @@ int core::download_podcasts(container &podcast)
       access = podcast.link_vector.size() - 1;
     }
 
+
+
   /* Now that most of the sanity checks are done, we can sift through all the found links
      and deal with them. */
-  while (access > -1)
+  while (access > -1 && counter < podcast.num_downloads)
     {
       std::string file_url = podcast.link_vector.at(access);
 
-      /* Incase we start a iteration, but we are going to exceed max_downloads. 
-	 (max_downloads defaults to 1). I could throw this up in the "for" loop but I'm not 
-	 trying to clutter everything up */
       ++counter;
       --access;
 
-      if (counter > podcast.num_downloads)
-	{
-	  if (debug::state) 
-	    { 
-	      std::cout << "num_downloads: " << podcast.num_downloads << " counter: " << counter << std::endl; 
-	    }
-	  break;
-	}
-
-      
-      
       if (!core::determine_download_dir(podcast) == 0)
 	{
 	  std::cout << "Warning: could not determine download directory" << std::endl;
