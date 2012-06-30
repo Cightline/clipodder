@@ -52,7 +52,6 @@ int core::download_podcasts(container &podcast)
   
   ps.get_links();
 
-  int counter = 0;
   int access  = podcast.num_downloads - 1;
   podcast.link_vector = ps.link_vector;
 
@@ -64,12 +63,13 @@ int core::download_podcasts(container &podcast)
 
 
   /* Now that most of the sanity checks are done, we can sift through all the found links
-     and deal with them. */
-  while (access > -1 && counter < podcast.num_downloads)
+     and deal with them. We are checking access, which is moving in reverse to the begging 
+     of the vector. I do this because we only want to download "podcast.num_downloads", and 
+     we need to start out with the oldest first, so the mtimes are written from oldest to latest. */
+  while (access > -1)
     {
       std::string file_url = podcast.link_vector.at(access);
 
-      ++counter;
       --access;
 
       if (!core::determine_download_dir(podcast) == 0)
