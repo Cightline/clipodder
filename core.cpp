@@ -63,7 +63,7 @@ int core::download_podcasts(container &podcast)
 
 
   /* Now that most of the sanity checks are done, we can sift through all the found links
-     and deal with them. We are checking access, which is moving in reverse to the begging 
+     and deal with them. We are using "access" as a indexer, which is moving in reverse to the begging 
      of the vector. I do this because we only want to download "podcast.num_downloads", and 
      we need to start out with the oldest first, so the mtimes are written from oldest to latest. */
   while (access > -1)
@@ -138,7 +138,7 @@ int core::download_link(std::string media_url, std::string title, std::string fi
 
   if (!filename.size())
     {
-      std::cout << "Warning: Could not get filename from url (" << media_url << ")" << std::endl;
+      std::cout << "Warning: Could not get filename from url: " << media_url << std::endl;
       return 1;
     }
     

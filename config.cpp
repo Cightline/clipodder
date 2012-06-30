@@ -123,6 +123,8 @@ std::string config::get_home()
     {
       std::cout << "home dir: " << return_s << std::endl;
     }
+ 
+
 
   return return_s;
 }

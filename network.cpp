@@ -67,8 +67,9 @@ std::string *network::fetch_page(std::string url)
 
       if (res == 0)
 	{
-	  curl_easy_cleanup(curl);
+	 
 	}
+      curl_easy_cleanup(curl);
     }
     
   return buf;
@@ -106,11 +107,10 @@ int network::download_file(std::string url, std::string download_path)
       
       if (res == 0)
 	{
-	  curl_easy_cleanup(curl);
-	  /* Fix this */
 	  fclose(d_struct.stream);
 	}
       
+      curl_easy_cleanup(curl);
     }
   
 
