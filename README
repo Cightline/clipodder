@@ -1,5 +1,3 @@
-Move along, nothing to see here. 
-
 This is a re-write of the Python program "clipodder" in C++.
 
 
@@ -25,11 +23,9 @@ Dependencies:
 Installation:
 	
 	Run make all to compile it in the current directory.
-	If you want to install to system, run make install as root.
+	If you want to install to /usr/bin/, run make install as root.
 	   
 	
-
-
 Options:
 
 	The configuration should be located at ~/.clipodder/config 
@@ -73,6 +69,23 @@ Options:
 	
 	download_dir = "/var/lib/some_dir"
 	
+
+	show_path (global) (default 0)
+	----------------------------
+	Show the full path that clipodder is saving to.
+
+	show_path = 1
+
+	
+
+	show_progress (global) (default 0)
+	----------------------------
+	Enables the percentage meter. (Does not seem to 
+	work correctly on Debian, but it does work on Arch)
+
+	show_progress = 1
+	
+
 
 	debug (default 0)
 	-----------------------------
