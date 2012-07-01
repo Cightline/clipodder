@@ -1,0 +1,38 @@
+Sun Jul  1 17:53:31 CEST 2012
+
+commit e6feab5bc7e05f92652ea07cdab329268c5c8644
+Author: Stealth <stealth@skynet-systems.net>
+Date:   Sun Jul 1 17:47:56 2012 +0200
+
+    Added show-path
+
+
+stealth@arch_crypt ~/Tech/production/clipodder_cpp $ valgrind ./clipodder 
+==4470== Memcheck, a memory error detector
+==4470== Copyright (C) 2002-2011, and GNU GPL'd, by Julian Seward et al.
+==4470== Using Valgrind-3.7.0 and LibVEX; rerun with -h for copyright info
+==4470== Command: ./clipodder
+==4470== 
+Checking: FLOSS Weekly Video (large)
+Checking: Hak5 (HD MP4)
+Checking: Security Now Video (large)
+Checking: Democracy Now! Video
+Downloading: /home/stealth/.clipodder/downloads/Democracy Now! Video/dn2012-0629.mp4                              [100]
+Checking: NBC Nightly News (video)
+Done
+==4470== 
+==4470== HEAP SUMMARY:
+==4470==     in use at exit: 95,072 bytes in 3,105 blocks
+==4470==   total heap usage: 44,938 allocs, 41,833 frees, 3,399,309 bytes allocated
+==4470== 
+==4470== LEAK SUMMARY:
+==4470==    definitely lost: 0 bytes in 0 blocks
+==4470==    indirectly lost: 0 bytes in 0 blocks
+==4470==      possibly lost: 0 bytes in 0 blocks
+==4470==    still reachable: 95,072 bytes in 3,105 blocks
+==4470==         suppressed: 0 bytes in 0 blocks
+==4470== Rerun with --leak-check=full to see details of leaked memory
+==4470== 
+==4470== For counts of detected and suppressed errors, rerun with: -v
+==4470== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 3 from 3)
+
