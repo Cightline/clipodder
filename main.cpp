@@ -4,6 +4,7 @@
 
 /* static */
 int debug::state = 0;
+std::map<std::string, std::string> global_config::config;
 
 int main()
 {

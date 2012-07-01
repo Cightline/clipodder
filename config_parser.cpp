@@ -1,16 +1,19 @@
 
 /* Configuration stuff */
 
-#include "config.hpp"
+#include "config_parser.hpp"
+
 
 std::vector<container> config::parse_config()
 {
-  std::vector<container> return_vector;
+  std::vector<container> temp_vector;
+
   
-  config_map["home"] = get_home();
+
+  config_map["home"] = filesystem::get_home();
   config_map["config_path"] = config_map["home"] + "/.clipodder/config";
   config_map["download_dir"] = config_map["home"] + "/.clipodder/downloads";
-  config_map["connection-timeout"];
+  
   
 
   cfg_opt_t urls[] =
@@ -30,6 +33,7 @@ std::vector<container> config::parse_config()
       CFG_INT("debug", 0, CFGF_NONE),
       CFG_STR("download_dir", "", CFGF_NONE),
       CFG_STR("connection-timeout", "50", CFGF_NONE),
+      CFG_STR("show-progress", "0", CFGF_NONE),
       CFG_END()
     };
 
@@ -40,23 +44,24 @@ std::vector<container> config::parse_config()
   
   if(cfg_parse(cfg, config_map["config_path"].c_str()) == CFG_PARSE_ERROR)
     {
-      return return_vector;
+      return temp_vector;
     }
   
-  /* Set the debug state */  
+  /* Set the global debug state */  
   debug::state = cfg_getint(cfg, "debug");
+    
+  /* Set some globals */
+  global_config::config["connection-timeout"] = cfg_getstr(cfg, "connection-timeout");
+  global_config::config["show-progress"]      = cfg_getstr(cfg, "show-progress");
   
-  
-  /* Check and see if the download directory was specified */
+
+  /* Set the default dir */
   std::string default_dir = cfg_getstr(cfg, "download_dir");
-  
-  if (default_dir != "")
+  if (default_dir.size())
     {
-      config_map["download_dir"] = cfg_getstr(cfg, "download_dir");
+      config_map["download_dir"] = default_dir;
     }
 
-  config_map["connection-timeout"] = cfg_getstr(cfg, "connection-timeout");
-  
   int total_urls = cfg_size(cfg, "url");
   
   if (debug::state)
@@ -96,37 +101,13 @@ std::vector<container> config::parse_config()
 	}
 
       podcast.max_downloads = cfg_getint(cfg_url, "max_downloads");
-      return_vector.push_back(podcast);
+      temp_vector.push_back(podcast);
     }
   
   
 
   cfg_free(cfg);
-  return return_vector;
+  return temp_vector;
 }
 
-
-std::string config::get_home()
-{
-  //http://stackoverflow.com/questions/2910377/get-home-directory-in-linux-c
-
-  std::string return_s;
-  const char *home_dir;
-
-  struct passwd *pw = getpwuid(getuid());
-
-  home_dir = pw->pw_dir;
-  
-  return_s = home_dir;
-
-  if (debug::state)
-    {
-      std::cout << "home dir: " << return_s << std::endl;
-    }
- 
-
-
-  return return_s;
-}
-  
 

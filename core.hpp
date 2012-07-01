@@ -16,10 +16,10 @@
 #include "parser.hpp"
 #include "filesystem.hpp"
 #include "file_manager.hpp"
-
 #include "container.hpp"
-
+#include "global_config.hpp"
 #include "debug.hpp"
+
 
 
 class core

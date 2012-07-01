@@ -100,3 +100,17 @@ int filesystem::remove_file(std::string file_path)
   return remove(file_path.c_str());
 }
 
+
+std::string filesystem::get_home()
+{
+  //http://stackoverflow.com/questions/2910377/get-home-directory-in-linux-c 
+
+  std::string temp_string;
+  const char *home_dir;
+  
+  struct passwd *pw = getpwuid(getuid());
+  
+  temp_string = pw->pw_dir;
+  
+  return temp_string;
+}

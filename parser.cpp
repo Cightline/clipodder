@@ -12,20 +12,19 @@ void parser_mem::done()
 
 std::string parser::get_attr(xmlNode *node, const char *attr)
 {
-  std::string return_s;
+  std::string temp_string;
   if (node)
     {
-      xmlChar *value;
-      
+      xmlChar *value;      
       value = xmlGetProp(node, (xmlChar *)attr);
       
       if (value)
 	{
-	  return_s = (const char *)value;
+	  temp_string = (const char *)value;
 	  xmlFree(value);
 	}
     }
-  return return_s;
+  return temp_string;
 }
 
 
@@ -34,12 +33,9 @@ bool parser::node_is(xmlNode *node, const char * name)
 {
   if (strcmp((const char *)node->name, name) == 0)
     {
-      /* if (debug::state)
-	{
-	  std::cout << "node_is: " << name << std::endl;
-	  } */
       return true;
     }
+
   return false;
 }
 

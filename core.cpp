@@ -134,26 +134,33 @@ int core::download_podcasts(container &podcast)
 
 int core::download_link(std::string media_url, std::string title, std::string final_dir)
 {
+  std::string download_path;
   std::string filename = format::get_filename(media_url);
-
+  bool show_progress;
+  
   if (!filename.size())
     {
       std::cout << "Warning: Could not get filename from url: " << media_url << std::endl;
       return 1;
     }
     
-  std::string download_path = final_dir + "/" + filename;
+  download_path = final_dir + "/" + filename;
 
   /* See if the file exists, if not download */
   if (!filesystem::file_exists(download_path))
     {
-      std::cout << "Downloading: " << download_path << std::endl;
+      std::cout << "Downloading: " << filename << std::endl;
       
-      int status = network::download_file(media_url, download_path);
+      if (global_config::config["show-progress"] == "1")
+	{
+	  show_progress = true;
+	}
+      
+      int status = network::download_file(media_url, download_path, show_progress);
       
       if (debug::state)
 	{
-	  std::cout << "download_status: " << status << std::endl;
+	  std::cout << "network::download_file status: " << status << std::endl;
 	}
       
       if (status)

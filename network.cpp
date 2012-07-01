@@ -5,6 +5,7 @@
 
 #include "network.hpp"
 
+static int previous_percent = 0;
 
 struct buffer_struct
 {
@@ -44,6 +45,43 @@ static int curl_write_file(void *ptr, size_t size, size_t nmemb, void *userdata)
 }
 
 
+
+static int progress(void *clientp, double dltotal, double dlnow, double ultotal, double ulnow)
+{
+  
+  int percent = dlnow/dltotal * 100;
+  std::string backspace = "\b\b\b\b\b";
+  
+  if (percent < 0)
+    {
+      return 0;
+    }
+  
+  /* This is done so it looks like [  8], instead of [8] */
+  if (percent < 10)
+    {
+      std::cout << backspace << "[  " << percent << "]" << std::endl;
+    }
+
+  else if (percent > 9 && percent < 100)
+    {
+      std::cout << backspace << "[ " << percent << "]" << std::endl;
+    }
+
+  else if (percent == 100)
+    {
+      std::cout << backspace << "[100]" << std::endl;
+    }
+  
+  else 
+    {
+      std::cout << backspace << "[---]" << std::endl;
+    }
+  
+  return 0;
+}
+
+
 std::string *network::fetch_page(std::string url)
 {
   std::string *buf = new std::string;
@@ -55,14 +93,14 @@ std::string *network::fetch_page(std::string url)
   if(curl)
     {
       curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-      curl_easy_setopt(curl, CURLOPT_VERBOSE, debug::state);
+      curl_easy_setopt(curl, CURLOPT_VERBOSE, 0);
       curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, curl_write);
       curl_easy_setopt(curl, CURLOPT_WRITEDATA, buf);
       curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
       curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 5);
-      //curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 1);
       curl_easy_setopt(curl, CURLOPT_LOW_SPEED_LIMIT, 5);
       curl_easy_setopt(curl, CURLOPT_LOW_SPEED_TIME, 10);
+
       res = curl_easy_perform(curl);
 
       if (res == 0)
@@ -76,7 +114,7 @@ std::string *network::fetch_page(std::string url)
 }
  
  
-int network::download_file(std::string url, std::string download_path)
+int network::download_file(std::string url, std::string download_path, bool show_progress)
 {
   
   CURL *curl;
@@ -95,14 +133,20 @@ int network::download_file(std::string url, std::string download_path)
   if (curl)
     {
       curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-      curl_easy_setopt(curl, CURLOPT_VERBOSE, debug::state);
+      curl_easy_setopt(curl, CURLOPT_VERBOSE, 0);
       curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, curl_write_file);
       curl_easy_setopt(curl, CURLOPT_WRITEDATA, &d_struct);
       curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
       curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 5);
-      //curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 1);
       curl_easy_setopt(curl, CURLOPT_LOW_SPEED_LIMIT, 5);
       curl_easy_setopt(curl, CURLOPT_LOW_SPEED_TIME, 10);
+
+      if (show_progress)
+	{
+	  curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0);
+	  curl_easy_setopt(curl, CURLOPT_PROGRESSFUNCTION, progress);
+	}
+      
       res = curl_easy_perform(curl);
       
       if (res == 0)
