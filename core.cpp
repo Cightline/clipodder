@@ -136,7 +136,7 @@ int core::download_link(std::string media_url, std::string title, std::string fi
 {
   std::string download_path;
   std::string filename = format::get_filename(media_url);
-  bool show_progress;
+  bool show_progress   = false;
   
   if (!filename.size())
     {
@@ -149,7 +149,16 @@ int core::download_link(std::string media_url, std::string title, std::string fi
   /* See if the file exists, if not download */
   if (!filesystem::file_exists(download_path))
     {
-      std::cout << "Downloading: " << filename << std::endl;
+      
+      if (global_config::config["show-path"] == "1")
+	{
+	  std::cout << "Downloading: " << download_path << std::endl;
+	}
+
+      else
+	{
+	  std::cout << "Downloading: " << filename << std::endl;
+	}
       
       if (global_config::config["show-progress"] == "1")
 	{

@@ -8,13 +8,9 @@ std::vector<container> config::parse_config()
 {
   std::vector<container> temp_vector;
 
-  
-
   config_map["home"] = filesystem::get_home();
   config_map["config_path"] = config_map["home"] + "/.clipodder/config";
   config_map["download_dir"] = config_map["home"] + "/.clipodder/downloads";
-  
-  
 
   cfg_opt_t urls[] =
     {
@@ -34,6 +30,7 @@ std::vector<container> config::parse_config()
       CFG_STR("download_dir", "", CFGF_NONE),
       CFG_STR("connection-timeout", "50", CFGF_NONE),
       CFG_STR("show-progress", "0", CFGF_NONE),
+      CFG_STR("show-path", "0", CFGF_NONE),
       CFG_END()
     };
 
@@ -53,7 +50,7 @@ std::vector<container> config::parse_config()
   /* Set some globals */
   global_config::config["connection-timeout"] = cfg_getstr(cfg, "connection-timeout");
   global_config::config["show-progress"]      = cfg_getstr(cfg, "show-progress");
-  
+  global_config::config["show-path"]          = cfg_getstr(cfg, "show-path");
 
   /* Set the default dir */
   std::string default_dir = cfg_getstr(cfg, "download_dir");
