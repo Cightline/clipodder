@@ -157,9 +157,7 @@ int core::download_link(std::string media_url, std::string title, std::string fi
   /* See if the file exists, if not download */
   if (!filesystem::file_exists(download_path))
     {
-      std::cout << "value: " << global_config::config["show-path"] << std::endl;
-      std::cout << "bool: " << utils::convert_to_bool(global_config::config["show-path"]) << std::endl;
-      
+            
       if (utils::convert_to_bool(global_config::config["show-path"]) == true)
 	{
 	  std::cout << "Downloading: " << download_path << std::endl;
