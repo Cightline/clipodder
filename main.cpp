@@ -10,10 +10,17 @@ int main()
 {
   
   core clipodder;
-  config cfg;
+  config_parser cfg;
   
+  if (cfg.parse_config() != 0)
+    {
+      std::cout << "Error: could not parse config" << std::endl;
+      return 1; 
+    }
+
   
-  std::vector<container> all_podcasts = cfg.parse_config();
+
+  std::vector<container> all_podcasts = cfg.get_podcasts();
   std::vector<container>::iterator i;
 
   if (all_podcasts.size() == 0)
@@ -21,7 +28,12 @@ int main()
       std::cout << "Error: no podcasts were defined" << std::endl;
       return 0;
     }
-  
+ 
+  /* In a attempt to keep this modular */
+  global_config::config["connection-timeout"] = cfg.get_value("connection-timeout");
+  global_config::config["show-progress"]      = cfg.get_value("show-progress");
+  global_config::config["show-path"]          = cfg.get_value("show-path");
+
   
   /* Iterate through the urls in the config */
   for (i = all_podcasts.begin(); i != all_podcasts.end(); i++)
@@ -43,6 +55,8 @@ int main()
 
       parser_mem::done();
     }
+
+  cfg.done();
 
   std::cout << "Done" << std::endl;
   return 0;

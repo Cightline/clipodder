@@ -38,6 +38,7 @@ int core::download_podcasts(container &podcast)
      It does however save if we successfully parsed the feed, and the config 
      states that it does not want a "child_dir". Meaning that we don't need the title
      because we are saving to a directory that already exists. */
+  
   podcast.title = ps.get_title();
 
   if (!podcast.title.size() && !podcast.no_child_dir)
@@ -46,8 +47,15 @@ int core::download_podcasts(container &podcast)
       return 1;
     }
 
+  else if (!podcast.title.size())
+    {
+      std::cout << "Checking: (no title) " << podcast.url <<  std::endl;
+    }
 
-  std::cout << "Checking: " << podcast.title << std::endl;
+  else
+    {
+      std::cout << "Checking: " << podcast.title << std::endl;
+    }
 
   
   ps.get_links();
@@ -150,7 +158,7 @@ int core::download_link(std::string media_url, std::string title, std::string fi
   if (!filesystem::file_exists(download_path))
     {
       
-      if (global_config::config["show-path"] == "1")
+      if (utils::convert_to_bool(global_config::config["show-path"]) == true)
 	{
 	  std::cout << "Downloading: " << download_path << std::endl;
 	}
@@ -160,7 +168,7 @@ int core::download_link(std::string media_url, std::string title, std::string fi
 	  std::cout << "Downloading: " << filename << std::endl;
 	}
       
-      if (global_config::config["show-progress"] == "1")
+      if (utils::convert_to_bool(global_config::config["show-progress"]) == true)
 	{
 	  show_progress = true;
 	}

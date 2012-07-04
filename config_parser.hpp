@@ -8,21 +8,25 @@
 #include "container.hpp"
 #include "filesystem.hpp"
 #include "global_config.hpp"
-
+#include "utils.hpp"
 
 #ifndef CONFIG_HPP
 #define CONFIG_HPP
-class config
+class config_parser
 {
 
 private:
   std::map<std::string, std::string> config_map;
+  std::vector<container> all_podcasts;
+  cfg_t *cfg;
 
 public:
-  std::vector<container> parse_config();
-  
-  static std::map<std::string, std::string> global_config;
+  int parse_config();
+  std::vector<container> get_podcasts();
+  std::string get_value(std::string key);
+  void done();
 
+  
 };
 #endif
 

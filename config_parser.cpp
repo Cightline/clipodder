@@ -4,10 +4,11 @@
 #include "config_parser.hpp"
 
 
-std::vector<container> config::parse_config()
-{
-  std::vector<container> temp_vector;
 
+
+int config_parser::parse_config()
+{
+  
   config_map["home"] = filesystem::get_home();
   config_map["config_path"] = config_map["home"] + "/.clipodder/config";
   config_map["download_dir"] = config_map["home"] + "/.clipodder/downloads";
@@ -35,17 +36,17 @@ std::vector<container> config::parse_config()
     };
 
 
-  cfg_t *cfg, *cfg_url;
+  cfg_t *cfg_url;
 
-  cfg = cfg_init(opts, CFGF_NONE);
+  this->cfg = cfg_init(opts, CFGF_NONE);
   
-  if(cfg_parse(cfg, config_map["config_path"].c_str()) == CFG_PARSE_ERROR)
+  if(cfg_parse(this->cfg, config_map["config_path"].c_str()) == CFG_PARSE_ERROR)
     {
-      return temp_vector;
+      return 1;
     }
   
   /* Set the global debug state */  
-  debug::state = cfg_getint(cfg, "debug");
+  debug::state = cfg_getint(this->cfg, "debug");
     
   /* Set some globals */
   global_config::config["connection-timeout"] = cfg_getstr(cfg, "connection-timeout");
@@ -59,7 +60,7 @@ std::vector<container> config::parse_config()
       config_map["download_dir"] = default_dir;
     }
 
-  int total_urls = cfg_size(cfg, "url");
+  int total_urls = cfg_size(this->cfg, "url");
   
   if (debug::state)
     {
@@ -73,7 +74,7 @@ std::vector<container> config::parse_config()
     {
       container podcast;
       
-      cfg_url = cfg_getnsec(cfg, "url", i);
+      cfg_url = cfg_getnsec(this->cfg, "url", i);
       
       int num_formats = cfg_size(cfg_url, "formats");
 
@@ -98,13 +99,27 @@ std::vector<container> config::parse_config()
 	}
 
       podcast.max_downloads = cfg_getint(cfg_url, "max_downloads");
-      temp_vector.push_back(podcast);
+      this->all_podcasts.push_back(podcast);
     }
   
   
 
-  cfg_free(cfg);
-  return temp_vector;
+  
+  return 0;
 }
 
+std::vector<container> config_parser::get_podcasts()
+{
+  return this->all_podcasts;
+}
 
+std::string config_parser::get_value(std::string key)
+{
+  return cfg_getstr(this->cfg, key.c_str());
+}
+ 
+
+void config_parser::done()
+{
+  cfg_free(this->cfg);
+}

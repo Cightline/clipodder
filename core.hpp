@@ -18,6 +18,7 @@
 #include "file_manager.hpp"
 #include "container.hpp"
 #include "global_config.hpp"
+#include "utils.hpp"
 #include "debug.hpp"
 
 
