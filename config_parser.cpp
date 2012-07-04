@@ -48,10 +48,6 @@ int config_parser::parse_config()
   /* Set the global debug state */  
   debug::state = cfg_getint(this->cfg, "debug");
     
-  /* Set some globals */
-  global_config::config["connection-timeout"] = cfg_getstr(cfg, "connection-timeout");
-  global_config::config["show-progress"]      = cfg_getstr(cfg, "show-progress");
-  global_config::config["show-path"]          = cfg_getstr(cfg, "show-path");
 
   /* Set the default dir */
   std::string default_dir = cfg_getstr(cfg, "download_dir");
