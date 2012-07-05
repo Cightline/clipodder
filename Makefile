@@ -1,4 +1,4 @@
-CC=g++ -g
+CC=g++ 
 
 CONFIG =`pkg-config --cflags --libs libconfuse` 
 CURL   =`pkg-config --cflags --libs libcurl`
@@ -15,8 +15,8 @@ format: format.cpp format.hpp
 	$(CC) format.cpp -c -o format.o 
 
 
-parser: parser.cpp parser.hpp
-	$(CC) parser.cpp -c -o parser.o $(XML) $(CONFIG)
+parser: parser.cpp
+	$(CC) parser.cpp -c -o parser.o $(XML) 
 
 
 config_parser: config_parser.cpp config_parser.hpp
@@ -35,8 +35,8 @@ utils: utils.cpp utils.hpp
 	$(CC) utils.cpp -c -o utils.o
 
 
-core: core.cpp 
-	$(CC) core.cpp -c -o core.o $(CURL) $(XML) $(CONFIG)
+core: core.cpp core.hpp
+	$(CC) core.cpp -c -o core.o 
 
 
 main: main.cpp main.hpp container.hpp

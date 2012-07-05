@@ -141,5 +141,6 @@ std::string format::get_filename(std::string url)
     }
 
   return_string = url.substr(start+1, url.size());  
+  return return_string;
 }
 

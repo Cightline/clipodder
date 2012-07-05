@@ -33,7 +33,7 @@ int main()
   global_config::config["connection-timeout"] = cfg.get_value("connection-timeout");
   global_config::config["show-progress"]      = cfg.get_value("show-progress");
   global_config::config["show-path"]          = cfg.get_value("show-path");
-
+  
   
   /* Iterate through the urls in the config */
   for (i = all_podcasts.begin(); i != all_podcasts.end(); i++)
@@ -52,8 +52,7 @@ int main()
 	}
       
       delete i->data;
-
-      parser_mem::done();
+      
     }
 
   cfg.done();

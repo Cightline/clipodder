@@ -1,35 +1,42 @@
 
 #include "parser.hpp"
 
-xmlDoc *parser::doc;
+#include <libxml/parser.h>
+#include <libxml/tree.h>
 
-void parser_mem::done()
+
+static xmlDoc *doc;
+static xmlNode *root_node;
+
+
+/* parser_utils is too keep all the libxml2 stuff in this file only,
+   so we don't have to #include it into any other file */
+namespace parser_utils
 {
-  xmlCleanupParser();
-  xmlFreeDoc(parser::doc);
+  xmlNode *get_node(xmlNode *node_with_children, std::string name);
+  std::string get_content(xmlNode *node);
+  std::string get_attr(xmlNode *node, const char *attr);
+  bool node_is(xmlNode *node, const char *name);
+  std::vector<xmlNode *> node_vector(xmlNode *node, const char *name);
+  std::map<std::string, std::vector<std::string> > url_map;
 }
 
 
-std::string parser::get_attr(xmlNode *node, const char *attr)
+xmlNode *parser_utils::get_node(xmlNode *node_with_children, std::string name)
 {
-  std::string temp_string;
-  if (node)
+  xmlNode *return_node;
+  for (xmlNode *node = node_with_children->children; node != NULL; node = node->next)
     {
-      xmlChar *value;      
-      value = xmlGetProp(node, (xmlChar *)attr);
-      
-      if (value)
-	{
-	  temp_string = (const char *)value;
-	  xmlFree(value);
-	}
+      if (parser_utils::node_is(node, name.c_str()))
+        {
+          return_node = node;
+        }
     }
-  return temp_string;
+  return return_node;
 }
 
 
-
-bool parser::node_is(xmlNode *node, const char * name)
+bool parser_utils::node_is(xmlNode *node, const char *name)
 {
   if (strcmp((const char *)node->name, name) == 0)
     {
@@ -39,15 +46,15 @@ bool parser::node_is(xmlNode *node, const char * name)
   return false;
 }
 
-
-std::vector<xmlNode *> parser::node_vector(xmlNode *node, const char *name)
+  
+std::vector<xmlNode *> parser_utils::node_vector(xmlNode *node, const char *name)
 {
+
   std::vector<xmlNode *> return_vector;
-
-
+  
   for (xmlNode *t_node = node->children; t_node != NULL; t_node = t_node->next)
     {
-      if (parser::node_is(t_node, name))
+      if (parser_utils::node_is(t_node, name))
 	{
 	  return_vector.push_back(t_node);
 	}
@@ -56,6 +63,52 @@ std::vector<xmlNode *> parser::node_vector(xmlNode *node, const char *name)
   return return_vector;
 }
 
+std::string parser_utils::get_attr(xmlNode *node, const char *attr)
+{
+  std::string temp_string;
+  
+  if (node)
+    {
+      xmlChar *value;
+      value = xmlGetProp(node, (xmlChar *)attr);
+      
+      if (value)
+	{
+	  temp_string = (const char *)value;
+	  xmlFree(value);
+	}
+    }
+
+  return temp_string;
+}
+
+
+std::string parser_utils::get_content(xmlNode *node)
+{
+  std::string return_string;
+  
+  if (node)
+    {
+      xmlChar *content = xmlNodeGetContent(node);
+      
+      if (content)
+	{
+	  return_string = (const char *)content;
+	  xmlFree(content);
+	}
+    }
+
+  return return_string;
+}
+     
+
+
+/* This is where the public functions are */
+void parser::done()
+{
+  xmlCleanupParser();
+  xmlFreeDoc(doc);
+}
 
 std::string parser::get_title()
 {
@@ -63,14 +116,14 @@ std::string parser::get_title()
   std::string return_s;
   xmlNode *channel_node; 
 
-  if (this->root_node->children == NULL)
+  if (root_node->children == NULL)
     {
       return return_s;
     }
 
-  for (channel_node = parser::root_node->children; channel_node != NULL; channel_node = channel_node->next)
+  for (channel_node = root_node->children; channel_node != NULL; channel_node = channel_node->next)
     {
-      if (parser::node_is(channel_node, "channel"))
+      if (parser_utils::node_is(channel_node, "channel"))
 	{
 	  break;
 	}
@@ -78,9 +131,9 @@ std::string parser::get_title()
 
   for (xmlNode *title_node = channel_node->children; title_node != NULL; title_node = title_node->next)
     {
-      if (parser::node_is(title_node, "title"))
+      if (parser_utils::node_is(title_node, "title"))
 	{
-	  return_s = parser::get_content(title_node);
+	  return_s = parser_utils::get_content(title_node);
 	 
 	  if (debug::state)
 	    {
@@ -94,17 +147,6 @@ std::string parser::get_title()
 }
 
 
-xmlNode *parser::get_node(xmlNode *node_with_children, std::string name)
-{
-  for (xmlNode *node = node_with_children->children; node != NULL; node = node->next)
-    {
-      if (node_is(node, name.c_str()))
-	{
-	  return node;
-	}
-    }
-}
-
 
 int parser::get_links()
 						     
@@ -115,17 +157,19 @@ int parser::get_links()
   /* Get all the item nodes. Currently it creates a temp_vector with items, then adds 
      them to the item_vector. When I get more time to look at it, I will see if this is even 
      necessary. */
-  for (xmlNode *node = parser::root_node->children; node != NULL; node = node->next)
+  
+  for (xmlNode *node = root_node->children; node != NULL; node = node->next)
     {
-      
-      if (!node_is(node, "channel"))
+
+      if (!parser_utils::node_is(node, "channel"))
 	{
 	  continue;
 	}
       
-      /* Make this a pointer, because its contents can be deleted (I think) */
-      std::vector<xmlNode *> temp_vector = node_vector(node, "item");
 
+      /* Make this a pointer, because its contents can be deleted (I think) */
+      std::vector<xmlNode *> temp_vector = parser_utils::node_vector(node, "item");
+      
       if (temp_vector.size())
 	{
 	  if (debug::state)
@@ -134,6 +178,7 @@ int parser::get_links()
 	    }
 	  item_vector->insert(item_vector->begin(), temp_vector.begin(), temp_vector.end());
 	}
+
     }
   
   
@@ -146,10 +191,10 @@ int parser::get_links()
 
   for (temp_iter = item_vector->begin(); temp_iter != item_vector->end(); temp_iter++)
     {
-      xmlNode *e_node = get_node(*temp_iter, "enclosure");
+      xmlNode *e_node = parser_utils::get_node(*temp_iter, "enclosure");
       
-      std::string link   = get_attr(e_node, "url");
-      std::string format = get_attr(e_node, "type");
+      std::string link   = parser_utils::get_attr(e_node, "url");
+      std::string format = parser_utils::get_attr(e_node, "type");
 
       if (link.size() && format.size())
 	{
@@ -165,23 +210,6 @@ int parser::get_links()
   delete item_vector;
 }
 
-
-
-std::string parser::get_content(xmlNode *node)
-{
-  std::string return_s;
-  
-  if (node)
-    {
-      xmlChar *content = xmlNodeGetContent(node);
-      if (content)
-	{
-	  return_s = (const char *)content;
-	  xmlFree(content);
-	}
-    }
-  return return_s;
-}
 
 
 int parser::set_url(std::string url)
@@ -214,20 +242,20 @@ int parser::parse_feed()
   const char *c_data = parser::data->c_str();
   const char *c_url  = parser::url->c_str();
   size_t size = parser::data->size();
+  
+  doc = xmlReadMemory(c_data, size, c_url, NULL, XML_PARSE_RECOVER | XML_PARSE_NOERROR | XML_PARSE_NOWARNING);
 
-  this->doc = xmlReadMemory(c_data, size, c_url, NULL, XML_PARSE_RECOVER | XML_PARSE_NOERROR | XML_PARSE_NOWARNING);
-
-  if (this->doc == NULL)
+  if (doc == NULL)
     {
       std::cout << "Warning: could not parse buffer from: " << *parser::url << std::endl;
       return 1;
     }
  
-  xmlNode *root_element = xmlDocGetRootElement(this->doc);
+  xmlNode *root_element = xmlDocGetRootElement(doc);
  
   if (strcmp((const char*)root_element->name, "rss") == 0)
     { 
-      parser::root_node = root_element;
+      root_node = root_element;
     }
   
   else
@@ -245,4 +273,5 @@ parser::~parser()
     {
       delete parser::url;
     }
+  
 }

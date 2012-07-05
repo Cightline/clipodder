@@ -7,6 +7,9 @@ int core::download_podcasts(container &podcast)
   /* A container reference is passed here (contructed by config). This handles 
      mainly all the "non-network" functions. */
 
+  std::string downl_warn = "Warning: could not create download directory";
+  std::string final_warn  = "Warning: could not create final directory";
+
   /* See if we can pull the page, if not return error */
   if (debug::state)
     {
@@ -60,6 +63,7 @@ int core::download_podcasts(container &podcast)
   
   ps.get_links();
 
+
   int access  = podcast.num_downloads - 1;
   podcast.link_vector = ps.link_vector;
 
@@ -76,6 +80,7 @@ int core::download_podcasts(container &podcast)
      we need to start out with the oldest first, so the mtimes are written from oldest to latest. */
   while (access > -1)
     {
+      
       std::string file_url = podcast.link_vector.at(access);
 
       --access;
@@ -99,45 +104,56 @@ int core::download_podcasts(container &podcast)
       /* If no formats were specified in the config (download all) */
       if (!podcast.config_formats.size())
 	{
-	  /* Ensure the directories are present */
-	  if (file_manager::prepare_download(podcast.download_dir, podcast.final_dir) == 0)
-	    {
-	      download_link = core::download_link(file_url, podcast.title, podcast.final_dir);
-	    }
 
-	  else
+	  /* Ensure the directories are present */
+	  if (file_manager::create_dir(podcast.download_dir) != 0)
 	    {
-	      std::cout << "Error: could not prepare download" << std::endl;
+	      std::cout << downl_warn << podcast.download_dir << std::endl;
 	      break;
 	    }
+	  
+	  if (file_manager::create_dir(podcast.final_dir) != 0)
+	    {
+	      std::cout << final_warn << podcast.final_dir << std::endl;
+	      break;
+	    }
+
+	  download_link = core::download_link(file_url, podcast.title, podcast.final_dir);
 	}
 
       /* Otherwise test it against the found format */
-      //else if (core::should_download(podcast.url, file_url, parsed_format, podcast.config_formats))
       else if (format::defined_type(file_url, parsed_format, podcast.config_formats))
 	{
-	  if (file_manager::prepare_download(podcast.download_dir, podcast.final_dir) == 0)
+
+	  if (file_manager::create_dir(podcast.download_dir) != 0)
 	    {
-	      download_link = core::download_link(file_url, podcast.title, podcast.final_dir);
-	    }
-	  else
-	    {
-	      std::cout << "Error: could not prepare download" << std::endl;
+	      std::cout << downl_warn << podcast.download_dir << std::endl;
 	      break;
 	    }
+	  
+	  if (file_manager::create_dir(podcast.final_dir) != 0)
+	    {
+	      std::cout << final_warn << podcast.final_dir << std::endl;
+	      break;
+	    }
+	  
+	  download_link = core::download_link(file_url, podcast.title, podcast.final_dir);
 	}
-	
+      
+      
       if (debug::state)
 	{
 	  std::cout << "download_link: " << download_link << std::endl;
 	}
     }
   
-  
+  ps.done();
 
   return 0;
 
 }
+
+
 
 
 int core::download_link(std::string media_url, std::string title, std::string final_dir)
@@ -168,10 +184,9 @@ int core::download_link(std::string media_url, std::string title, std::string fi
 	  std::cout << "Downloading: " << filename << std::endl;
 	}
       
-      if (utils::convert_to_bool(global_config::config["show-progress"]) == true)
-	{
-	  show_progress = true;
-	}
+
+      show_progress = utils::convert_to_bool(global_config::config["show-progress"]);
+
       
       int status = network::download_file(media_url, download_path, show_progress);
       
@@ -195,6 +210,8 @@ int core::download_link(std::string media_url, std::string title, std::string fi
 
       return 2;
     }
+
+  return 0;
 }
 
 

@@ -5,23 +5,23 @@ int file_manager::delete_excess(std::string path, int max_files)
 {
   if (!filesystem::is_dir(path))
     {
-      std::cout << "Trying to prune files but " << path << " does not exist" << std::endl;
+      std::cout << "Warning: trying to prune files but " << path << " does not exist" << std::endl;
       return 1;
     }
     
-
+  /* Build a map with the mtimes */
   std::vector<std::string> file_vector;
-  std::vector<std::string>::iterator f_iter; 
+  std::vector<std::string>::iterator f; 
 
   /* Get the files in the directory */
   filesystem::list_dir(path, file_vector);
 
   std::map<int, std::string> mtime_map;
   
-  for (f_iter = file_vector.begin(); f_iter != file_vector.end(); f_iter++)
+  for (f = file_vector.begin(); f != file_vector.end(); f++)
     {
       
-      std::string file_path = path + "/" + *f_iter; 
+      std::string file_path = path + "/" + *f; 
       int mtime;
 
       mtime = filesystem::get_mtime(file_path);
@@ -31,6 +31,8 @@ int file_manager::delete_excess(std::string path, int max_files)
 	  mtime_map[mtime] = file_path;
 	}
     }
+
+
 
   std::map<int, std::string>::reverse_iterator c;
   
@@ -70,33 +72,26 @@ std::string file_manager::get_final_dir(std::string title, std::string parent_di
 }
 
 
-int file_manager::prepare_download(std::string parent_dir, std::string final_dir)
+int file_manager::create_dir(std::string dir)
 {
-  if (filesystem::is_dir(parent_dir) == false)
+  if (filesystem::is_dir(dir) == false)
     {
       if (debug::state)
 	{
-	  std::cout << "creating parent directory: " << parent_dir << std::endl;
+	  std::cout << "creating directory: " << dir << std::endl;
 	}
       
-      if (filesystem::make_dir(parent_dir) == false)
+      if (filesystem::make_dir(dir) == false)
 	{
 	  return 1;
 	}
+
+      else 
+	{
+	  return 0;
+	}
+      
     }
   
-  if (!filesystem::is_dir(final_dir))
-    {
-      if (debug::state)
-	{
-	  std::cout << "creating final directory: " << final_dir << std::endl;
-	}
-      
-      if (filesystem::make_dir(final_dir) == false)
-	{
-	  return 1;
-	}
-    }
-
   return 0;
 }
