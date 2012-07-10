@@ -41,6 +41,7 @@ int main(int argc, char *argv[])
 		<< "[options]\n"
 		<< "--config [path] (path to configuration file)"
 		<< "\n\n";
+      return 1;
     }
 
 
