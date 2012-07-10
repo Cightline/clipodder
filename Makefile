@@ -20,7 +20,7 @@ parser: parser.cpp
 
 
 config_parser: config_parser.cpp config_parser.hpp
-	$(CC) config_parser.cpp -c -o config_parser.o $(CONFIG)
+	$(CC) config_parser.cpp -c -o config_parser.o -Wno-write-strings $(CONFIG)
 
 
 filesystem: filesystem.cpp filesystem.hpp
@@ -45,10 +45,8 @@ main: main.cpp main.hpp container.hpp
 
 all:  network format parser core filesystem file_manager config_parser main utils
 	$(CC) \
-	main.o network.o format.o parser.o config_parser.o \
-	filesystem.o file_manager.o core.o utils.o \
-	-o clipodder \
-	$(CONFIG) $(XML) $(CURL)
+	main.o network.o format.o parser.o config_parser.o filesystem.o file_manager.o core.o utils.o \
+	-o clipodder $(CONFIG) $(XML) $(CURL)
 
 
 

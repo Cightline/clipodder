@@ -13,29 +13,41 @@ int main(int argc, char *argv[])
   core clipodder;
   config_parser cfg;
 
+
+  /* cli handler */
   int correct_args = 0;
+  /* so we compare it */
   const char *config = "--config";
+  const char *debug  = "--debug";
+  std::string config_path = "";
   
-  std::string config_path;
-  
+  int index = 0;
 
-
-  for (int i = 1; i < argc; i++)
+  /* Iterate through the args */
+  while (index < argc)
     {
-      if (*argv[i] == *config)
+      if (*argv[index] == *config && (index + 1) < argc && !config_path.size())
 	{
-	  if ((i + 1) < argc)
-	    {
-	      correct_args = correct_args + 2;
-	      config_path = argv[i + 1];
-	    }
+	  correct_args = correct_args + 2;
+	  config_path = argv[index + 1];
 	}
+	
+
+      else if (*argv[index] == *debug && debug::state == 0)
+	{
+	  correct_args = correct_args + 1;
+	  debug::state = 1;
+	}
+
+      index = index + 1;
     }
   
 
-
+  /* argc[0] is the filename, so we minus 1, to get the "acutal" number of args */
   if (correct_args != argc - 1)
     {
+      std::cout << "c: " << correct_args << std::endl;
+      std::cout << "argc: " << argc << std::endl;
       std::cout << "Clipodder, a lightweight cli podcast downloader "
 		<< "with support for arbitrary media types (pdf, html, etc...)\n\n" 
 		<< "[options]\n"
@@ -73,7 +85,7 @@ int main(int argc, char *argv[])
     {
      
       int status = clipodder.download_podcasts(*i);
-
+      
       if (debug::state)
 	{
 	  std::cout << "clipodder status: " << status << std::endl;

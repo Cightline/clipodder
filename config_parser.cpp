@@ -9,6 +9,11 @@
 int config_parser::parse_config(std::string path)
 {
   
+  if (debug::state && path.size())
+    {
+      std::cout << "configuration path: " << path << std::endl;
+    }
+
   config_map["home"] = filesystem::get_home();
   config_map["download_dir"] = config_map["home"] + "/.clipodder/downloads";
 
@@ -38,7 +43,6 @@ int config_parser::parse_config(std::string path)
   cfg_opt_t opts[] =
     {
       CFG_SEC("url", urls, CFGF_TITLE | CFGF_MULTI),
-      CFG_INT("debug", 0, CFGF_NONE),
       CFG_STR("download_dir", "", CFGF_NONE),
       CFG_STR("connection-timeout", "50", CFGF_NONE),
       CFG_STR("show-progress", "0", CFGF_NONE),
@@ -56,10 +60,7 @@ int config_parser::parse_config(std::string path)
       return 1;
     }
   
-  /* Set the global debug state */  
-  debug::state = cfg_getint(this->cfg, "debug");
-    
-
+  
   /* Set the default dir */
   std::string default_dir = cfg_getstr(cfg, "download_dir");
   if (default_dir.size())
