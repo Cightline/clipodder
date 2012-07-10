@@ -6,11 +6,20 @@
 
 
 
-int config_parser::parse_config()
+int config_parser::parse_config(std::string path)
 {
   
+  if (path.size())
+    {
+      config_map["config_path"] = path;
+    }
+
+  else
+    {
+      config_map["config_path"] = config_map["home"] + "/.clipodder/config";
+    }
+  
   config_map["home"] = filesystem::get_home();
-  config_map["config_path"] = config_map["home"] + "/.clipodder/config";
   config_map["download_dir"] = config_map["home"] + "/.clipodder/downloads";
 
   cfg_opt_t urls[] =

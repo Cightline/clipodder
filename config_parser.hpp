@@ -21,7 +21,7 @@ private:
   cfg_t *cfg;
 
 public:
-  int parse_config();
+  int parse_config(std::string config_path);
   std::vector<container> get_podcasts();
   std::string get_value(std::string key);
   void done();

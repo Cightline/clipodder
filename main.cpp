@@ -6,13 +6,45 @@
 int debug::state = 0;
 std::map<std::string, std::string> global_config::config;
 
-int main()
+int main(int argc, char *argv[])
 {
   
+
   core clipodder;
   config_parser cfg;
+
+  int correct_args = 0;
+  const char *config = "--config";
   
-  if (cfg.parse_config() != 0)
+  std::string config_path;
+  
+
+
+  for (int i = 1; i < argc; i++)
+    {
+      if (*argv[i] == *config)
+	{
+	  if ((i + 1) < argc)
+	    {
+	      correct_args = correct_args + 2;
+	      config_path = argv[i + 1];
+	    }
+	}
+    }
+  
+
+
+  if (correct_args != argc - 1)
+    {
+      std::cout << "Clipodder, a lightweight cli podcast downloader" 
+		<< "with support for arbitrary media types (pdf, html, etc...)\n\n" 
+		<< "[options]\n"
+		<< "--config [path] (path to configuration file)"
+		<< "\n\n";
+    }
+
+
+  if (cfg.parse_config(config_path) != 0)
     {
       std::cout << "Error: could not parse config" << std::endl;
       return 1; 
