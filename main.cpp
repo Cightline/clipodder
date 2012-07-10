@@ -36,10 +36,10 @@ int main(int argc, char *argv[])
 
   if (correct_args != argc - 1)
     {
-      std::cout << "Clipodder, a lightweight cli podcast downloader" 
+      std::cout << "Clipodder, a lightweight cli podcast downloader "
 		<< "with support for arbitrary media types (pdf, html, etc...)\n\n" 
 		<< "[options]\n"
-		<< "--config [path] (path to configuration file)"
+		<< "   --config [path] (path to configuration file)"
 		<< "\n\n";
       return 1;
     }
