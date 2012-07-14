@@ -6,6 +6,17 @@
 int debug::state = 0;
 std::map<std::string, std::string> global_config::config;
 
+void print_options()
+{
+  std::string space = "    ";
+  std::cout << "Clipodder, a lightweight podcast downloader." << std::endl;
+
+  std::cout << "[options]" << std::endl
+	    << space << "--config [path] (path to configuration file)"   << std::endl
+	    << space << "--debug (output everything)"                    << std::endl
+	    << std::endl;
+}
+
 int main(int argc, char *argv[])
 {
   
@@ -16,45 +27,53 @@ int main(int argc, char *argv[])
 
   /* cli handler */
   int correct_args = 0;
-  /* so we compare it */
-  const char *config = "--config";
-  const char *debug  = "--debug";
-  std::string config_path = "";
-  
-  int index = 0;
+  int index = 1;
+  std::string config_path;
 
   /* Iterate through the args */
   while (index < argc)
     {
-      if (*argv[index] == *config && (index + 1) < argc && !config_path.size())
-	{
-	  correct_args = correct_args + 2;
-	  config_path = argv[index + 1];
-	}
-	
 
-      else if (*argv[index] == *debug && debug::state == 0)
+      std::string current_opt = argv[index];
+
+      if (current_opt == "--help" || current_opt == "-h")
 	{
-	  correct_args = correct_args + 1;
+	  print_options();
+	  return 0;
+	}
+      
+      else if (current_opt == "--debug" || current_opt == "-d")
+	{
+	  ++correct_args;
 	  debug::state = 1;
 	}
 
-      index = index + 1;
-    }
-  
+      else if (current_opt == "--config" || current_opt == "-c")
+	{
+	  correct_args = correct_args + 2;
+	  /* If the next arg is within bounds */
+	  if ((index + 1) <= argc -1)
+	    {
+	      config_path = argv[index + 1]; 
+	    }
 
-  /* argc[0] is the filename, so we minus 1, to get the "acutal" number of args */
-  if (correct_args != argc - 1)
+	  else
+	    {
+	      std::cout << "specify a path for the config."  << std::endl;
+	      return 1;
+	    }
+	}
+
+      index = index +1;
+    }
+
+
+  if (correct_args < argc - 1)
     {
-      std::cout << "c: " << correct_args << std::endl;
-      std::cout << "argc: " << argc << std::endl;
-      std::cout << "Clipodder, a lightweight cli podcast downloader "
-		<< "with support for arbitrary media types (pdf, html, etc...)\n\n" 
-		<< "[options]\n"
-		<< "   --config [path] (path to configuration file)"
-		<< "\n\n";
+      print_options();
       return 1;
     }
+      
 
 
   if (cfg.parse_config(config_path) != 0)
