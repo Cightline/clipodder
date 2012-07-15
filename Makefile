@@ -38,7 +38,6 @@ utils: utils.cpp utils.hpp
 core: core.cpp core.hpp
 	$(CC) core.cpp -c -o core.o 
 
-
 main: main.cpp main.hpp container.hpp
 	$(CC) main.cpp -c -o main.o $(CONFIG) $(XML)
 

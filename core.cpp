@@ -7,7 +7,7 @@ int core::download_podcasts(container &podcast)
   /* A container reference is passed here (contructed by config). This handles 
      mainly all the "non-network" functions. */
 
-  std::string downl_warn = "Warning: could not create download directory";
+  std::string downl_warn  = "Warning: could not create download directory";
   std::string final_warn  = "Warning: could not create final directory";
 
   /* See if we can pull the page, if not return error */
@@ -75,7 +75,7 @@ int core::download_podcasts(container &podcast)
 
 
   /* Now that most of the sanity checks are done, we can sift through all the found links
-     and deal with them. We are using "access" as a indexer, which is moving in reverse to the begging 
+     and deal with them. We are using "access" as a indexer, which is moving in reverse to the beginning 
      of the vector. I do this because we only want to download "podcast.num_downloads", and 
      we need to start out with the oldest first, so the mtimes are written from oldest to latest. */
   while (access > -1)

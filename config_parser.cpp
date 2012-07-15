@@ -3,9 +3,6 @@
 
 #include "config_parser.hpp"
 
-
-
-
 int config_parser::parse_config(std::string path)
 {
   

@@ -13,11 +13,16 @@ static xmlNode *root_node;
    so we don't have to #include it into any other file */
 namespace parser_utils
 {
+  /* Ugly as shit */
   xmlNode *get_node(xmlNode *node_with_children, std::string name);
+  
   std::string get_content(xmlNode *node);
   std::string get_attr(xmlNode *node, const char *attr);
+  
   bool node_is(xmlNode *node, const char *name);
+  
   std::vector<xmlNode *> node_vector(xmlNode *node, const char *name);
+  
   std::map<std::string, std::vector<std::string> > url_map;
 }
 
@@ -113,83 +118,70 @@ void parser::done()
 std::string parser::get_title()
 {
 
-  std::string return_s;
-  xmlNode *channel_node; 
+  std::string return_string;
+  xmlNode *channel_node;
+  xmlNode *title_node;
 
   if (root_node->children == NULL)
     {
-      return return_s;
+      return return_string;
     }
 
-  for (channel_node = root_node->children; channel_node != NULL; channel_node = channel_node->next)
-    {
-      if (parser_utils::node_is(channel_node, "channel"))
-	{
-	  break;
-	}
-    }
-
-  for (xmlNode *title_node = channel_node->children; title_node != NULL; title_node = title_node->next)
-    {
-      if (parser_utils::node_is(title_node, "title"))
-	{
-	  return_s = parser_utils::get_content(title_node);
-	 
-	  if (debug::state)
-	    {
-	      std::cout << "title: " << return_s << std::endl;
-	    }
-	  break;
-	}
-    }
-	  
-  return return_s;
-}
-
-
-
-int parser::get_links()
-						     
-{
-  std::vector<xmlNode *> *item_vector = new std::vector<xmlNode*>;
-  std::vector<xmlNode *> enclosure_vector;
-
-  /* Get all the item nodes. Currently it creates a temp_vector with items, then adds 
-     them to the item_vector. When I get more time to look at it, I will see if this is even 
-     necessary. */
+  channel_node = parser_utils::get_node(root_node, "channel");
   
-  for (xmlNode *node = root_node->children; node != NULL; node = node->next)
+  if (!channel_node)
     {
-
-      if (!parser_utils::node_is(node, "channel"))
-	{
-	  continue;
-	}
-      
-
-      /* Make this a pointer, because its contents can be deleted (I think) */
-      std::vector<xmlNode *> temp_vector = parser_utils::node_vector(node, "item");
-      
-      if (temp_vector.size())
-	{
-	  if (debug::state)
-	    {
-	      std::cout << "temp items: " << temp_vector.size() << std::endl;
-	    }
-	  item_vector->insert(item_vector->begin(), temp_vector.begin(), temp_vector.end());
-	}
-
+      return return_string;
     }
+
+
+  title_node = parser_utils::get_node(channel_node, "title");
   
+  if (!title_node)
+    {
+      return return_string;
+    }
+
+  return_string = parser_utils::get_content(title_node);
   
   if (debug::state)
     {
-      std::cout << "total items: " << item_vector->size() << std::endl;
+      std::cout << "title: " << return_string << std::endl;
+    }
+
+  return return_string;
+}
+
+
+int parser::get_links()
+{
+  std::vector<xmlNode *> item_vector;
+
+  /* http://cyber.law.harvard.edu/rss/rss.html#requiredChannelElements */
+  
+  xmlNode *channel_node = parser_utils::get_node(root_node, "channel");
+  
+  if (!channel_node)
+    {
+      return 1;
+    }
+  
+  item_vector = parser_utils::node_vector(channel_node, "item");
+  
+  if (!item_vector.size())
+    {
+      std::cout << "Warning: no item nodes" << std::endl;
+      return 1;
+    }
+    
+  if (debug::state)
+    {
+      std::cout << "total items: " << item_vector.size() << std::endl;
     }
 
   std::vector<xmlNode *>::iterator temp_iter; 
 
-  for (temp_iter = item_vector->begin(); temp_iter != item_vector->end(); temp_iter++)
+  for (temp_iter = item_vector.begin(); temp_iter != item_vector.end(); temp_iter++)
     {
       xmlNode *e_node = parser_utils::get_node(*temp_iter, "enclosure");
       
@@ -205,11 +197,8 @@ int parser::get_links()
 	{
 	  link_vector.push_back(link);
 	}
-    }      
-  
-  delete item_vector;
+    }   
 }
-
 
 
 int parser::set_url(std::string url)
