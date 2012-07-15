@@ -107,16 +107,15 @@ int config_parser::parse_config(std::string path)
       this->all_podcasts.push_back(podcast);
     }
   
-  
-
-  
   return 0;
 }
+
 
 std::vector<container> config_parser::get_podcasts()
 {
   return this->all_podcasts;
 }
+
 
 std::string config_parser::get_value(std::string key)
 {

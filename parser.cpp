@@ -68,6 +68,7 @@ std::vector<xmlNode *> parser_utils::node_vector(xmlNode *node, const char *name
   return return_vector;
 }
 
+
 std::string parser_utils::get_attr(xmlNode *node, const char *attr)
 {
   std::string temp_string;
@@ -107,13 +108,13 @@ std::string parser_utils::get_content(xmlNode *node)
 }
      
 
-
 /* This is where the public functions are */
 void parser::done()
 {
   xmlCleanupParser();
   xmlFreeDoc(doc);
 }
+
 
 std::string parser::get_title()
 {
@@ -212,7 +213,7 @@ int parser::set_data(std::string *data)
 {
   if (debug::state)
     {
-      std::cout << "data->size(): " << data->size() << std::endl;
+      std::cout << "data size: " << data->size() << std::endl;
     }
 
   this->data = data;
@@ -262,5 +263,4 @@ parser::~parser()
     {
       delete parser::url;
     }
-  
 }
