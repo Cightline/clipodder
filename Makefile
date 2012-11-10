@@ -34,6 +34,8 @@ file_manager: file_manager.cpp file_manager.hpp
 utils: utils.cpp utils.hpp
 	$(CC) utils.cpp -c -o utils.o
 
+output: output.cpp output.hpp
+	$(CC) output.cpp -c -o output.o
 
 core: core.cpp core.hpp
 	$(CC) core.cpp -c -o core.o 
@@ -42,9 +44,10 @@ main: main.cpp main.hpp container.hpp
 	$(CC) main.cpp -c -o main.o $(CONFIG) $(XML)
 
 
-all:  network format parser core filesystem file_manager config_parser main utils
+all:  network format parser core filesystem file_manager \
+	config_parser output main utils
 	$(CC) \
-	main.o network.o format.o parser.o config_parser.o filesystem.o file_manager.o core.o utils.o \
+	main.o network.o format.o parser.o config_parser.o filesystem.o file_manager.o output.o core.o utils.o \
 	-o clipodder $(CONFIG) $(XML) $(CURL)
 
 

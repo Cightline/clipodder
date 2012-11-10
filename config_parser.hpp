@@ -9,6 +9,8 @@
 #include "filesystem.hpp"
 #include "global_config.hpp"
 #include "utils.hpp"
+#include "output.hpp"
+
 
 #ifndef CONFIG_HPP
 #define CONFIG_HPP

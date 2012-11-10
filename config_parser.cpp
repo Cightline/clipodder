@@ -5,29 +5,29 @@
 
 int config_parser::parse_config(std::string path)
 {
-  
-  if (debug::state && path.size())
+
+    if (path.size())
     {
-      std::cout << "configuration path: " << path << std::endl;
+        output::msg("configuration path: " + path, 1); 
     }
 
-  config_map["home"] = filesystem::get_home();
-  config_map["download_dir"] = config_map["home"] + "/.clipodder/downloads";
+    config_map["home"] = filesystem::get_home();
+    config_map["download_dir"] = config_map["home"] + "/.clipodder/downloads";
 
 
-  if (path.size())
+    if (path.size())
     {
       config_map["config_path"] = path;
     }
 
-  else
+    else
     {
       config_map["config_path"] = config_map["home"] + "/.clipodder/config";
     }
   
 
   cfg_opt_t urls[] =
-    {
+  {
       CFG_STR_LIST("formats", "", CFGF_NONE),
       CFG_STR("download_dir", "", CFGF_NONE),
       CFG_STR("dir_name",     "", CFGF_NONE),
@@ -35,7 +35,7 @@ int config_parser::parse_config(std::string path)
       CFG_INT("no_child_dir", 0, CFGF_NONE),
       CFG_INT("max_downloads", 1, CFGF_NONE),
       CFG_END()
-    };
+  };
       
   cfg_opt_t opts[] =
     {
@@ -66,11 +66,11 @@ int config_parser::parse_config(std::string path)
     }
 
   int total_urls = cfg_size(this->cfg, "url");
+
   
-  if (debug::state)
-    {
-      std::cout << total_urls << " urls identified..." << std::endl;
-    }
+
+  output::num(total_urls, 1, false); 
+  output::msg(" urls identified...", 1); 
   
 
   /* Iterate through the urls and add the formats                                        

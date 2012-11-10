@@ -2,8 +2,7 @@
 #include <string>
 #include <vector>
 
-#include "debug.hpp"
-
+#include "output.hpp"
 namespace format {
   
   std::string get_filename(std::string url);

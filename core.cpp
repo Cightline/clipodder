@@ -11,23 +11,20 @@ int core::download_podcasts(container &podcast)
   std::string final_warn  = "Warning: could not create final directory";
 
   /* See if we can pull the page, if not return error */
-  if (debug::state)
-    {
-      std::cout << "requesting page: " << podcast.url << std::endl;
-    }
+  output::msg("requesting page: " + podcast.url, 1);
 
   podcast.data = network::fetch_page(podcast.url);
 
   if (!podcast.data->size())
     {
-      std::cout << "Warning: no data from: " << podcast.url << std::endl;
-      return 1;
+        output::msg("Warning: no data from: " + podcast.url, 2);
+        return 1;
     }
   
 
   /* The parser is not even constructed if the above segment fails (no webpage, no parser) */
   parser ps;
-  
+
   ps.set_url(podcast.url);
   ps.set_data(podcast.data);
 
@@ -46,21 +43,22 @@ int core::download_podcasts(container &podcast)
 
   if (!podcast.title.size() && !podcast.no_child_dir)
     {
-      std::cout << "Warning: could not get title for url: " << podcast.url << std::endl;
-      return 1;
+        output::msg("Warning: could not get the title for url: " + podcast.url, 2);
+        return 1;
     }
 
   else if (!podcast.title.size())
     {
-      std::cout << "Checking: (no title) " << podcast.url <<  std::endl;
+        output::msg("Querying: (no title) " + podcast.url, 0);
     }
 
   else
     {
-      std::cout << "Checking: " << podcast.title << std::endl;
+        output::msg("Querying: " + podcast.title, 0);
+
     }
 
-  
+ 
   ps.get_links();
 
 
@@ -87,19 +85,17 @@ int core::download_podcasts(container &podcast)
 
       if (!core::determine_download_dir(podcast) == 0)
 	{
-	  std::cout << "Warning: could not determine download directory" << std::endl;
-	  return 1;
+            output::msg("Warning: could not determine download directory", 2);
+	    return 1;
 	}
 
       std::string parsed_format = ps.format_map[file_url];
       unsigned int download_link = 1;
-      
-      if (debug::state)
-	{
-	  std::cout << "file_url: "      << file_url << std::endl
-		    << "parsed_format: " << parsed_format << std::endl
-		    << "final_dir: "     << podcast.final_dir << std::endl;
-	}
+
+      output::msg("file_url: " + file_url, 1);
+      output::msg("parsed_format: " + parsed_format, 1);
+      output::msg("final_dir: " + podcast.final_dir, 1);
+
 
       /* If no formats were specified in the config (download all) */
       if (!podcast.config_formats.size())
@@ -108,14 +104,14 @@ int core::download_podcasts(container &podcast)
 	  /* Ensure the directories are present */
 	  if (file_manager::create_dir(podcast.download_dir) != 0)
 	    {
-	      std::cout << downl_warn << podcast.download_dir << std::endl;
-	      break;
+                output::msg(downl_warn, 2);
+	        break;
 	    }
 	  
 	  if (file_manager::create_dir(podcast.final_dir) != 0)
 	    {
-	      std::cout << final_warn << podcast.final_dir << std::endl;
-	      break;
+                output::msg(final_warn + podcast.final_dir, 2);
+	        break;
 	    }
 
 	  download_link = core::download_link(file_url, podcast.title, podcast.final_dir);
@@ -127,24 +123,19 @@ int core::download_podcasts(container &podcast)
 
 	  if (file_manager::create_dir(podcast.download_dir) != 0)
 	    {
-	      std::cout << downl_warn << podcast.download_dir << std::endl;
-	      break;
+                output::msg(downl_warn, 2);
+	        break;
 	    }
 	  
 	  if (file_manager::create_dir(podcast.final_dir) != 0)
 	    {
-	      std::cout << final_warn << podcast.final_dir << std::endl;
-	      break;
+                output::msg(final_warn + podcast.final_dir, 2);
+	        break;
 	    }
 	  
 	  download_link = core::download_link(file_url, podcast.title, podcast.final_dir);
 	}
-      
-      
-      if (debug::state)
-	{
-	  std::cout << "download_link: " << download_link << std::endl;
-	}
+        //output::msg("download_link: " + download_link, 1);
     }
   
   ps.done();
@@ -189,26 +180,20 @@ int core::download_link(std::string media_url, std::string title, std::string fi
 
       
       int status = network::download_file(media_url, download_path, show_progress);
-      
-      if (debug::state)
-	{
-	  std::cout << "network::download_file status: " << status << std::endl;
-	}
-      
+     
+      //output::msg("network::download_file status: " + status, 1); 
+     
+
       if (status)
 	{
-	  std::cout << "Warning: could not download: " << media_url << std::endl;
+            output::msg("Warning: could not download: " + media_url, 1);
 	}
     }
 
   else
     {
-      if (debug::state)
-	{
-	  std::cout << "already exists: " << download_path << std::endl;
-	}
-
-      return 2;
+        output::msg("already exists: " + download_path, 1);
+        return 2;
     }
 
   return 0;

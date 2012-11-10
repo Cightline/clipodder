@@ -3,8 +3,11 @@
 #include "main.hpp"
 
 /* static */
-int debug::state = 0;
 std::map<std::string, std::string> global_config::config;
+
+int output::suppress = 0;
+int output::verbose  = 0;
+int output::warnings = 1;
 
 void print_options()
 {
@@ -13,7 +16,7 @@ void print_options()
 
   std::cout << "[options]" << std::endl
 	    << space << "--config [path] (path to configuration file)"   << std::endl
-	    << space << "--debug         (output everything)"            << std::endl
+	    << space << "--verbose       (output everything)"            << std::endl
 	    << std::endl;
 }
 
@@ -23,6 +26,8 @@ int main(int argc, char *argv[])
   core clipodder;
   config_parser cfg;
 
+  /* warnings on by default */
+  output::warnings = 1;
 
   /* cli handler */
   int correct_args = 0;
@@ -41,10 +46,10 @@ int main(int argc, char *argv[])
 	  return 0;
 	}
       
-      else if (current_opt == "--debug")
+      else if (current_opt == "--verbose")
 	{
 	  ++correct_args;
-	  debug::state = 1;
+          output::verbose = 1;
 	}
 
       else if (current_opt == "--config")
@@ -59,11 +64,10 @@ int main(int argc, char *argv[])
 
 	  else
 	    {
-	      std::cout << "specify a path for the config."  << std::endl;
+              output::msg("specify a path for config when using --config", 2);
 	      return 1;
 	    }
 	}
-
       index = index + 1;
     }
 
@@ -77,8 +81,8 @@ int main(int argc, char *argv[])
 
   if (cfg.parse_config(config_path) != 0)
     {
-      std::cout << "Error: could not parse config" << std::endl;
-      return 1; 
+        output::msg("Error: could not parse config", 3);
+        return 1; 
     }
   
 
@@ -87,8 +91,8 @@ int main(int argc, char *argv[])
 
   if (all_podcasts.size() == 0)
     {
-      std::cout << "Error: no podcasts were defined" << std::endl;
-      return 0;
+        output::msg("No podcasts defined", 2);
+        return 0;
     }
  
   /* In a attempt to keep this modular */
@@ -100,13 +104,9 @@ int main(int argc, char *argv[])
   /* Iterate through the urls in the config */
   for (i = all_podcasts.begin(); i != all_podcasts.end(); i++)
     {
-      int status = clipodder.download_podcasts(*i);
-      
-      if (debug::state)
-	{
-	  std::cout << "clipodder status: " << status << std::endl;
-	}
 
+      clipodder.download_podcasts(*i);
+     
       
       if (i->final_dir != "")
 	{
@@ -118,6 +118,6 @@ int main(int argc, char *argv[])
 
   cfg.done();
 
-  std::cout << "Done" << std::endl;
+  output::msg("Done", 0);
   return 0;
 }

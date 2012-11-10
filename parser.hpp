@@ -7,9 +7,8 @@
 
 #include <cstring>
 
-#include "debug.hpp"
 #include "network.hpp"
-
+#include "output.hpp"
 
 
 

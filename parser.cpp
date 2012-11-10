@@ -145,10 +145,7 @@ std::string parser::get_title()
 
   return_string = parser_utils::get_content(title_node);
   
-  if (debug::state)
-    {
-      std::cout << "title: " << return_string << std::endl;
-    }
+  output::msg("title: " + return_string, 1);
 
   return return_string;
 }
@@ -171,14 +168,11 @@ int parser::get_links()
   
   if (!item_vector.size())
     {
-      std::cout << "Warning: no item nodes" << std::endl;
-      return 1;
+        output::msg("Warning: no item nodes", 2);
+        return 1;
     }
-    
-  if (debug::state)
-    {
-      std::cout << "total items: " << item_vector.size() << std::endl;
-    }
+   
+  //output::msg("total items: " + item_vector.size(), 1); 
 
   std::vector<xmlNode *>::iterator temp_iter; 
 
@@ -211,12 +205,8 @@ int parser::set_url(std::string url)
 
 int parser::set_data(std::string *data)
 {
-  if (debug::state)
-    {
-      std::cout << "data size: " << data->size() << std::endl;
-    }
-
-  this->data = data;
+    //output::msg(("data size: " + data->size(), 1);
+    this->data = data;
 }
 
 
@@ -225,8 +215,8 @@ int parser::parse_feed()
   
   if (!this->data->size())
     {
-      std::cout << "Warning: no data from: " << *parser::url << std::endl;
-      return 1;
+        output::msg("Warning: no data from: " + *parser::url, 2);
+        return 1;
     }
 
   const char *c_data = parser::data->c_str();
@@ -237,8 +227,8 @@ int parser::parse_feed()
 
   if (doc == NULL)
     {
-      std::cout << "Warning: could not parse buffer from: " << *parser::url << std::endl;
-      return 1;
+        output::msg("Warning: could not parse buffer from: " + *parser::url, 2);
+        return 1;
     }
  
   xmlNode *root_element = xmlDocGetRootElement(doc);
@@ -250,8 +240,8 @@ int parser::parse_feed()
   
   else
     {
-      std::cout << "Warning: could not get feed type from: " << *parser::url << std::endl;
-      return 1; 
+        output::msg("Warning: could not get feed type from: " + *parser::url, 2);
+        return 1; 
     }
 
   return 0;
