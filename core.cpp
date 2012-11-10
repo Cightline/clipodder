@@ -135,7 +135,7 @@ int core::download_podcasts(container &podcast)
 	  
 	  download_link = core::download_link(file_url, podcast.title, podcast.final_dir);
 	}
-        //output::msg("download_link: " + download_link, 1);
+        output::msg("download_link: " + download_link, 1);
     }
   
   ps.done();

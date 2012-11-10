@@ -46,8 +46,7 @@ main: main.cpp main.hpp container.hpp
 
 all:  network format parser core filesystem file_manager \
 	config_parser output main utils
-	$(CC) \
-	main.o network.o format.o parser.o config_parser.o filesystem.o file_manager.o output.o core.o utils.o \
+	$(CC) main.o network.o format.o parser.o config_parser.o filesystem.o file_manager.o output.o core.o utils.o \
 	-o clipodder $(CONFIG) $(XML) $(CURL)
 
 
