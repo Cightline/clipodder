@@ -2,6 +2,8 @@
 
 #include "main.hpp"
 
+#include <unistd.h>
+
 /* static */
 std::map<std::string, std::string> global_config::config;
 
@@ -15,8 +17,9 @@ void print_options()
   std::cout << "Clipodder, a lightweight podcast downloader." << std::endl;
 
   std::cout << "[options]" << std::endl
-	    << space << "--config [path] (path to configuration file)"   << std::endl
-	    << space << "--verbose       (output everything)"            << std::endl
+	    << space << "-c [path] (path to configuration file)"   << std::endl
+	    << space << "-v verbose(output everything)"            << std::endl
+            << space << "-s suppress normal output"                << std::endl
 	    << std::endl;
 }
 
@@ -34,49 +37,39 @@ int main(int argc, char *argv[])
   int index = 1;
   std::string config_path;
 
-  /* Iterate through the args */
-  while (index < argc)
-    {
 
-      std::string current_opt = argv[index];
+  int c;
+  while ((c = getopt(argc, argv, "vsc:")) != -1)
+  {
+     switch (c)
+     {
+         case 'v':
+             output::verbose = 1;
+             break;
 
-      if (current_opt == "--help" || current_opt == "-h")
-	{
-	  print_options();
-	  return 0;
-	}
-      
-      else if (current_opt == "--verbose")
-	{
-	  ++correct_args;
-          output::verbose = 1;
-	}
+         case 'c':
+             config_path = optarg;
+             break;
 
-      else if (current_opt == "--config")
-	{
-	  correct_args = correct_args + 2;
-	  
-	  /* If the next arg is within bounds */
-	  if ((index + 1) <= argc -1)
-	    {
-	      config_path = argv[index + 1]; 
-	    }
+         case 's':
+             output::suppress = 1;
+             break;
 
-	  else
-	    {
-              output::msg("specify a path for config when using --config", 2);
-	      return 1;
-	    }
-	}
-      index = index + 1;
-    }
+         case '?':
+             if (optopt == 'c')
+             {
+                 return 1;
+             }
 
+             else
+             {
+                 print_options();
+                 return 1;
+             }
 
-  if (correct_args < argc - 1)
-    {
-      print_options();
-      return 1;
-    }
+     
+     }
+  }
 
 
   if (cfg.parse_config(config_path) != 0)

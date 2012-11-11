@@ -135,7 +135,8 @@ int core::download_podcasts(container &podcast)
 	  
 	  download_link = core::download_link(file_url, podcast.title, podcast.final_dir);
 	}
-        output::msg("download_link: " + download_link, 1);
+        output::msg("download_link: ", 1, false);
+        output::num(download_link, 1, true);
     }
   
   ps.done();
@@ -181,7 +182,8 @@ int core::download_link(std::string media_url, std::string title, std::string fi
       
       int status = network::download_file(media_url, download_path, show_progress);
      
-      //output::msg("network::download_file status: " + status, 1); 
+      output::msg("network::download_file status: ", 1, false);
+      output::num(status, 1, true); 
      
 
       if (status)
