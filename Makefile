@@ -7,6 +7,13 @@ XML    =`pkg-config --cflags --libs libxml-2.0`
 
 .phony = *.o clipodder
 
+
+clipodder: network format parser core filesystem file_manager config_parser output core utils main
+	$(CC) main.o network.o format.o parser.o config_parser.o filesystem.o file_manager.o output.o core.o utils.o \
+	-o clipodder $(CONFIG) $(XML) $(CURL)
+
+
+
 network: network.cpp network.hpp
 	$(CC) network.cpp -c -o network.o $(CURL)
 
@@ -43,17 +50,7 @@ core: core.cpp core.hpp
 main: main.cpp main.hpp container.hpp
 	$(CC) main.cpp -c -o main.o $(CONFIG) $(XML)
 
-
-all:  network format parser core filesystem file_manager \
-	config_parser output main utils
-	$(CC) main.o network.o format.o parser.o config_parser.o filesystem.o file_manager.o output.o core.o utils.o \
-	-o clipodder $(CONFIG) $(XML) $(CURL)
-
-
-
-
-
-install: all
+install: clipodder
 	mv clipodder /usr/bin/clipodder
 	chmod +x /usr/bin/clipodder
 	rm *.o

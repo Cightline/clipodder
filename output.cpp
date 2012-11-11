@@ -12,11 +12,19 @@ void output::msg(int level, const char *message, ...)
 
     /* If it does not match, skip else print */
 
-    if (level == 1 and output::verbose != 1)
+    /* suppress */
+    if (level == 0 and output::suppress != 0)
+    {
+        return;
+    }
+    
+    /* verbose */
+    else if (level == 1 and output::verbose != 1)
     {
         return;
     }
 
+    /* warnings */
     else if (level == 2 and output::warnings != 1)
     {
         return; 
@@ -29,7 +37,13 @@ void output::msg(int level, const char *message, ...)
     vsnprintf(buffer, sizeof(buffer), message, args);
 
     va_end(args);
-    
+   
+    if (level == 2)
+    {
+        std::cout << "[warning] " << buffer << std::endl;
+        return;
+    }
+ 
     std::cout << buffer << std::endl;
     
 }

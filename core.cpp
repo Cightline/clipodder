@@ -49,12 +49,12 @@ int core::download_podcasts(container &podcast)
 
   else if (!podcast.title.size())
     {
-        output::msg(2, "Querying: (no title) %s", podcast.url.c_str());
+        output::msg(0, "Querying: (no title) %s", podcast.url.c_str());
     }
 
   else
     {
-        output::msg(2, "Querying: %s", podcast.title.c_str());
+        output::msg(0, "Querying: %s", podcast.title.c_str());
 
     }
 
