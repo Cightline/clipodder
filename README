@@ -1,5 +1,4 @@
-This is a re-write of the Python program "clipodder" in C++.
-================================
+Clipodder
 
 Dependencies:
 	
@@ -22,8 +21,8 @@ Dependencies:
 
 Installation:
 	
-	Run make all to compile it in the current directory.
-	If you want to install to /usr/bin/, run make install as root.
+        make
+        make install (with proper permissions)
 	   
 	
 Options:
