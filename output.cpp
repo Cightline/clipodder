@@ -1,46 +1,36 @@
 
 #include "output.hpp"
-#include <sstream>
+#include <stdio.h>
 
-void output::num(int number, int level, bool newline)
-{
-    std::stringstream converted;
-    converted << number;
-    output::msg(converted.str(), level, newline);
-}
-    
-void output::msg(std::string message, int level, bool newline)
+
+void output::msg(int level, const char *message, ...)
 {
     /* 1 == verbose
        2 == warning
        3 == error
     */ 
 
-    bool did_cout = false;
-    /* verbose */
-    if (verbose == 1 && level == 1)
+    /* If it does not match, skip else print */
+
+    if (level == 1 and output::verbose != 1)
     {
-        std::cout << message;
-        did_cout = true;
+        return;
     }
 
-    /* warnings */
-    else if (warnings == 1 && level == 2)
+    else if (level == 2 and output::warnings != 1)
     {
-        std::cout << message;
-        did_cout = true;
+        return; 
     }
 
-    /* quiet */
-    else if (suppress == 0 && level == 0)
-    {
-        std::cout << message;
-        did_cout = true;
-    }
+    char buffer[256];
+    va_list args;
+
+    va_start(args, message);
+    vsnprintf(buffer, sizeof(buffer), message, args);
+
+    va_end(args);
     
-    if (newline == true && did_cout == true)
-    {
-        std::cout << std::endl;
-    }
+    std::cout << buffer << std::endl;
+    
 }
 

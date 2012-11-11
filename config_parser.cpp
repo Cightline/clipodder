@@ -8,7 +8,7 @@ int config_parser::parse_config(std::string path)
 
     if (path.size())
     {
-        output::msg("configuration path: " + path, 1); 
+        output::msg(1, "configuration path: %s", path.c_str()); 
     }
 
     config_map["home"] = filesystem::get_home();
@@ -69,8 +69,7 @@ int config_parser::parse_config(std::string path)
 
   
 
-  output::num(total_urls, 1, false); 
-  output::msg(" urls identified...", 1); 
+  output::msg(1, "%d urls configured", total_urls);
   
 
   /* Iterate through the urls and add the formats                                        

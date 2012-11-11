@@ -74,7 +74,7 @@ int main(int argc, char *argv[])
 
   if (cfg.parse_config(config_path) != 0)
     {
-        output::msg("Error: could not parse config", 3);
+        output::msg(3, "could not parse config");
         return 1; 
     }
   
@@ -84,7 +84,7 @@ int main(int argc, char *argv[])
 
   if (all_podcasts.size() == 0)
     {
-        output::msg("No podcasts defined", 2);
+        output::msg(2, "no podcasts defined");
         return 0;
     }
  
@@ -111,6 +111,6 @@ int main(int argc, char *argv[])
 
   cfg.done();
 
-  output::msg("Done", 0);
+  output::msg(0, "Finished");
   return 0;
 }

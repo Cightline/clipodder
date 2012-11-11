@@ -11,13 +11,13 @@ int core::download_podcasts(container &podcast)
   std::string final_warn  = "Warning: could not create final directory";
 
   /* See if we can pull the page, if not return error */
-  output::msg("requesting page: " + podcast.url, 1);
+  output::msg(1, "requesting page: %s", podcast.url.c_str());
 
   podcast.data = network::fetch_page(podcast.url);
 
   if (!podcast.data->size())
     {
-        output::msg("Warning: no data from: " + podcast.url, 2);
+        output::msg(2, "no data from: ", podcast.url.c_str());
         return 1;
     }
   
@@ -43,18 +43,18 @@ int core::download_podcasts(container &podcast)
 
   if (!podcast.title.size() && !podcast.no_child_dir)
     {
-        output::msg("Warning: could not get the title for url: " + podcast.url, 2);
+        output::msg(2, "could not get the title for url: ", podcast.url.c_str());
         return 1;
     }
 
   else if (!podcast.title.size())
     {
-        output::msg("Querying: (no title) " + podcast.url, 0);
+        output::msg(2, "Querying: (no title) %s", podcast.url.c_str());
     }
 
   else
     {
-        output::msg("Querying: " + podcast.title, 0);
+        output::msg(2, "Querying: %s", podcast.title.c_str());
 
     }
 
@@ -85,16 +85,16 @@ int core::download_podcasts(container &podcast)
 
       if (!core::determine_download_dir(podcast) == 0)
 	{
-            output::msg("Warning: could not determine download directory", 2);
+            output::msg(2, "could not determine download directory");
 	    return 1;
 	}
 
       std::string parsed_format = ps.format_map[file_url];
       unsigned int download_link = 1;
 
-      output::msg("file_url: " + file_url, 1);
-      output::msg("parsed_format: " + parsed_format, 1);
-      output::msg("final_dir: " + podcast.final_dir, 1);
+      output::msg(1, "file_url: %s", file_url.c_str());
+      output::msg(1, "parsed_format: %s", parsed_format.c_str());
+      output::msg(1, "final_dir: %s", podcast.final_dir.c_str());
 
 
       /* If no formats were specified in the config (download all) */
@@ -104,13 +104,13 @@ int core::download_podcasts(container &podcast)
 	  /* Ensure the directories are present */
 	  if (file_manager::create_dir(podcast.download_dir) != 0)
 	    {
-                output::msg(downl_warn, 2);
+                output::msg(2,"%s", downl_warn.c_str());
 	        break;
 	    }
 	  
 	  if (file_manager::create_dir(podcast.final_dir) != 0)
 	    {
-                output::msg(final_warn + podcast.final_dir, 2);
+                output::msg(2, "%s %s", final_warn.c_str(), podcast.final_dir.c_str());
 	        break;
 	    }
 
@@ -123,20 +123,19 @@ int core::download_podcasts(container &podcast)
 
 	  if (file_manager::create_dir(podcast.download_dir) != 0)
 	    {
-                output::msg(downl_warn, 2);
+                output::msg(2, "%s", downl_warn.c_str());
 	        break;
 	    }
 	  
 	  if (file_manager::create_dir(podcast.final_dir) != 0)
 	    {
-                output::msg(final_warn + podcast.final_dir, 2);
+                output::msg(2,"%s %s",  final_warn.c_str(), podcast.final_dir.c_str());
 	        break;
 	    }
 	  
 	  download_link = core::download_link(file_url, podcast.title, podcast.final_dir);
 	}
-        output::msg("download_link: ", 1, false);
-        output::num(download_link, 1, true);
+        output::msg(1, "download_link: %d", download_link);
     }
   
   ps.done();
@@ -182,19 +181,18 @@ int core::download_link(std::string media_url, std::string title, std::string fi
       
       int status = network::download_file(media_url, download_path, show_progress);
      
-      output::msg("network::download_file status: ", 1, false);
-      output::num(status, 1, true); 
+      output::msg(1, "network::download_file status: %d", status);
      
 
       if (status)
 	{
-            output::msg("Warning: could not download: " + media_url, 1);
+            output::msg(2, "could not download: %s", media_url.c_str());
 	}
     }
 
   else
     {
-        output::msg("already exists: " + download_path, 1);
+        output::msg(1, "already exists: %s", download_path.c_str());
         return 2;
     }
 

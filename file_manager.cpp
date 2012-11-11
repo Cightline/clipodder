@@ -5,8 +5,7 @@ int file_manager::delete_excess(std::string path, int max_files)
 {
   if (!filesystem::is_dir(path))
     {
-        std::cout << "nignig" << std::endl;
-        output::msg("Warning: trying to prune files but " + path + " does not exist", 2);
+        output::msg(2, "trying to prune files but %s does not exist", path.c_str());
         return 1;
     }
     
@@ -52,8 +51,6 @@ int file_manager::delete_excess(std::string path, int max_files)
 	  filesystem::remove_file(c->second);
 	}
      
-      //output::msg("file: " + c->second, 1);
-      //output::msg("mtime: " + c->first, 1); 
     }
 	
 
@@ -74,7 +71,7 @@ int file_manager::create_dir(std::string dir)
 {
   if (filesystem::is_dir(dir) == false)
     {
-        output::msg("creating directory: " + dir, 1);
+        output::msg(1, "creating directory: %s", dir.c_str());
       
         if (filesystem::make_dir(dir) == false)
 	{

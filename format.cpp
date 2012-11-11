@@ -119,7 +119,7 @@ bool format::defined_type(std::string media_url,
 
   if (matched_type.size())
     {
-        output::msg("supported type: " + matched_type, 1);
+        output::msg(1, "supported type: %s", matched_type.c_str());
         return true;
     }
 
