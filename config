@@ -1,18 +1,32 @@
-# this is the configuration file for the hello program
 
-url http://feeds.twit.tv/floss_video_large
-{
-	formats = {"mp4", "mp3"}
-	max_downloads = 3
-}
 
-url http://revision3.com/hak5/feed/MP4-High-Definition
-{
-	formats = {"video"}
-	max_downloads = 2
-}
-        
-url  http://www.democracynow.org/podcast-video.xml
-{
-	formats = {"audio", "video"}
-}
+# sample config
+show-progress = yes
+show-path     = yes
+
+
+#url http://revision3.com/hak5/feed/MP4-High-Definition
+#{
+#	formats = {"video"}
+#	num_downloads = 2
+#	max_downloads = 4
+#}
+
+
+#url http://feeds.twit.tv/sn_video_large
+#{
+#	formats = {"video"}
+#}
+
+
+#url http://www.democracynow.org/podcast-video.xml
+#{
+#	formats = {"video"}
+#}
+
+
+#url http://podcastfeeds.nbcnews.com/audio/podcast/MSNBC-NN-NETCAST-M4V.xml
+#{
+#	formats = {"video"}
+#}
+
