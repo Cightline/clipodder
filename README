@@ -54,13 +54,13 @@ Options:
 	max_downloads = 5
 	
 	
-	no_child_dir (default 0)
+	no_child_dir (default no)
 	-----------------------------
 	Set this to 1 to not use the title of the feed as the name of the target directory. 
 	When set to the default, the path should look something like "some_dl_dir/Title of Feed/video.mp4".
 	Otherwise it should look something like "some_dl_dir/video.mp4". 
 
-	no_child_dir = 1
+	no_child_dir = no
 	
 	
 	download_dir (global/per url) (default ~/.clipodder/downloads) 
@@ -70,34 +70,26 @@ Options:
 	download_dir = "/var/lib/some_dir"
 	
 
-	show_path (global) (default 0)
+	show_path (global) (default no)
 	----------------------------
 	Show the full path that clipodder is saving to.
 
-	show_path = 1
+	show_path = no
 
-	
 
-	show_progress (global) (default 0)
+
+	show_progress (global) (default no)
 	----------------------------
 	Enables the percentage meter. (Does not seem to 
 	work correctly on Debian, but it does work on Arch)
 
-	show_progress = 1
+	show_progress = no
 	
 
 
-	debug (default 0)
-	-----------------------------
-	Enable debugging 
-	
-	debug = 1	
-	
 
 
 
 TODO:
 
-	1. see if ctime is better than mtime
-	2. provide a "buffer_size" argument for use with libcurl.  
 	3. create a "clipodder-remote" 
