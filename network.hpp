@@ -3,11 +3,13 @@
 #include <string>
 #include <fstream>
 #include <iostream>
+#include <sstream>
 
 
 #include <curl/curl.h>
 
 #include "debug.hpp"
+#include "output.hpp"
 
 static int curl_write(void *buffer, size_t size, size_t nmemb, void *data);
 static int curl_write_file(void *buffer, size_t size, size_t nmemb, void *data);

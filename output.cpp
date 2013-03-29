@@ -5,7 +5,8 @@
 
 void output::msg(int level, const char *message, ...)
 {
-    /* 1 == verbose
+    /* 0 == normal 
+       1 == verbose
        2 == warning
        3 == error
     */ 
@@ -40,7 +41,7 @@ void output::msg(int level, const char *message, ...)
    
     if (level == 2)
     {
-        std::cout << "[warning] " << buffer << std::endl;
+        std::cout << "[Warning] " << buffer << std::endl;
         return;
     }
  

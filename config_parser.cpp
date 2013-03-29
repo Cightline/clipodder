@@ -32,7 +32,7 @@ int config_parser::parse_config(std::string path)
       CFG_STR("download_dir", "", CFGF_NONE),
       CFG_STR("dir_name",     "", CFGF_NONE),
       CFG_INT("num_downloads", 1, CFGF_NONE),
-      CFG_INT("no_child_dir", 0, CFGF_NONE),
+      CFG_INT("no_child_dir", 0,  CFGF_NONE),
       CFG_INT("max_downloads", 1, CFGF_NONE),
       CFG_END()
   };

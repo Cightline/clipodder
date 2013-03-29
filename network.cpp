@@ -48,35 +48,55 @@ static int curl_write_file(void *ptr, size_t size, size_t nmemb, void *userdata)
 
 static int progress(void *clientp, double dltotal, double dlnow, double ultotal, double ulnow)
 {
-  
+ 
+    
   int percent = dlnow/dltotal * 100;
-  std::string backspace = "\b\b\b\b\b";
-  
+  std::string progress; 
+  std::stringstream percent_str;
+ 
+
+  if (output::suppress != 0)
+  {
+      return 0;
+  }
   if (percent < 0)
     {
       return 0;
     }
-  
+ 
   /* This is done so it looks like [  8], instead of [8] */
   if (percent < 10)
     {
-      std::cout << backspace << "[  " << percent << "]" << std::endl;
+        percent_str << percent;
+        progress.append("[--");
+        progress.append(percent_str.str());
+        progress.append("]");
     }
 
   else if (percent > 9 && percent < 100)
     {
-      std::cout << backspace << "[ " << percent << "]" << std::endl;
+        percent_str << percent;
+        progress.append("[-");
+        progress.append(percent_str.str());
+        progress.append("]");
     }
 
   else if (percent == 100)
     {
-      std::cout << backspace << "[100]" << std::endl;
+        progress.append("[100]");
     }
   
   else 
     {
-      std::cout << backspace << "[---]" << std::endl;
+        progress.append("[---]");
     }
+
+  for (int i = 0; i < progress.length(); i++)
+  {
+      std::cout << "\b";
+  }
+
+  std::cout << progress << "\r\n" << std::flush;
   
   return 0;
 }
