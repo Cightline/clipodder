@@ -17,7 +17,7 @@ int core::download_podcasts(container &podcast)
 
   if (!podcast.data->size())
     {
-        output::msg(2, "no data from: ", podcast.url.c_str());
+        output::msg(2, "no data from: %s", podcast.url.c_str());
         return 1;
     }
   
