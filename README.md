@@ -3,18 +3,19 @@ Clipodder
 Dependencies
 	
 all:
-	- gcc
-	- make
+	
+- gcc
+- make
 	
 Arch:
-	- curl
-	- libxml2
-	- confuse
+- curl
+- libxml2
+- confuse
 
 Debian:
-	- libcurl4-gnutls-dev or libcurl4-openssl-dev
-	- libxml2-dev
-	- libconfuse-dev
+- libcurl4-gnutls-dev or libcurl4-openssl-dev
+- libxml2-dev
+- libconfuse-dev
 	
 
 
