@@ -19,7 +19,7 @@ Dependencies:
 
 
 
-Installation:
+Installation
 ```
 make
 make install (with proper permissions)
