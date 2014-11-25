@@ -81,20 +81,22 @@ globally or per url.
 download_dir = "/var/lib/some_dir"
 ```
 
-show_path (global) (default no)
+show_path 
 ----------------------------
 Show the full path that clipodder is saving to.
 
+(global) (default no)
 ```
 show_path = no
 ```
 
 
-show_progress (global) (default no)
+show_progress 
 ----------------------------
 Enables the percentage meter. (Does not seem to 
 work correctly on Debian, but it does work on Arch)
 
+(global) (default no)
 ```
 show_progress = no
 ```
