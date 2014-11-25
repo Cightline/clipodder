@@ -31,8 +31,7 @@ Options:
 
 	format (default all)
 	-----------------------------
-	Usually feeds provide a "type/extension" XML node, which clipodder will make use of. It 
-	will also check the file extension if it could not match the type from the feed.   
+	The format that you want clipodder to download.  
 
 	format = {"video","mp4"}
 
@@ -84,11 +83,3 @@ Options:
 
 	show_progress = no
 	
-
-
-
-
-
-TODO:
-
-	3. create a "clipodder-remote" 
