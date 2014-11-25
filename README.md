@@ -1,6 +1,6 @@
 Clipodder
 
-Dependencies:
+Dependencies
 	
 	all:
 	- gcc
