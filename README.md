@@ -33,9 +33,9 @@ format (default all)
 -----------------------------
 The format that you want clipodder to download.  
 
-	```
-	format = {"video","mp4"}
-	```
+```
+format = {"video","mp4"}
+```
 	
 num_downloads 
 -----------------------------
