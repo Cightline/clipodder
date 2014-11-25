@@ -2,8 +2,7 @@ Clipodder
 
 Dependencies
 	
-all:
-	
+All distros:
 - gcc
 - make
 	
