@@ -20,10 +20,10 @@ Dependencies:
 
 
 Installation:
-	```
-        make
-        make install (with proper permissions)
-	```
+```
+make
+make install (with proper permissions)
+```
 	
 Options:
 
