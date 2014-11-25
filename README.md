@@ -27,7 +27,7 @@ Installation
 	
 Options:
 
-	The configuration should be located at ~/.clipodder/config 
+The configuration should be located at ~/.clipodder/config 
 
 	format (default all)
 	-----------------------------
