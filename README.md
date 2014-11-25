@@ -66,9 +66,10 @@ Otherwise it should look something like "some_dl_dir/video.mp4".
 no_child_dir = no
 ```
 	
-download_dir (global/per url) (default ~/.clipodder/downloads) 
+download_dir  (default ~/.clipodder/downloads) 
 -----------------------------	
-The target parent directory to download to (unless no_child_dir is set). 
+The target parent directory to download to (unless no_child_dir is set). Can be used
+globally or per url. 
 	
 ```
 download_dir = "/var/lib/some_dir"
