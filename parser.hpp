@@ -31,5 +31,6 @@ public:
   std::vector<std::string> link_vector;
   std::map<std::string, std::string> format_map;
   std::string get_title();
+  std::string get_item_title();
   int parse_feed();
 };

@@ -29,18 +29,20 @@ int config_parser::parse_config(std::string path)
   cfg_opt_t urls[] =
   {
       CFG_STR_LIST("formats", "", CFGF_NONE),
-      CFG_STR("download_dir", "", CFGF_NONE),
-      CFG_STR("dir_name",     "", CFGF_NONE),
-      CFG_INT("num_downloads", 1, CFGF_NONE),
-      CFG_INT("no_child_dir", 0,  CFGF_NONE),
-      CFG_INT("max_downloads", 1, CFGF_NONE),
+      CFG_STR("download-dir", "", CFGF_NONE),
+      CFG_STR("dir-name",     "", CFGF_NONE),
+      CFG_INT("num-downloads", 1, CFGF_NONE),
+      CFG_INT("no-child-dir", 0,  CFGF_NONE),
+      CFG_INT("max-downloads", 1, CFGF_NONE),
+      CFG_STR("set-title",    "", CFGF_NONE),
+      CFG_INT("save-as-title", 0, CFGF_NONE),
       CFG_END()
   };
       
   cfg_opt_t opts[] =
     {
       CFG_SEC("url", urls, CFGF_TITLE | CFGF_MULTI),
-      CFG_STR("download_dir", "", CFGF_NONE),
+      CFG_STR("download-dir", "", CFGF_NONE),
       CFG_STR("connection-timeout", "50", CFGF_NONE),
       CFG_STR("show-progress", "0", CFGF_NONE),
       CFG_STR("show-path", "0", CFGF_NONE),
@@ -59,10 +61,10 @@ int config_parser::parse_config(std::string path)
   
   
   /* Set the default dir */
-  std::string default_dir = cfg_getstr(cfg, "download_dir");
+  std::string default_dir = cfg_getstr(cfg, "download-dir");
   if (default_dir.size())
     {
-      config_map["download_dir"] = default_dir;
+      config_map["download-dir"] = default_dir;
     }
 
   int total_urls = cfg_size(this->cfg, "url");
@@ -83,17 +85,19 @@ int config_parser::parse_config(std::string path)
       int num_formats = cfg_size(cfg_url, "formats");
 
       podcast.url = cfg_title(cfg_url);
-      podcast.download_dir  = cfg_getstr(cfg_url, "download_dir");
-      podcast.dir_name      = cfg_getstr(cfg_url, "dir_name");
-      podcast.no_child_dir  = cfg_getint(cfg_url, "no_child_dir");
       podcast.num_formats   = num_formats;
-      podcast.num_downloads = cfg_getint(cfg_url, "num_downloads");
+      podcast.download_dir  = cfg_getstr(cfg_url, "download-dir");
+      podcast.dir_name      = cfg_getstr(cfg_url, "dir-name");
+      podcast.no_child_dir  = cfg_getint(cfg_url, "no-child-dir");
+      podcast.num_downloads = cfg_getint(cfg_url, "num-downloads");
+      podcast.set_title     = cfg_getstr(cfg_url, "set-title");
+      podcast.save_as_title = cfg_getint(cfg_url, "save-as-title");
 
-      std::string download_dir = cfg_getstr(cfg_url, "download_dir");
+      std::string download_dir = cfg_getstr(cfg_url, "download-dir");
 
       if (podcast.download_dir == "")
 	{
-	  podcast.download_dir = config_map["download_dir"];
+	  podcast.download_dir = config_map["download-dir"];
 	}
       
       for (int b = 0; b < num_formats; b++)
@@ -102,7 +106,7 @@ int config_parser::parse_config(std::string path)
 	  podcast.config_formats.push_back(format);
 	}
 
-      podcast.max_downloads = cfg_getint(cfg_url, "max_downloads");
+      podcast.max_downloads = cfg_getint(cfg_url, "max-downloads");
       this->all_podcasts.push_back(podcast);
     }
   

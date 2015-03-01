@@ -17,9 +17,9 @@ void print_options()
   std::cout << "Clipodder, a lightweight podcast downloader." << std::endl;
 
   std::cout << "[options]" << std::endl
-	    << space << "-c [path] (path to configuration file)"   << std::endl
-	    << space << "-v verbose(output everything)"            << std::endl
-            << space << "-s suppress normal output"                << std::endl
+	    << space << "-c [conifg_path]"           << std::endl
+	    << space << "-v verbose"                 << std::endl
+            << space << "-s suppress normal output"  << std::endl
 	    << std::endl;
 }
 

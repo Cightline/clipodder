@@ -12,11 +12,14 @@ public:
   int no_child_dir;
   int num_formats;
   int num_downloads; 
+  int save_as_title;
   
   std::string download_dir;
   std::string final_dir;
+  std::string set_title;
 
   std::string title;
+  std::string item_title;
   std::string url;
   std::string *data;
   std::string dir_name;

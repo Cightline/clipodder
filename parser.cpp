@@ -115,6 +115,45 @@ void parser::done()
   xmlFreeDoc(doc);
 }
 
+std::string parser::get_item_title()
+{
+    std::string return_string;
+    xmlNode *channel_node;
+    xmlNode *item_node;
+    xmlNode *item_title_node;
+
+    if (root_node->children == NULL)
+    {
+        return return_string;
+    }
+
+    channel_node = parser_utils::get_node(root_node, "channel");
+
+    if (!channel_node)
+    {
+        return return_string;
+    }
+
+    item_node = parser_utils::get_node(channel_node, "item");
+    
+    if (!item_node)
+    {
+        return return_string;
+    }
+
+    item_title_node = parser_utils::get_node(item_node, "title");
+    
+    if (!item_title_node)
+    {
+        return return_string;
+    }
+
+    return_string = parser_utils::get_content(item_title_node);
+    output::msg(1, "item title: %s", return_string.c_str());
+
+    return return_string;
+}
+
 
 std::string parser::get_title()
 {

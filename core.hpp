@@ -29,7 +29,7 @@ public:
 
   
   int download_podcasts(container &podcast);
-  int download_link(std::string url, std::string title, std::string final_dir);
+  int download_link(std::string url, std::string title, std::string final_dir, int skip_content);
   int determine_download_dir(container &podcast);
 
   

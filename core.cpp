@@ -1,6 +1,7 @@
 
 #include "core.hpp"
-
+#include <iostream>
+#include <fstream>
 
 int core::download_podcasts(container &podcast)
 {
@@ -39,7 +40,8 @@ int core::download_podcasts(container &podcast)
      states that it does not want a "child_dir". Meaning that we don't need the title
      because we are saving to a directory that already exists. */
   
-  podcast.title = ps.get_title();
+  podcast.title      = ps.get_title();
+  podcast.item_title = ps.get_item_title();
 
   if (!podcast.title.size() && !podcast.no_child_dir)
     {
@@ -78,7 +80,13 @@ int core::download_podcasts(container &podcast)
      we need to start out with the oldest first, so the mtimes are written from oldest to latest. */
   while (access > -1)
     {
-      
+      int skip_content = 0; 
+
+      if (podcast.save_as_title)
+      {
+          skip_content = 1;
+      }
+
       std::string file_url = podcast.link_vector.at(access);
 
       --access;
@@ -114,7 +122,7 @@ int core::download_podcasts(container &podcast)
 	        break;
 	    }
 
-	  download_link = core::download_link(file_url, podcast.title, podcast.final_dir);
+	  download_link = core::download_link(file_url, podcast.item_title, podcast.final_dir, skip_content);
 	}
 
       /* Otherwise test it against the found format */
@@ -133,7 +141,7 @@ int core::download_podcasts(container &podcast)
 	        break;
 	    }
 	  
-	  download_link = core::download_link(file_url, podcast.title, podcast.final_dir);
+	  download_link = core::download_link(file_url, podcast.item_title, podcast.final_dir, skip_content);
 	}
         output::msg(1, "download_link: %d", download_link);
     }
@@ -147,13 +155,19 @@ int core::download_podcasts(container &podcast)
 
 
 
-int core::download_link(std::string media_url, std::string title, std::string final_dir)
+int core::download_link(std::string media_url, std::string title, std::string final_dir, int skip_content)
 {
+
   std::string download_path;
   std::string filename = format::get_filename(media_url);
   bool show_progress   = false;
-  
-  if (!filename.size())
+ 
+  if (skip_content)
+  {
+      filename = title;
+  }
+
+  else if (!filename.size())
     {
       std::cout << "Warning: Could not get filename from url: " << media_url << std::endl;
       return 1;
@@ -178,7 +192,15 @@ int core::download_link(std::string media_url, std::string title, std::string fi
 
       show_progress = utils::convert_to_bool(global_config::config["show-progress"]);
 
-      
+      if (skip_content)
+      {
+          std::ofstream podcast_file;
+          podcast_file.open(download_path.c_str());
+          podcast_file << media_url << std::endl;
+          podcast_file.close();
+          return 0;
+      }
+           
       int status = network::download_file(media_url, download_path, show_progress);
      
       output::msg(1, "network::download_file status: %d", status);
