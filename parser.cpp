@@ -218,14 +218,23 @@ int parser::get_links()
   for (temp_iter = item_vector.begin(); temp_iter != item_vector.end(); temp_iter++)
     {
       xmlNode *e_node = parser_utils::get_node(*temp_iter, "enclosure");
+      xmlNode *i_node = parser_utils::get_node(*temp_iter, "title");
       
       std::string link   = parser_utils::get_attr(e_node, "url");
       std::string format = parser_utils::get_attr(e_node, "type");
+      std::string item_title = parser_utils::get_content(i_node);
 
       if (link.size() && format.size())
 	{
 	  format_map[link] = format;
+
+          if (item_title.size())
+          {
+              item_title_map[link] = item_title;
+          }
 	}
+
+
       
       if (link.size())
 	{

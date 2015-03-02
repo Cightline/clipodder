@@ -41,7 +41,6 @@ int core::download_podcasts(container &podcast)
      because we are saving to a directory that already exists. */
   
   podcast.title      = ps.get_title();
-  podcast.item_title = ps.get_item_title();
 
   if (!podcast.title.size() && !podcast.no_child_dir)
     {
@@ -87,7 +86,7 @@ int core::download_podcasts(container &podcast)
           skip_content = 1;
       }
 
-      std::string file_url = podcast.link_vector.at(access);
+      std::string file_url   = podcast.link_vector.at(access);
 
       --access;
 
@@ -98,9 +97,11 @@ int core::download_podcasts(container &podcast)
 	}
 
       std::string parsed_format = ps.format_map[file_url];
+      std::string item_title    = ps.item_title_map[file_url];
       unsigned int download_link = 1;
 
       output::msg(1, "file_url: %s", file_url.c_str());
+      output::msg(1, "item title: %s", item_title.c_str());
       output::msg(1, "parsed_format: %s", parsed_format.c_str());
       output::msg(1, "final_dir: %s", podcast.final_dir.c_str());
 
@@ -122,7 +123,7 @@ int core::download_podcasts(container &podcast)
 	        break;
 	    }
 
-	  download_link = core::download_link(file_url, podcast.item_title, podcast.final_dir, skip_content);
+	  download_link = core::download_link(file_url, item_title, podcast.final_dir, skip_content);
 	}
 
       /* Otherwise test it against the found format */
