@@ -241,6 +241,7 @@ int parser::get_links()
 	  link_vector.push_back(link);
 	}
     }   
+  return 0;
 }
 
 

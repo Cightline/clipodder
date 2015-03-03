@@ -34,8 +34,9 @@ int config_parser::parse_config(std::string path)
       CFG_INT("num-downloads", 1, CFGF_NONE),
       CFG_INT("no-child-dir", 0,  CFGF_NONE),
       CFG_INT("max-downloads", 1, CFGF_NONE),
-      CFG_STR("set-title",    "", CFGF_NONE),
+      CFG_STR("add-extension", "", CFGF_NONE),
       CFG_INT("save-as-title", 0, CFGF_NONE),
+      CFG_STR("command", "", CFGF_NONE),
       CFG_END()
   };
       
@@ -90,8 +91,9 @@ int config_parser::parse_config(std::string path)
       podcast.dir_name      = cfg_getstr(cfg_url, "dir-name");
       podcast.no_child_dir  = cfg_getint(cfg_url, "no-child-dir");
       podcast.num_downloads = cfg_getint(cfg_url, "num-downloads");
-      podcast.set_title     = cfg_getstr(cfg_url, "set-title");
+      podcast.add_extension = cfg_getstr(cfg_url, "add-extension");
       podcast.save_as_title = cfg_getint(cfg_url, "save-as-title");
+      podcast.command       = cfg_getstr(cfg_url, "command");
 
       std::string download_dir = cfg_getstr(cfg_url, "download-dir");
 

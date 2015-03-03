@@ -16,7 +16,8 @@ public:
   
   std::string download_dir;
   std::string final_dir;
-  std::string set_title;
+  std::string add_extension;
+  std::string command;
 
   std::string title;
   std::string item_title;

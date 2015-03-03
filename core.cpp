@@ -1,6 +1,7 @@
 
 #include "core.hpp"
 #include <iostream>
+#include <stdlib.h>
 #include <fstream>
 
 int core::download_podcasts(container &podcast)
@@ -59,8 +60,14 @@ int core::download_podcasts(container &podcast)
 
     }
 
- 
-  ps.get_links();
+
+
+  /* If no item nodes */
+  if (!ps.get_links() == 0)
+  {
+      std::cout << "returning" << std::endl;
+      return 1;
+  }
 
 
   int access  = podcast.num_downloads - 1;
@@ -123,7 +130,20 @@ int core::download_podcasts(container &podcast)
 	        break;
 	    }
 
-	  download_link = core::download_link(file_url, item_title, podcast.final_dir, skip_content);
+          if (podcast.command.size())
+          {
+              std::string command = podcast.command + " " + "'" + file_url + "'";
+              std::cout << "running command: " << command << std::endl;
+              system(command.c_str());
+
+          }
+
+          else
+          {
+              download_link = core::download_link(file_url, item_title, podcast.final_dir, podcast.add_extension, skip_content);
+          }
+
+              
 	}
 
       /* Otherwise test it against the found format */
@@ -141,8 +161,18 @@ int core::download_podcasts(container &podcast)
                 output::msg(2,"%s %s",  final_warn.c_str(), podcast.final_dir.c_str());
 	        break;
 	    }
-	  
-	  download_link = core::download_link(file_url, podcast.item_title, podcast.final_dir, skip_content);
+	  if (podcast.command.size())
+          {
+              std::cout << file_url << std::endl;
+              std::string command = podcast.command + " " + "'" + file_url + "'";
+              std::cout << "running command: " << command << std::endl;
+              system(command.c_str());
+          }
+
+          else
+          {
+              download_link = core::download_link(file_url, podcast.item_title, podcast.final_dir, podcast.add_extension, skip_content);
+          }
 	}
         output::msg(1, "download_link: %d", download_link);
     }
@@ -156,15 +186,23 @@ int core::download_podcasts(container &podcast)
 
 
 
-int core::download_link(std::string media_url, std::string title, std::string final_dir, int skip_content)
+int core::download_link(std::string media_url, std::string title, std::string final_dir, std::string add_extension, int skip_content)
 {
 
   std::string download_path;
   std::string filename = format::get_filename(media_url);
   bool show_progress   = false;
- 
+
+  /* Check and see if we have a title. Normally we would just use the filename
+     but sometimes (magent links) don't really provide that */ 
   if (skip_content)
   {
+      if (!title.size())
+      {
+          output::msg(2, "No title");
+          return 1;
+      }
+      
       filename = title;
   }
 
@@ -173,8 +211,16 @@ int core::download_link(std::string media_url, std::string title, std::string fi
       std::cout << "Warning: Could not get filename from url: " << media_url << std::endl;
       return 1;
     }
-    
-  download_path = final_dir + "/" + filename;
+
+  if (add_extension.size())
+  {
+      download_path = final_dir + "/" + filename + add_extension;
+  }
+
+  else
+  {
+      download_path = final_dir + "/" + filename;
+  }
 
   /* See if the file exists, if not download */
   if (!filesystem::file_exists(download_path))
@@ -193,6 +239,7 @@ int core::download_link(std::string media_url, std::string title, std::string fi
 
       show_progress = utils::convert_to_bool(global_config::config["show-progress"]);
 
+      /* When we are just writting the url to a file */
       if (skip_content)
       {
           std::ofstream podcast_file;
